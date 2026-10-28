@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="runtime_notification_channel">إعداد أدوات البرمجة</string>
+    <string name="runtime_notification_title">جارٍ تثبيت أدوات C/C++/Python</string>
+    <string name="runtime_notification_cancel">إلغاء</string>
+    <string name="runtime_step_check_space">التحقق من المساحة المتاحة</string>
+    <string name="runtime_step_download">تنزيل Alpine Linux</string>
+    <string name="runtime_step_verify">التحقق من الملف المُنزَّل</string>
+    <string name="runtime_step_extract">استخراج نظام لينكس</string>
+    <string name="runtime_step_configure">الإعداد</string>
+    <string name="runtime_step_packages">تثبيت clang وأدوات البناء وPython</string>
+    <string name="runtime_step_verify_toolchain">التحقق من أدوات البرمجة</string>
+</resources>

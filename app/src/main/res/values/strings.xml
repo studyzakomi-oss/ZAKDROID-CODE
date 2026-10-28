@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">zakdroid-code</string>
+    <string name="brand_by">by zakomi TECH</string>
+
+    <!-- Activity bar -->
+    <string name="action_explorer">Explorer</string>
+    <string name="action_run">Run</string>
+    <string name="action_terminal">Terminal</string>
+    <string name="action_settings">Settings</string>
+    <string name="navigate_back">Back</string>
+
+    <!-- Welcome -->
+    <string name="welcome_subtitle">A code editor for C, C++ and Python</string>
+    <string name="welcome_open_folder">Open folder…</string>
+    <string name="welcome_new_project">New project…</string>
+    <string name="welcome_projects">Projects on this device</string>
+    <string name="welcome_recent">Recent</string>
+    <string name="welcome_no_recent">No recent folders yet</string>
+    <string name="welcome_start">Start</string>
+
+    <!-- Explorer -->
+    <string name="explorer_title">EXPLORER</string>
+    <string name="explorer_search_hint">Search files by name</string>
+    <string name="explorer_new_file">New file</string>
+    <string name="explorer_new_folder">New folder</string>
+    <string name="explorer_rename">Rename</string>
+    <string name="explorer_delete">Delete</string>
+    <string name="explorer_cut">Move…</string>
+    <string name="explorer_paste_here">Move here</string>
+    <string name="explorer_paste_root">Move to project root</string>
+    <string name="explorer_cancel_cut">Cancel move</string>
+    <string name="explorer_moving">Moving %1$s — choose a folder</string>
+    <string name="explorer_refresh">Refresh</string>
+    <string name="explorer_close_folder">Close folder</string>
+    <string name="explorer_more">More actions</string>
+    <string name="explorer_no_results">No matching files</string>
+    <string name="explorer_empty">This folder is empty</string>
+    <string name="explorer_delete_title">Delete \"%1$s\"?</string>
+    <string name="explorer_delete_folder_message">The folder and everything in it will be deleted. This cannot be undone.</string>
+    <string name="explorer_delete_file_message">This cannot be undone.</string>
+    <string name="explorer_save_folder_first">Save or close the open files in this folder first.</string>
+    <string name="explorer_access_lost">Access to this folder was lost. Open it again with \"Open folder\".</string>
+    <string name="explorer_forget">Remove from recent</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_create">Create</string>
+    <string name="dialog_rename">Rename</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_name">Name</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_dont_save">Don\'t save</string>
+    <string name="dialog_close">Close</string>
+
+    <!-- New project -->
+    <string name="project_new_title">New project</string>
+    <string name="project_name">Project name</string>
+    <string name="project_template">Template</string>
+    <string name="template_c">C — Hello world</string>
+    <string name="template_cpp">C++ — Hello world</string>
+    <string name="template_python">Python — script</string>
+    <string name="template_empty">Empty folder</string>
+
+    <!-- Editor -->
+    <string name="editor_save">Save</string>
+    <string name="editor_undo">Undo</string>
+    <string name="editor_redo">Redo</string>
+    <string name="editor_find">Find and replace</string>
+    <string name="editor_close_tab">Close %1$s</string>
+    <string name="editor_unsaved">Unsaved changes</string>
+    <string name="editor_unsaved_title">Save changes to \"%1$s\"?</string>
+    <string name="editor_unsaved_message">Your changes will be lost if you don\'t save them.</string>
+    <string name="editor_open_hint">Open a file from the Explorer</string>
+    <string name="editor_swipe_hint">Swipe here to switch tabs</string>
+    <string name="run_not_supported">%1$s files cannot be run. Open a C, C++ or Python source file.</string>
+    <string name="run_nothing">Open a C, C++ or Python file to run it.</string>
+
+    <!-- Runtime -->
+    <string name="runtime_title">Linux toolchain</string>
+    <string name="runtime_not_installed">Not installed</string>
+    <string name="runtime_installing">Installing %1$d%%</string>
+    <string name="runtime_ready">Ready</string>
+    <string name="runtime_error">Error</string>
+    <string name="runtime_install">Install</string>
+    <string name="runtime_resume">Resume install</string>
+    <string name="runtime_cancel">Cancel</string>
+    <string name="runtime_retry">Retry</string>
+    <string name="runtime_repair">Repair</string>
+    <string name="runtime_reinstall">Reinstall</string>
+    <string name="runtime_reinstall_title">Reinstall the Linux toolchain?</string>
+    <string name="runtime_reinstall_message">The Linux system is deleted and downloaded again. Your projects are kept.</string>
+    <string name="runtime_needed_for_run">The toolchain is needed to build and run code.</string>
+    <string name="runtime_intro">zakdroid-code builds and runs your code in a small Linux system (Alpine Linux) on this device. No root needed.</string>
+    <string name="runtime_space_note">Needs about 400 MB of free storage and an internet connection.</string>
+    <string name="runtime_background_note">You can leave this screen; the installation continues in the background.</string>
+    <string name="runtime_error_title">Installation stopped</string>
+    <string name="runtime_packages">Packages: %1$s</string>
+    <string name="runtime_status_content_description">Toolchain: %1$s. Open toolchain details.</string>
+
+    <!-- Terminal / panel -->
+    <string name="terminal_title">TERMINAL</string>
+    <string name="terminal_new">New terminal</string>
+    <string name="terminal_close">Close terminal %1$s</string>
+    <string name="terminal_empty">No terminal open</string>
+    <string name="terminal_needs_runtime">Install the toolchain to use the terminal.</string>
+    <string name="terminal_exited">exit %1$d</string>
+    <string name="panel_hide">Hide panel</string>
+    <string name="panel_resize">Resize panel</string>
+
+    <!-- Status bar -->
+    <string name="status_line_col">Ln %1$d, Col %2$d</string>
+    <string name="status_no_folder">No folder open</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Color theme</string>
+    <string name="theme_navy_dark">Zakomi Navy Dark</string>
+    <string name="theme_light">Zakomi Light</string>
+    <string name="settings_language">App language</string>
+    <string name="settings_language_hint">English or العربية. Opens Android\'s per-app language setting.</string>
+    <string name="settings_language_unsupported">Follows the device language on this Android version.</string>
+    <string name="settings_editor">Editor</string>
+    <string name="settings_font_size">Font size</string>
+    <string name="settings_font_size_value">%1$d sp</string>
+    <string name="settings_ligatures">Font ligatures</string>
+    <string name="settings_ligatures_hint">JetBrains Mono ligatures such as -> and !=</string>
+    <string name="settings_word_wrap">Word wrap</string>
+    <string name="settings_tab_size">Tab size</string>
+    <string name="settings_terminal">Terminal</string>
+    <string name="settings_runtime">Toolchain</string>
+    <string name="settings_about">About zakdroid-code</string>
+    <string name="settings_decrease">Decrease</string>
+    <string name="settings_increase">Increase</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_license">zakdroid-code is open source under the Apache License 2.0.</string>
+    <string name="about_trademark">The names \"zakdroid-code\", \"zakomi TECH\", \"ZAKOMI\"/\"ZKM\" and the Z logo are trademarks of zakomi TECH and are not covered by the license.</string>
+    <string name="about_third_party">Third-party components</string>
+    <string name="about_col_component">Component</string>
+    <string name="about_col_license">License</string>
+    <string name="about_col_purpose">Purpose</string>
+
+    <!-- Third-party purposes -->
+    <string name="purpose_sora">Code editor view</string>
+    <string name="purpose_tm4e">TextMate grammar engine</string>
+    <string name="purpose_regex">Regular expressions for grammars</string>
+    <string name="purpose_grammars">C, C++ and Python syntax highlighting</string>
+    <string name="purpose_terminal">Terminal emulator and view</string>
+    <string name="purpose_proot">Runs the Linux system without root</string>
+    <string name="purpose_talloc">Memory allocator used by PRoot</string>
+    <string name="purpose_alpine">Linux system and toolchain (downloaded on the device)</string>
+    <string name="purpose_compress">Extracts the Linux system</string>
+    <string name="purpose_okhttp">Downloads</string>
+    <string name="purpose_json">Grammar and configuration parsing</string>
+    <string name="purpose_androidx">App framework, UI, storage and background work</string>
+    <string name="purpose_hilt">Dependency injection</string>
+    <string name="purpose_kotlin">Language runtime and coroutines</string>
+    <string name="purpose_ui_font">User interface typeface</string>
+    <string name="purpose_code_font">Code typeface</string>
+    <string name="purpose_icons">Icons</string>
+</resources>

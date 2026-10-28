@@ -1,0 +1,20 @@
+zakdroid-code
+Copyright 2026 zakomi TECH
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+The names "zakdroid-code", "zakomi TECH", "ZAKOMI", "ZKM" and the Z logo are
+trademarks of zakomi TECH and are not licensed (see TRADEMARKS.md).
+
+This product includes third-party software; see THIRD_PARTY_LICENSES.md:
+
+- Termux terminal-emulator and terminal-view (Apache-2.0), vendored in
+  third_party/termux, derived from Jack Palevich's Terminal Emulator for Android.
+- TextMate grammars and language configurations from Visual Studio Code
+  (MIT, Copyright (c) Microsoft Corporation), including grammars by Jeff Hykin
+  (better-c-syntax, better-cpp-syntax) and MagicStack (MagicPython).
+- Montserrat and JetBrains Mono fonts (SIL Open Font License 1.1).
+
+Binary builds additionally contain PRoot (GPL-2.0-or-later) and talloc
+(LGPL-3.0-or-later) as a separate executable; their complete corresponding
+source is obtained and built by scripts/build-proot.sh from the pinned
+upstream revisions listed there.

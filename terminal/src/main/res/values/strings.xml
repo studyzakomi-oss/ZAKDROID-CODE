@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="terminal_key_ctrl">Control key (applies to the next key)</string>
+    <string name="terminal_key_alt">Alt key (applies to the next key)</string>
+    <string name="terminal_key_esc">Escape</string>
+    <string name="terminal_key_tab">Tab</string>
+    <string name="terminal_key_left">Left arrow</string>
+    <string name="terminal_key_right">Right arrow</string>
+    <string name="terminal_key_up">Up arrow</string>
+    <string name="terminal_key_down">Down arrow</string>
+    <string name="terminal_key_home">Home</string>
+    <string name="terminal_key_end">End</string>
+    <string name="terminal_key_pgup">Page up</string>
+    <string name="terminal_key_pgdn">Page down</string>
+    <string name="terminal_key_paste">Paste</string>
+</resources>

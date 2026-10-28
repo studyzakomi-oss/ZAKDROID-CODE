@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="brand_by">من zakomi TECH</string>
+
+    <!-- Activity bar -->
+    <string name="action_explorer">المستكشف</string>
+    <string name="action_run">تشغيل</string>
+    <string name="action_terminal">الطرفية</string>
+    <string name="action_settings">الإعدادات</string>
+    <string name="navigate_back">رجوع</string>
+
+    <!-- Welcome -->
+    <string name="welcome_subtitle">محرر شيفرات للغات C وC++ وPython</string>
+    <string name="welcome_open_folder">فتح مجلد…</string>
+    <string name="welcome_new_project">مشروع جديد…</string>
+    <string name="welcome_projects">المشاريع على هذا الجهاز</string>
+    <string name="welcome_recent">الأخيرة</string>
+    <string name="welcome_no_recent">لا توجد مجلدات حديثة بعد</string>
+    <string name="welcome_start">البدء</string>
+
+    <!-- Explorer -->
+    <string name="explorer_title">المستكشف</string>
+    <string name="explorer_search_hint">البحث عن الملفات بالاسم</string>
+    <string name="explorer_new_file">ملف جديد</string>
+    <string name="explorer_new_folder">مجلد جديد</string>
+    <string name="explorer_rename">إعادة التسمية</string>
+    <string name="explorer_delete">حذف</string>
+    <string name="explorer_cut">نقل…</string>
+    <string name="explorer_paste_here">النقل إلى هنا</string>
+    <string name="explorer_paste_root">النقل إلى جذر المشروع</string>
+    <string name="explorer_cancel_cut">إلغاء النقل</string>
+    <string name="explorer_moving">جارٍ نقل %1$s — اختر مجلدًا</string>
+    <string name="explorer_refresh">تحديث</string>
+    <string name="explorer_close_folder">إغلاق المجلد</string>
+    <string name="explorer_more">إجراءات أخرى</string>
+    <string name="explorer_no_results">لا توجد ملفات مطابقة</string>
+    <string name="explorer_empty">هذا المجلد فارغ</string>
+    <string name="explorer_delete_title">حذف \"%1$s\"؟</string>
+    <string name="explorer_delete_folder_message">سيُحذف المجلد وكل ما فيه. لا يمكن التراجع عن ذلك.</string>
+    <string name="explorer_delete_file_message">لا يمكن التراجع عن ذلك.</string>
+    <string name="explorer_save_folder_first">احفظ الملفات المفتوحة في هذا المجلد أو أغلقها أولًا.</string>
+    <string name="explorer_access_lost">فُقد الوصول إلى هذا المجلد. افتحه مجددًا عبر \"فتح مجلد\".</string>
+    <string name="explorer_forget">الإزالة من القائمة الأخيرة</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_cancel">إلغاء</string>
+    <string name="dialog_create">إنشاء</string>
+    <string name="dialog_rename">إعادة التسمية</string>
+    <string name="dialog_delete">حذف</string>
+    <string name="dialog_name">الاسم</string>
+    <string name="dialog_save">حفظ</string>
+    <string name="dialog_dont_save">عدم الحفظ</string>
+    <string name="dialog_close">إغلاق</string>
+
+    <!-- New project -->
+    <string name="project_new_title">مشروع جديد</string>
+    <string name="project_name">اسم المشروع</string>
+    <string name="project_template">القالب</string>
+    <string name="template_c">C — مرحبًا بالعالم</string>
+    <string name="template_cpp">C++ — مرحبًا بالعالم</string>
+    <string name="template_python">Python — سكربت</string>
+    <string name="template_empty">مجلد فارغ</string>
+
+    <!-- Editor -->
+    <string name="editor_save">حفظ</string>
+    <string name="editor_undo">تراجع</string>
+    <string name="editor_redo">إعادة</string>
+    <string name="editor_find">بحث واستبدال</string>
+    <string name="editor_close_tab">إغلاق %1$s</string>
+    <string name="editor_unsaved">تغييرات غير محفوظة</string>
+    <string name="editor_unsaved_title">حفظ التغييرات في \"%1$s\"؟</string>
+    <string name="editor_unsaved_message">ستضيع تغييراتك إذا لم تحفظها.</string>
+    <string name="editor_open_hint">افتح ملفًا من المستكشف</string>
+    <string name="editor_swipe_hint">اسحب هنا للتنقل بين علامات التبويب</string>
+    <string name="run_not_supported">لا يمكن تشغيل ملفات %1$s. افتح ملفًا مصدريًا بلغة C أو C++ أو Python.</string>
+    <string name="run_nothing">افتح ملفًا بلغة C أو C++ أو Python لتشغيله.</string>
+
+    <!-- Runtime -->
+    <string name="runtime_title">أدوات لينكس البرمجية</string>
+    <string name="runtime_not_installed">غير مثبَّتة</string>
+    <string name="runtime_installing">جارٍ التثبيت %1$d%%</string>
+    <string name="runtime_ready">جاهزة</string>
+    <string name="runtime_error">خطأ</string>
+    <string name="runtime_install">تثبيت</string>
+    <string name="runtime_resume">استئناف التثبيت</string>
+    <string name="runtime_cancel">إلغاء</string>
+    <string name="runtime_retry">إعادة المحاولة</string>
+    <string name="runtime_repair">إصلاح</string>
+    <string name="runtime_reinstall">إعادة التثبيت</string>
+    <string name="runtime_reinstall_title">إعادة تثبيت أدوات لينكس؟</string>
+    <string name="runtime_reinstall_message">سيُحذف نظام لينكس ويُنزَّل من جديد. تبقى مشاريعك كما هي.</string>
+    <string name="runtime_needed_for_run">تلزم هذه الأدوات لبناء الشيفرة وتشغيلها.</string>
+    <string name="runtime_intro">يبني zakdroid-code شيفرتك ويشغّلها داخل نظام لينكس صغير (Alpine Linux) على هذا الجهاز، دون الحاجة إلى صلاحيات الجذر.</string>
+    <string name="runtime_space_note">يحتاج إلى نحو 400 ميغابايت من المساحة الحرة واتصال بالإنترنت.</string>
+    <string name="runtime_background_note">يمكنك مغادرة هذه الشاشة؛ يستمر التثبيت في الخلفية.</string>
+    <string name="runtime_error_title">توقّف التثبيت</string>
+    <string name="runtime_packages">الحزم: %1$s</string>
+    <string name="runtime_status_content_description">أدوات البرمجة: %1$s. فتح التفاصيل.</string>
+
+    <!-- Terminal / panel -->
+    <string name="terminal_title">الطرفية</string>
+    <string name="terminal_new">طرفية جديدة</string>
+    <string name="terminal_close">إغلاق الطرفية %1$s</string>
+    <string name="terminal_empty">لا توجد طرفية مفتوحة</string>
+    <string name="terminal_needs_runtime">ثبّت أدوات البرمجة لاستخدام الطرفية.</string>
+    <string name="terminal_exited">الخروج %1$d</string>
+    <string name="panel_hide">إخفاء اللوحة</string>
+    <string name="panel_resize">تغيير حجم اللوحة</string>
+
+    <!-- Status bar -->
+    <string name="status_line_col">سطر %1$d، عمود %2$d</string>
+    <string name="status_no_folder">لا يوجد مجلد مفتوح</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_appearance">المظهر</string>
+    <string name="settings_theme">سمة الألوان</string>
+    <string name="theme_navy_dark">Zakomi Navy Dark</string>
+    <string name="theme_light">Zakomi Light</string>
+    <string name="settings_language">لغة التطبيق</string>
+    <string name="settings_language_hint">English أو العربية. يفتح إعداد لغة التطبيق في أندرويد.</string>
+    <string name="settings_language_unsupported">يتبع لغة الجهاز في هذا الإصدار من أندرويد.</string>
+    <string name="settings_editor">المحرر</string>
+    <string name="settings_font_size">حجم الخط</string>
+    <string name="settings_font_size_value">%1$d sp</string>
+    <string name="settings_ligatures">دمج حروف الخط (Ligatures)</string>
+    <string name="settings_ligatures_hint">رموز JetBrains Mono المدمجة مثل -> و!=</string>
+    <string name="settings_word_wrap">التفاف الأسطر</string>
+    <string name="settings_tab_size">حجم المسافة البادئة</string>
+    <string name="settings_terminal">الطرفية</string>
+    <string name="settings_runtime">أدوات البرمجة</string>
+    <string name="settings_about">حول zakdroid-code</string>
+    <string name="settings_decrease">تصغير</string>
+    <string name="settings_increase">تكبير</string>
+
+    <!-- About -->
+    <string name="about_title">حول</string>
+    <string name="about_version">الإصدار %1$s</string>
+    <string name="about_license">zakdroid-code مفتوح المصدر بموجب رخصة Apache 2.0.</string>
+    <string name="about_trademark">الأسماء \"zakdroid-code\" و\"zakomi TECH\" و\"ZAKOMI\"/\"ZKM\" وشعار Z علامات تجارية لـ zakomi TECH ولا تشملها الرخصة.</string>
+    <string name="about_third_party">مكوّنات من أطراف أخرى</string>
+    <string name="about_col_component">المكوّن</string>
+    <string name="about_col_license">الرخصة</string>
+    <string name="about_col_purpose">الغرض</string>
+
+    <!-- Third-party purposes -->
+    <string name="purpose_sora">عرض محرر الشيفرة</string>
+    <string name="purpose_tm4e">محرك قواعد TextMate</string>
+    <string name="purpose_regex">التعابير النمطية للقواعد</string>
+    <string name="purpose_grammars">تلوين صيغة C وC++ وPython</string>
+    <string name="purpose_terminal">محاكي الطرفية وعرضها</string>
+    <string name="purpose_proot">تشغيل نظام لينكس دون صلاحيات الجذر</string>
+    <string name="purpose_talloc">مخصِّص الذاكرة الذي يستخدمه PRoot</string>
+    <string name="purpose_alpine">نظام لينكس وأدوات البرمجة (تُنزَّل على الجهاز)</string>
+    <string name="purpose_compress">استخراج نظام لينكس</string>
+    <string name="purpose_okhttp">التنزيلات</string>
+    <string name="purpose_json">تحليل القواعد والإعدادات</string>
+    <string name="purpose_androidx">إطار التطبيق والواجهة والتخزين والعمل في الخلفية</string>
+    <string name="purpose_hilt">حقن التبعيات</string>
+    <string name="purpose_kotlin">بيئة تشغيل اللغة والـ coroutines</string>
+    <string name="purpose_ui_font">خط واجهة المستخدم</string>
+    <string name="purpose_code_font">خط الشيفرة</string>
+    <string name="purpose_icons">الأيقونات</string>
+</resources>

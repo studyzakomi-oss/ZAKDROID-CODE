@@ -1,0 +1,111 @@
+package tech.zakomi.zakdroid.core.designsystem
+
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+
+/**
+ * Colors of the VS Code-style workbench. Contrast of every text/background pair
+ * is checked by `scripts/check_contrast.py` (WCAG AA: 4.5:1 text, 3:1 UI parts).
+ */
+@Immutable
+data class WorkbenchColors(
+    val isDark: Boolean,
+    val activityBar: Color,
+    val activityBarIcon: Color,
+    val activityBarIconActive: Color,
+    val activityBarIndicator: Color,
+    val sideBar: Color,
+    val sideBarHeader: Color,
+    val editor: Color,
+    val tabBar: Color,
+    val tabActive: Color,
+    val tabInactive: Color,
+    val tabActiveText: Color,
+    val tabInactiveText: Color,
+    val tabActiveIndicator: Color,
+    val panel: Color,
+    val statusBar: Color,
+    val statusBarText: Color,
+    val border: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val accentText: Color,
+    val selection: Color,
+    val selectionText: Color,
+    val listHover: Color,
+    val error: Color,
+    val warning: Color,
+    val success: Color,
+    val terminalBackground: Color,
+    val terminalForeground: Color,
+    val terminalCursor: Color,
+)
+
+val ZakomiNavyDarkColors = WorkbenchColors(
+    isDark = true,
+    activityBar = BrandColors.Navy,
+    activityBarIcon = Color(0xFFA9B8DE),
+    activityBarIconActive = BrandColors.TextOnNavy,
+    activityBarIndicator = BrandColors.TextOnNavy,
+    sideBar = Color(0xFF0F1626),
+    sideBarHeader = Color(0xFF0F1626),
+    editor = BrandColors.SurfaceDark,
+    tabBar = Color(0xFF0B1222),
+    tabActive = BrandColors.SurfaceDark,
+    tabInactive = Color(0xFF0B1222),
+    tabActiveText = Color(0xFFE6EDF3),
+    tabInactiveText = Color(0xFF9AA5B8),
+    tabActiveIndicator = BrandColors.AccentOnDark,
+    panel = BrandColors.SurfaceDark,
+    statusBar = BrandColors.Navy,
+    statusBarText = BrandColors.TextOnNavy,
+    border = Color(0xFF243048),
+    textPrimary = Color(0xFFE6EDF3),
+    textSecondary = Color(0xFF9AA5B8),
+    accentText = BrandColors.AccentOnDark,
+    selection = BrandColors.Accent,
+    selectionText = Color(0xFFFFFFFF),
+    listHover = Color(0xFF162036),
+    error = Color(0xFFFF7B72),
+    warning = Color(0xFFE3B341),
+    success = Color(0xFF3FB950),
+    terminalBackground = BrandColors.SurfaceDark,
+    terminalForeground = Color(0xFFE6EDF3),
+    terminalCursor = BrandColors.AccentOnDark,
+)
+
+val ZakomiLightColors = WorkbenchColors(
+    isDark = false,
+    activityBar = BrandColors.Navy,
+    activityBarIcon = Color(0xFFA9B8DE),
+    activityBarIconActive = BrandColors.TextOnNavy,
+    activityBarIndicator = BrandColors.TextOnNavy,
+    sideBar = Color(0xFFF3F5FA),
+    sideBarHeader = Color(0xFFF3F5FA),
+    editor = BrandColors.SurfaceLight,
+    tabBar = Color(0xFFE9EDF5),
+    tabActive = BrandColors.SurfaceLight,
+    tabInactive = Color(0xFFE9EDF5),
+    tabActiveText = BrandColors.TextOnLight,
+    tabInactiveText = Color(0xFF4A5568),
+    tabActiveIndicator = BrandColors.Accent,
+    panel = BrandColors.SurfaceLight,
+    statusBar = BrandColors.Navy,
+    statusBarText = BrandColors.TextOnNavy,
+    border = Color(0xFFD0D7E2),
+    textPrimary = BrandColors.TextOnLight,
+    textSecondary = Color(0xFF4A5568),
+    accentText = BrandColors.Accent,
+    selection = Color(0xFFC9D6F5),
+    selectionText = BrandColors.TextOnLight,
+    listHover = Color(0xFFE3E9F4),
+    error = Color(0xFFB42318),
+    warning = Color(0xFF8A5A00),
+    success = Color(0xFF1A7F37),
+    terminalBackground = BrandColors.SurfaceLight,
+    terminalForeground = BrandColors.TextOnLight,
+    terminalCursor = BrandColors.Accent,
+)
+
+val LocalWorkbenchColors = staticCompositionLocalOf { ZakomiNavyDarkColors }

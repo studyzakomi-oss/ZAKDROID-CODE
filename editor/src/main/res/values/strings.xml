@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="editor_find">Find</string>
+    <string name="editor_replace">Replace</string>
+    <string name="editor_replace_one">Replace</string>
+    <string name="editor_replace_all">Replace all</string>
+    <string name="editor_find_previous">Previous match</string>
+    <string name="editor_find_next">Next match</string>
+    <string name="editor_find_close">Close find</string>
+    <string name="editor_toggle_replace">Toggle replace</string>
+    <string name="editor_match_case">Match case</string>
+    <string name="editor_whole_word">Match whole word</string>
+    <string name="editor_regex">Use regular expression</string>
+    <string name="editor_no_results">No results</string>
+    <string name="editor_match_count">%1$d of %2$d</string>
+</resources>

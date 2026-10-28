@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full logo inside the splash icon's safe circle (see branding/generate_brand_assets.py). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#0A1F52"
+        android:pathData="M36.08,26 H71.92 A10.08,10.08 0 0 1 82,36.08 V71.92 A10.08,10.08 0 0 1 71.92,82 H36.08 A10.08,10.08 0 0 1 26,71.92 V36.08 A10.08,10.08 0 0 1 36.08,26 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36.36,35.52 L68.56,35.52 L71.64,40.28 L56.52,63.52 L50.08,63.52 L64.92,40.84 L42.8,40.84 L46.16,45.88 L42.8,50.92 L36.36,40.84 Z M71.64,72.48 L39.44,72.48 L36.36,67.72 L51.48,44.48 L57.92,44.48 L43.08,67.16 L65.2,67.16 L61.84,62.12 L65.2,57.08 L71.64,67.16 Z" />
+</vector>

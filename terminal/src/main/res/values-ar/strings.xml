@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="terminal_key_ctrl">مفتاح Ctrl (يُطبَّق على المفتاح التالي)</string>
+    <string name="terminal_key_alt">مفتاح Alt (يُطبَّق على المفتاح التالي)</string>
+    <string name="terminal_key_esc">الخروج (Esc)</string>
+    <string name="terminal_key_tab">جدولة (Tab)</string>
+    <string name="terminal_key_left">سهم لليسار</string>
+    <string name="terminal_key_right">سهم لليمين</string>
+    <string name="terminal_key_up">سهم للأعلى</string>
+    <string name="terminal_key_down">سهم للأسفل</string>
+    <string name="terminal_key_home">بداية السطر</string>
+    <string name="terminal_key_end">نهاية السطر</string>
+    <string name="terminal_key_pgup">صفحة للأعلى</string>
+    <string name="terminal_key_pgdn">صفحة للأسفل</string>
+    <string name="terminal_key_paste">لصق</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Zakdroid" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/surface_dark</item>
+        <item name="android:statusBarColor">@color/zakomi_navy</item>
+        <item name="android:navigationBarColor">@color/surface_dark</item>
+    </style>
+
+    <!-- System splash (Android 12+ shows the icon only); the branded splash follows in Compose. -->
+    <style name="Theme.Zakdroid.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/surface_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Zakdroid</item>
+    </style>
+</resources>

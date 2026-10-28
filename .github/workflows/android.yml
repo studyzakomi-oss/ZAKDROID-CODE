@@ -1,0 +1,91 @@
+name: Android CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NDK_VERSION: "29.0.14206865"
+
+jobs:
+  build:
+    name: Build, test, lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK, SDK platform and gawk
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq gawk
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;${NDK_VERSION}" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - name: Theme contrast check (WCAG AA)
+        run: python3 scripts/check_contrast.py
+
+      - name: Build PRoot from source
+        run: ./gradlew :runtime:buildProot
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest testFullDebugUnitTest
+
+      - name: Assemble debug and release
+        env:
+          ZAKDROID_KEYSTORE_B64: ${{ secrets.ZAKDROID_KEYSTORE_B64 }}
+          ZAKDROID_KEYSTORE_PASSWORD: ${{ secrets.ZAKDROID_KEYSTORE_PASSWORD }}
+          ZAKDROID_KEY_ALIAS: ${{ secrets.ZAKDROID_KEY_ALIAS }}
+          ZAKDROID_KEY_PASSWORD: ${{ secrets.ZAKDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ZAKDROID_KEYSTORE_B64" ]; then
+            echo "$ZAKDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            export ZAKDROID_KEYSTORE="$RUNNER_TEMP/release.jks"
+          fi
+          ./gradlew :app:assembleFullDebug :app:assembleFullRelease
+
+      - name: Lint
+        run: ./gradlew :app:lintFullDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zakdroid-code-apks
+          path: |
+            app/build/outputs/apk/full/debug/*.apk
+            app/build/outputs/apk/full/release/*.apk
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports
+          path: |
+            app/build/reports/lint-results-fullDebug.html
+            **/build/reports/tests/
+
+  release:
+    name: GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: zakdroid-code-apks
+          path: apks
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: apks/**/*.apk
+          generate_release_notes: true

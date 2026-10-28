@@ -1,0 +1,10 @@
+build/
+.gradle/
+local.properties
+*.iml
+.idea/
+.kotlin/
+/runtime/src/full/jniLibs/
+captures/
+.externalNativeBuild/
+.cxx/

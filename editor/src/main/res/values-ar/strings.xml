@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="editor_find">بحث</string>
+    <string name="editor_replace">استبدال</string>
+    <string name="editor_replace_one">استبدال</string>
+    <string name="editor_replace_all">استبدال الكل</string>
+    <string name="editor_find_previous">النتيجة السابقة</string>
+    <string name="editor_find_next">النتيجة التالية</string>
+    <string name="editor_find_close">إغلاق البحث</string>
+    <string name="editor_toggle_replace">إظهار الاستبدال أو إخفاؤه</string>
+    <string name="editor_match_case">مطابقة حالة الأحرف</string>
+    <string name="editor_whole_word">مطابقة الكلمة كاملة</string>
+    <string name="editor_regex">استخدام تعبير نمطي</string>
+    <string name="editor_no_results">لا توجد نتائج</string>
+    <string name="editor_match_count">%1$d من %2$d</string>
+</resources>

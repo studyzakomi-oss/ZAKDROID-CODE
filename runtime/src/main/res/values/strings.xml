@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="runtime_notification_channel">Toolchain setup</string>
+    <string name="runtime_notification_title">Installing the C/C++/Python toolchain</string>
+    <string name="runtime_notification_cancel">Cancel</string>
+    <string name="runtime_step_check_space">Checking free space</string>
+    <string name="runtime_step_download">Downloading Alpine Linux</string>
+    <string name="runtime_step_verify">Verifying download</string>
+    <string name="runtime_step_extract">Extracting Linux system</string>
+    <string name="runtime_step_configure">Configuring</string>
+    <string name="runtime_step_packages">Installing clang, build tools and Python</string>
+    <string name="runtime_step_verify_toolchain">Checking the toolchain</string>
+</resources>

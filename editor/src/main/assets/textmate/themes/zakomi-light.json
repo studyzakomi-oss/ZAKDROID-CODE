@@ -1,0 +1,192 @@
+{
+  "name": "Zakomi Light",
+  "type": "light",
+  "colors": {
+    "editor.background": "#FFFFFF",
+    "editor.foreground": "#000000",
+    "editorCursor.foreground": "#1E3A8A",
+    "editor.selectionBackground": "#C9D6F5",
+    "editor.lineHighlightBackground": "#F3F6FC",
+    "editorLineNumber.foreground": "#57606A",
+    "editorLineNumber.activeForeground": "#000000",
+    "editorIndentGuide.background": "#E1E6EF",
+    "editorIndentGuide.activeBackground": "#9AA8C2",
+    "editorWhitespace.foreground": "#C2C9D6",
+    "editor.findMatchBackground": "#F9D86B",
+    "editor.wordHighlightBackground": "#E6ECF8",
+    "editor.wordHighlightStrongBackground": "#D6E0F5",
+    "editorSuggestWidget.background": "#F3F5FA",
+    "editorSuggestWidget.foreground": "#000000",
+    "editorSuggestWidget.selectedBackground": "#C9D6F5",
+    "editorSuggestWidget.highlightForeground": "#1E3A8A",
+    "highlightedDelimitersForeground": "#953800",
+    "tooltipBackground": "#F3F5FA",
+    "tooltipBriefMessageColor": "#000000",
+    "tooltipDetailedMessageColor": "#4A5568",
+    "tooltipActionColor": "#1E3A8A"
+  },
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#57606A",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Keywords",
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "storage.modifier",
+        "keyword.other.using",
+        "keyword.other.typedef"
+      ],
+      "settings": {
+        "foreground": "#1E3A8A"
+      }
+    },
+    {
+      "name": "Operators",
+      "scope": [
+        "keyword.operator",
+        "punctuation"
+      ],
+      "settings": {
+        "foreground": "#000000"
+      }
+    },
+    {
+      "name": "Types",
+      "scope": [
+        "storage.type",
+        "support.type",
+        "entity.name.type",
+        "support.class",
+        "storage.type.built-in"
+      ],
+      "settings": {
+        "foreground": "#0550AE"
+      }
+    },
+    {
+      "name": "Classes and structs",
+      "scope": [
+        "entity.name.type.class",
+        "entity.name.type.struct",
+        "entity.other.inherited-class",
+        "entity.name.namespace"
+      ],
+      "settings": {
+        "foreground": "#0B6E4F"
+      }
+    },
+    {
+      "name": "Strings",
+      "scope": [
+        "string",
+        "string.quoted",
+        "punctuation.definition.string"
+      ],
+      "settings": {
+        "foreground": "#116329"
+      }
+    },
+    {
+      "name": "Escapes and placeholders",
+      "scope": [
+        "constant.character.escape",
+        "constant.other.placeholder",
+        "constant.character.format.placeholder"
+      ],
+      "settings": {
+        "foreground": "#953800"
+      }
+    },
+    {
+      "name": "Numbers and constants",
+      "scope": [
+        "constant.numeric",
+        "constant.language",
+        "constant.character",
+        "variable.other.enummember",
+        "support.constant"
+      ],
+      "settings": {
+        "foreground": "#953800"
+      }
+    },
+    {
+      "name": "Functions",
+      "scope": [
+        "entity.name.function",
+        "support.function",
+        "meta.function-call.generic",
+        "entity.name.function.member"
+      ],
+      "settings": {
+        "foreground": "#6639BA"
+      }
+    },
+    {
+      "name": "Preprocessor",
+      "scope": [
+        "meta.preprocessor",
+        "keyword.control.directive",
+        "punctuation.definition.directive",
+        "entity.name.function.preprocessor",
+        "meta.preprocessor.include string"
+      ],
+      "settings": {
+        "foreground": "#9A3412"
+      }
+    },
+    {
+      "name": "Decorators",
+      "scope": [
+        "entity.name.function.decorator",
+        "meta.function.decorator",
+        "punctuation.definition.decorator"
+      ],
+      "settings": {
+        "foreground": "#9A3412"
+      }
+    },
+    {
+      "name": "Parameters",
+      "scope": [
+        "variable.parameter"
+      ],
+      "settings": {
+        "foreground": "#000000",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "self and this",
+      "scope": [
+        "variable.language",
+        "variable.language.special.self.python",
+        "variable.language.this"
+      ],
+      "settings": {
+        "foreground": "#1E3A8A",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Invalid",
+      "scope": [
+        "invalid",
+        "invalid.illegal"
+      ],
+      "settings": {
+        "foreground": "#B42318"
+      }
+    }
+  ]
+}

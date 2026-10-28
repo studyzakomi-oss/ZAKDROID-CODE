@@ -1,0 +1,33 @@
+{
+  "languages": [
+    {
+      "name": "c",
+      "scopeName": "source.c",
+      "grammar": "textmate/c/c.tmLanguage.json",
+      "languageConfiguration": "textmate/c/language-configuration.json"
+    },
+    {
+      "name": "cpp-embedded-macro",
+      "scopeName": "source.cpp.embedded.macro",
+      "grammar": "textmate/cpp/cpp.embedded.macro.tmLanguage.json",
+      "languageConfiguration": "textmate/cpp/language-configuration.json"
+    },
+    {
+      "name": "cpp",
+      "scopeName": "source.cpp",
+      "grammar": "textmate/cpp/cpp.tmLanguage.json",
+      "languageConfiguration": "textmate/cpp/language-configuration.json"
+    },
+    {
+      "name": "python-regexp",
+      "scopeName": "source.regexp.python",
+      "grammar": "textmate/python/MagicRegExp.tmLanguage.json"
+    },
+    {
+      "name": "python",
+      "scopeName": "source.python",
+      "grammar": "textmate/python/MagicPython.tmLanguage.json",
+      "languageConfiguration": "textmate/python/language-configuration.json"
+    }
+  ]
+}

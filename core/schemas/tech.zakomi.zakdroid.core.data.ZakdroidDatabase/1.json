@@ -1,0 +1,110 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "b5e95c6bb468b9972c63bdba6fc01afe",
+    "entities": [
+      {
+        "tableName": "recent_workspaces",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`root_key` TEXT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `last_opened` INTEGER NOT NULL, PRIMARY KEY(`root_key`))",
+        "fields": [
+          {
+            "fieldPath": "rootKey",
+            "columnName": "root_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastOpened",
+            "columnName": "last_opened",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "root_key"
+          ]
+        }
+      },
+      {
+        "tableName": "open_tabs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workspace_id` TEXT NOT NULL, `file_key` TEXT NOT NULL, `name` TEXT NOT NULL, `relative_path` TEXT NOT NULL, `position` INTEGER NOT NULL, `is_active` INTEGER NOT NULL, `cursor_line` INTEGER NOT NULL, `cursor_column` INTEGER NOT NULL, PRIMARY KEY(`workspace_id`, `file_key`))",
+        "fields": [
+          {
+            "fieldPath": "workspaceId",
+            "columnName": "workspace_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileKey",
+            "columnName": "file_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "relativePath",
+            "columnName": "relative_path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "is_active",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cursorLine",
+            "columnName": "cursor_line",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cursorColumn",
+            "columnName": "cursor_column",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "workspace_id",
+            "file_key"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5e95c6bb468b9972c63bdba6fc01afe')"
+    ]
+  }
+}
