@@ -74,7 +74,9 @@ python3 scripts/check_contrast.py       # WCAG AA check of both themes
 - The output goes to `runtime/src/full/jniLibs/` (git-ignored); the binaries are never committed.
 - **Offline or F-Droid builds:** set `PROOT_SRC` and `TALLOC_SRC` to pre-fetched checkouts.
 
-**Release signing (CI):** set the repository secrets `ZAKDROID_KEYSTORE_B64`, `ZAKDROID_KEYSTORE_PASSWORD`, `ZAKDROID_KEY_ALIAS` and `ZAKDROID_KEY_PASSWORD`. Pushing a `v*` tag publishes the APKs as a GitHub Release.
+**APK outputs:** ABI splits produce `app-full-arm64-v8a-<type>.apk`, `app-full-x86_64-<type>.apk` and `app-full-universal-<type>.apk`.
+
+**Release signing (CI):** see [`docs/RELEASING.md`](docs/RELEASING.md). Set the secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`; without them, release APKs are built unsigned and CI still passes. Pushing a `v*` tag publishes a GitHub Release: tags containing `-` (e.g. `v0.1.0-alpha`) become pre-releases with debug APKs, plus the PRoot source archive and `SHA256SUMS.txt`.
 
 ### Install and first run
 ```bash
@@ -85,6 +87,8 @@ adb install -r app/build/outputs/apk/full/debug/app-full-debug.apk
 3. **New project… → C — Hello world → ▶ Run.**
 
 Full device test plan: [`docs/PHASE1_TEST_CHECKLIST.md`](docs/PHASE1_TEST_CHECKLIST.md).
+
+**Bug reports:** Settings → About → **Copy diagnostics** copies the app version, Android version, device model, ABIs, runtime state and the last crash trace. Crash traces are also saved in app storage as `files/crashes/last-crash.txt` (plus the 5 most recent `crash-*.txt`); read them with `adb shell run-as tech.zakomi.zakdroid.debug cat files/crashes/last-crash.txt`.
 
 ## Project layout
 

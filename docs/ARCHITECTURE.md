@@ -130,10 +130,14 @@ The guest runs as fake root (`-0`), so `apk add` works for extra packages. It st
   - undo/redo, word wrap, pinch zoom;
   - sticky scroll (3 lines), pinned line numbers;
   - ligature toggle (`liga`/`calt`).
-- **Not in Phase 1:**
-  - code folding: sora-editor 0.24 has no folding UI;
-  - minimap: tablet-only, later phase;
-  - multi-cursor: sora has a single cursor; planned with the Phase 3 keymap work.
+- **Not in Phase 1:** code folding, multi-cursor (both checked below), minimap (tablet-only, later phase).
+
+### Verified gaps in sora-editor 0.24.7 (tag `0.24.7`, commit `ab9f2cb`)
+
+| Feature | Evidence in the source | Plan |
+|---|---|---|
+| Code folding | `lang/folding/FoldingRegion.java` is a data class (start, end, `collapsed` flag) with **no references** in `widget/`, `EditorRenderer` or the layout classes. `language-textmate` computes indent ranges (`IndentRange.computeRanges`) only to draw code-block guide lines. The README feature list has no folding. | **Implement ourselves in Phase 3**, as a contained patch on a sora fork: hide folded line ranges in the layout and renderer, add gutter toggles, feed ranges from clangd `foldingRange` (Phase 2 LSP) with the TextMate indent ranges as fallback. Offer it upstream; drop the fork if upstream ships folding first. |
+| Multi-cursor | `Content` owns exactly one `Cursor` (`Content.getCursor()`), which holds one `leftSel`/`rightSel` pair. Editing, IME and undo all go through that single cursor; there is no cursor collection anywhere. The README feature list has no multi-cursor. | **Partial support, Phase 3:** "Select all occurrences" and "Change all occurrences" (Ctrl+Shift+L / Ctrl+F2) built on `EditorSearcher` plus a batch edit, which covers the common rename-in-file case. True multi-caret editing (Alt+Click, Ctrl+Alt+↓) needs a deep rewrite of sora's cursor, IME and undo, so **wait for upstream**; LSP rename (Phase 2) covers symbol renames. |
 
 ## Theming and accessibility
 

@@ -1,5 +1,9 @@
 package tech.zakomi.zakdroid.ui.about
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,26 +17,32 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import tech.zakomi.zakdroid.BuildConfig
 import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.BrandCapsStyle
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.designsystem.ZakomiLogo
+import tech.zakomi.zakdroid.diagnostics.DiagnosticsViewModel
 import tech.zakomi.zakdroid.ui.settings.ScreenScaffold
 
 @Composable
-fun AboutScreen(onBack: () -> Unit) {
+fun AboutScreen(onBack: () -> Unit, diagnostics: DiagnosticsViewModel = hiltViewModel()) {
     val colors = WorkbenchTheme
+    val context = LocalContext.current
+    val copiedMessage = stringResource(R.string.about_diagnostics_copied)
     ScreenScaffold(title = stringResource(R.string.about_title), onBack = onBack) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().background(colors.editor).padding(padding),
@@ -53,6 +63,15 @@ fun AboutScreen(onBack: () -> Unit) {
                     Text(stringResource(R.string.about_license), color = colors.textPrimary)
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.about_trademark), color = colors.textSecondary, fontSize = 13.sp)
+                    Spacer(Modifier.height(16.dp))
+                    OutlinedButton(onClick = {
+                        val clipboard = context.getSystemService(ClipboardManager::class.java)
+                        clipboard.setPrimaryClip(ClipData.newPlainText("zakdroid-code diagnostics", diagnostics.report()))
+                        // Android 13+ shows its own "copied" confirmation.
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    }) { Text(stringResource(R.string.about_copy_diagnostics)) }
                     Spacer(Modifier.height(24.dp))
                     Text(
                         stringResource(R.string.about_third_party),

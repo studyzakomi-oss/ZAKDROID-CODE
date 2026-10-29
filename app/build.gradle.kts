@@ -22,15 +22,30 @@ android {
         localeFilters += listOf("en", "ar")
     }
 
+    // One APK per ABI (smaller download) plus a universal APK, e.g.
+    // app-full-arm64-v8a-debug.apk, app-full-x86_64-debug.apk, app-full-universal-debug.apk.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
     signingConfigs {
-        // Release signing comes from the environment (CI secrets); without it the release APK is unsigned.
-        val keystore = System.getenv("ZAKDROID_KEYSTORE")
-        if (keystore != null) {
+        // Release signing comes from the environment (CI decodes the KEYSTORE_BASE64 secret into
+        // KEYSTORE_FILE). Without all four values the release APK is built unsigned.
+        val keystore = System.getenv("KEYSTORE_FILE")
+        val storePass = System.getenv("KEYSTORE_PASSWORD")
+        val alias = System.getenv("KEY_ALIAS")
+        val keyPass = System.getenv("KEY_PASSWORD")
+        if (!keystore.isNullOrEmpty() && !storePass.isNullOrEmpty() && !alias.isNullOrEmpty() && !keyPass.isNullOrEmpty()) {
             create("release") {
                 storeFile = file(keystore)
-                storePassword = System.getenv("ZAKDROID_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("ZAKDROID_KEY_ALIAS")
-                keyPassword = System.getenv("ZAKDROID_KEY_PASSWORD")
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = keyPass
             }
         }
     }

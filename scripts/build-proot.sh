@@ -97,7 +97,11 @@ for ABI in $ABIS; do
   # libtalloc as a static archive, with a minimal replacement for Samba's lib/replace.
   cp "$TALLOC_SRC/lib/talloc/talloc.h" "$BUILD/include/"
   cp "$SHIM_DIR/talloc-replace.h" "$BUILD/include/replace.h"
-  "$CC" -c -O2 -fPIC -Wall -I"$BUILD/include" \
+  # GIT=false: PRoot's makefile otherwise stamps `git describe` of whatever repository the
+  # build directory sits in; the pinned -DVERSION is used instead.
+  # -ffile-prefix-map keeps build paths (talloc embeds __FILE__) out of the binary, so a
+  # rebuild from the published source archive is byte-identical.
+  "$CC" -c -O2 -fPIC -Wall -I"$BUILD/include" -ffile-prefix-map="$TALLOC_SRC"=talloc -ffile-prefix-map="$BUILD"=build \
     -DTALLOC_BUILD_VERSION_MAJOR=2 -DTALLOC_BUILD_VERSION_MINOR=5 -DTALLOC_BUILD_VERSION_RELEASE=0 \
     "$TALLOC_SRC/lib/talloc/talloc.c" -o "$BUILD/talloc.o"
   "$TOOLCHAIN/bin/llvm-ar" rcs "$BUILD/lib/libtalloc.a" "$BUILD/talloc.o"
@@ -111,9 +115,10 @@ for ABI in $ABIS; do
 ' "$BUILD/proot/extension/ashmem_memfd/ashmem_memfd.c"
   make -C "$BUILD/proot" -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)" \
     CC="$CC" LD="$CC" STRIP="$STRIP" OBJCOPY="$OBJCOPY" OBJDUMP="$OBJDUMP" \
-    CPPFLAGS="-D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I. -I$BUILD/include -DARG_MAX=131072 -DVERSION=\\\"$PROOT_VERSION\\\"" \
+    CPPFLAGS="-ffile-prefix-map=$BUILD=build -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I. -I$BUILD/include -DARG_MAX=131072 -DVERSION=\\\"$PROOT_VERSION\\\"" \
     LDFLAGS="-L$BUILD/lib -l:libtalloc.a -Wl,-z,noexecstack" \
     PROOT_UNBUNDLE_LOADER=/nonexistent \
+    GIT=false \
     HAS_LOADER_32BIT= \
     proot loader/loader >"$BUILD/make.log" 2>&1 || { tail -40 "$BUILD/make.log"; exit 1; }
 

@@ -138,6 +138,8 @@
     <string name="about_version">الإصدار %1$s</string>
     <string name="about_license">zakdroid-code مفتوح المصدر بموجب رخصة Apache 2.0.</string>
     <string name="about_trademark">الأسماء \"zakdroid-code\" و\"zakomi TECH\" و\"ZAKOMI\"/\"ZKM\" وشعار Z علامات تجارية لـ zakomi TECH ولا تشملها الرخصة.</string>
+    <string name="about_copy_diagnostics">نسخ معلومات التشخيص</string>
+    <string name="about_diagnostics_copied">نُسخت معلومات التشخيص</string>
     <string name="about_third_party">مكوّنات من أطراف أخرى</string>
     <string name="about_col_component">المكوّن</string>
     <string name="about_col_license">الرخصة</string>
