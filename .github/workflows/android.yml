@@ -5,6 +5,13 @@ on:
     branches: ["**"]
     tags: ["v*"]
   pull_request:
+  # Publishes a release without pushing a tag first: CI creates the tag on the built commit.
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag to create and release (e.g. v0.1.0-alpha). Empty = build only."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -102,10 +109,12 @@ jobs:
   release:
     name: GitHub Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(inputs.release_tag, 'v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      TAG: ${{ inputs.release_tag || github.ref_name }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -122,7 +131,7 @@ jobs:
         id: assets
         run: |
           mkdir dist
-          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+          if [[ "$TAG" == *-* ]]; then
             cp apks/debug/app-full-arm64-v8a-debug.apk apks/debug/app-full-universal-debug.apk dist/
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
           else
@@ -133,12 +142,12 @@ jobs:
           cd dist
           sha256sum * > SHA256SUMS.txt
           {
-            echo "## zakdroid-code $GITHUB_REF_NAME"
+            echo "## zakdroid-code $TAG"
             echo
             echo "- **app-full-arm64-v8a-*.apk**: for almost all phones and tablets (smaller download)."
             echo "- **app-full-universal-*.apk**: arm64-v8a + x86_64 (emulators, Chromebooks)."
             echo "- **zakdroid-proot-source.tar.gz**: complete source of the bundled PRoot/talloc binaries (GPL-2.0-or-later / LGPL-3.0-or-later)."
-            if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            if [[ "$TAG" == *-* ]]; then
               echo
               echo "> Alpha build, signed with a CI debug key. A later build signed with a different key needs an uninstall first."
             fi
@@ -151,7 +160,9 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }}
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ env.TAG }}
           prerelease: ${{ steps.assets.outputs.prerelease }}
           body_path: RELEASE_NOTES.md
           files: dist/*

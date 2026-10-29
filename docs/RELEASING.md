@@ -1,7 +1,8 @@
 # Releasing and signing
 
 ## Pre-releases (alpha / beta)
-Push a tag that contains a dash, such as `v0.1.0-alpha`. CI creates a GitHub
+Push a tag that contains a dash, such as `v0.1.0-alpha` (or run the **Android CI** workflow manually
+with `release_tag` set, which creates the tag on the built commit). CI creates a GitHub
 **pre-release** with:
 - `app-full-arm64-v8a-debug.apk`
 - `app-full-universal-debug.apk`
