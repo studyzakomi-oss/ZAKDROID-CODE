@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.commons.compress)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 // PRoot binaries are built from source (scripts/build-proot.sh) and never committed.

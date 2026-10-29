@@ -28,13 +28,17 @@ class DiagnosticsViewModel @Inject constructor(
         appendLine("Runtime build: ${runtime.description}")
         appendLine()
         appendLine("Last crash:")
-        append(CrashLog.lastCrash(context) ?: "none")
+        appendLine(CrashLog.lastCrash(context) ?: "none")
+        appendLine()
+        appendLine("Installer log:")
+        append(runtime.installLog() ?: "none")
     }
 
     private fun describe(state: RuntimeState): String = when (state) {
         is RuntimeState.NotInstalled -> if (state.canResume) "Not installed (partial install, resumable)" else "Not installed"
         is RuntimeState.Installing -> "Installing ${state.percent}% (${state.step}${state.detail?.let { ": $it" } ?: ""})"
         RuntimeState.Ready -> "Ready"
+        RuntimeState.Stopping -> "Stopping (cleaning up a cancelled run)"
         is RuntimeState.Error -> "Error ${state.kind} at ${state.step}: ${state.message}"
     }
 }

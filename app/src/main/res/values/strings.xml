@@ -84,6 +84,10 @@
     <string name="runtime_error">Error</string>
     <string name="runtime_install">Install</string>
     <string name="runtime_resume">Resume install</string>
+    <string name="runtime_stopping">Stopping…</string>
+    <string name="runtime_stopping_message">Stopping the installation and its processes…</string>
+    <string name="runtime_locked_title">Another installation is still running</string>
+    <string name="runtime_locked_message">The package database is still locked by an earlier installation that did not stop. zakdroid-code already tried to stop it. Tap Repair to clean up and continue, or Retry.</string>
     <string name="runtime_cancel">Cancel</string>
     <string name="runtime_retry">Retry</string>
     <string name="runtime_repair">Repair</string>

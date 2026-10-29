@@ -37,9 +37,13 @@ class ProcessTree(
         safeKill(pid)
     }
 
-    /** SIGKILLs every process whose environment contains exactly [entry] (e.g. "ZAKDROID_JOB=install"). */
+    /** PIDs of processes whose environment contains exactly [entry] (e.g. "ZAKDROID_JOB=install"). */
+    fun findTagged(entry: String): List<Int> =
+        pids().filter { it != selfPid && environOf(it)?.contains(entry) == true }
+
+    /** SIGKILLs every process found by [findTagged]. Returns how many were killed. */
     fun killTagged(entry: String): Int {
-        val tagged = pids().filter { it != selfPid && environOf(it)?.contains(entry) == true }
+        val tagged = findTagged(entry)
         tagged.forEach(::safeKill)
         return tagged.size
     }

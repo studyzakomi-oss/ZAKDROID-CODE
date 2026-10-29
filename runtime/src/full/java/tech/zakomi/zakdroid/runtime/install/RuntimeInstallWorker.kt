@@ -27,6 +27,9 @@ class RuntimeInstallWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val paths: RuntimePaths,
+    private val platform: AndroidInstallPlatform,
+    private val guard: InstallGuard,
+    private val log: InstallLog,
 ) : CoroutineWorker(context, params) {
 
     private var lastReported = -1
@@ -37,15 +40,24 @@ class RuntimeInstallWorker @AssistedInject constructor(
         val mode = InstallMode.valueOf(inputData.getString(KEY_MODE) ?: InstallMode.Install.name)
         promoteToForeground(InstallStep.CheckSpace, 0)
         return try {
-            RuntimeInstaller(paths) { step, fraction, detail -> report(step, fraction, detail) }.run(mode)
+            guard.withInstallLock(
+                onLockBusy = { log.line("install lock busy; killed ${platform.killJobProcesses()} process(es)") },
+                describe = { "app pid=${android.os.Process.myPid()} work=$id mode=$mode attempt=$runAttemptCount\n" },
+            ) {
+                log.startRun("install mode=$mode attempt=$runAttemptCount work=$id")
+                RuntimeInstaller(paths, platform, log) { step, fraction, detail -> report(step, fraction, detail) }.run(mode)
+            }
             Result.success()
         } catch (e: CancellationException) {
+            log.line("cancelled at $lastStep (stopReason=${if (Build.VERSION.SDK_INT >= 31) stopReason else -1})")
             throw e
         } catch (e: InstallException) {
             Log.w(TAG, "install failed at $lastStep", e)
+            log.line("FAILED (${e.kind}) at $lastStep: ${e.message}")
             Result.failure(failure(e.kind, e.message ?: "Install failed"))
         } catch (e: Exception) {
             Log.e(TAG, "install crashed at $lastStep", e)
+            log.line("CRASHED at $lastStep: ${Log.getStackTraceString(e)}")
             Result.failure(failure(RuntimeErrorKind.Unknown, e.message ?: e.javaClass.simpleName))
         }
     }
@@ -72,10 +84,15 @@ class RuntimeInstallWorker @AssistedInject constructor(
 
     private fun promoteToForeground(step: InstallStep, percent: Int) {
         try {
-            setForegroundAsync(foregroundInfo(step, percent))
+            val future = setForegroundAsync(foregroundInfo(step, percent))
+            // Refusals (e.g. ForegroundServiceStartNotAllowedException) arrive through the future.
+            future.addListener({
+                runCatching { future.get() }.onFailure { log.line("foreground notification refused: ${it.cause ?: it}") }
+            }, Runnable::run)
         } catch (e: IllegalStateException) {
             // Android 12+ refuses foreground starts from the background; the work continues regardless.
             Log.i(TAG, "running without foreground notification: ${e.message}")
+            log.line("foreground notification refused: ${e.message}")
         }
     }
 

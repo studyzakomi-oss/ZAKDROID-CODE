@@ -43,6 +43,7 @@ import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.JetBrainsMono
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.runtime.InstallStep
+import tech.zakomi.zakdroid.runtime.RuntimeErrorKind
 import tech.zakomi.zakdroid.runtime.RuntimeState
 import tech.zakomi.zakdroid.runtime.labelRes
 
@@ -51,6 +52,7 @@ import tech.zakomi.zakdroid.runtime.labelRes
 fun runtimeStatusLabel(state: RuntimeState): String = when (state) {
     is RuntimeState.NotInstalled -> stringResource(R.string.runtime_not_installed)
     is RuntimeState.Installing -> stringResource(R.string.runtime_installing, state.percent)
+    RuntimeState.Stopping -> stringResource(R.string.runtime_stopping)
     RuntimeState.Ready -> stringResource(R.string.runtime_ready)
     is RuntimeState.Error -> stringResource(R.string.runtime_error)
 }
@@ -73,6 +75,7 @@ fun RuntimeSheet(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = WorkbenchTheme
     val install = rememberWithNotificationPermission(viewModel::install)
+    val repair = rememberWithNotificationPermission(viewModel::repair)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -94,13 +97,26 @@ fun RuntimeSheet(
                         Text(stringResource(R.string.runtime_packages, viewModel.packages.joinToString(", ")), color = colors.textSecondary)
                     }
                     is RuntimeState.Installing -> InstallProgress(s)
+                    RuntimeState.Stopping -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = colors.accentText)
+                        Text(stringResource(R.string.runtime_stopping_message), color = colors.textPrimary)
+                    }
                     RuntimeState.Ready -> {
                         Text(stringResource(R.string.runtime_ready), color = colors.success, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(4.dp))
                         Text(stringResource(R.string.runtime_packages, viewModel.packages.joinToString(", ")), color = colors.textSecondary)
                     }
                     is RuntimeState.Error -> {
-                        Text(stringResource(R.string.runtime_error_title), color = colors.error, fontWeight = FontWeight.Bold)
+                        val locked = s.kind == RuntimeErrorKind.Locked
+                        Text(
+                            stringResource(if (locked) R.string.runtime_locked_title else R.string.runtime_error_title),
+                            color = colors.error,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        if (locked) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(stringResource(R.string.runtime_locked_message), color = colors.textPrimary)
+                        }
                         s.step?.let {
                             Text(stringResource(it.labelRes), color = colors.textSecondary)
                         }
@@ -127,7 +143,13 @@ fun RuntimeSheet(
                     Text(stringResource(if (s.canResume) R.string.runtime_resume else R.string.runtime_install))
                 }
                 is RuntimeState.Installing -> TextButton(onClick = viewModel::cancel) { Text(stringResource(R.string.runtime_cancel), color = colors.error) }
-                is RuntimeState.Error -> TextButton(onClick = install) { Text(stringResource(R.string.runtime_retry)) }
+                RuntimeState.Stopping -> TextButton(onClick = {}, enabled = false) { Text(stringResource(R.string.runtime_stopping)) }
+                is RuntimeState.Error -> Row {
+                    if (s.kind == RuntimeErrorKind.Locked) {
+                        TextButton(onClick = repair) { Text(stringResource(R.string.runtime_repair)) }
+                    }
+                    TextButton(onClick = install) { Text(stringResource(R.string.runtime_retry)) }
+                }
                 RuntimeState.Ready -> Unit
             }
         },

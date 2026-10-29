@@ -95,7 +95,7 @@ private fun StatusText(text: String, modifier: Modifier = Modifier) {
 /** Status dots sit on the navy bar, so they use the dark-theme status colors in both themes. */
 private fun runtimeDotColor(state: RuntimeState): Color = when (state) {
     RuntimeState.Ready -> Color(0xFF3FB950)
-    is RuntimeState.Installing -> Color(0xFFE3B341)
+    is RuntimeState.Installing, RuntimeState.Stopping -> Color(0xFFE3B341)
     is RuntimeState.Error -> Color(0xFFFF7B72)
     is RuntimeState.NotInstalled -> Color(0xFFA9B8DE)
 }

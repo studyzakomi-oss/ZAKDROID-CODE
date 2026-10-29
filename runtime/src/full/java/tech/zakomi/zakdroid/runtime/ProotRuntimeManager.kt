@@ -9,13 +9,18 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import tech.zakomi.zakdroid.core.di.ApplicationScope
 import tech.zakomi.zakdroid.core.workspace.StoragePaths
 import tech.zakomi.zakdroid.runtime.install.AlpineRelease
+import tech.zakomi.zakdroid.runtime.install.AndroidInstallPlatform
+import tech.zakomi.zakdroid.runtime.install.InstallGuard
+import tech.zakomi.zakdroid.runtime.install.InstallLog
 import tech.zakomi.zakdroid.runtime.install.InstallJournal
 import tech.zakomi.zakdroid.runtime.install.InstallMode
 import tech.zakomi.zakdroid.runtime.install.ProotCommand
@@ -30,16 +35,24 @@ import javax.inject.Singleton
 class ProotRuntimeManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val paths: RuntimePaths,
-    @ApplicationScope scope: CoroutineScope,
+    private val guard: InstallGuard,
+    private val platform: AndroidInstallPlatform,
+    private val log: InstallLog,
+    @ApplicationScope private val scope: CoroutineScope,
 ) : RuntimeManager {
 
     private val workManager = WorkManager.getInstance(context)
     private val proot = ProotCommand(paths)
 
+    /**
+     * WorkManager reports CANCELLED as soon as cancel is requested, while the cancelled run may
+     * still be killing its processes; [InstallGuard.active] covers that window as [RuntimeState.Stopping].
+     */
     override val state: StateFlow<RuntimeState> =
-        workManager.getWorkInfosForUniqueWorkFlow(RuntimeInstallWorker.UNIQUE_NAME)
-            .map { infos -> stateFrom(infos.lastOrNull()) }
-            .stateIn(scope, SharingStarted.Eagerly, diskState())
+        combine(workManager.getWorkInfosForUniqueWorkFlow(RuntimeInstallWorker.UNIQUE_NAME), guard.active) { infos, active ->
+            val fromWork = stateFrom(infos.lastOrNull())
+            if (active && fromWork !is RuntimeState.Installing) RuntimeState.Stopping else fromWork
+        }.stateIn(scope, SharingStarted.Eagerly, diskState())
 
     override val description: String
         get() {
@@ -56,10 +69,20 @@ class ProotRuntimeManager @Inject constructor(
     override fun reinstall() = enqueue(InstallMode.Reinstall)
 
     override fun cancel() {
+        log.line("cancel requested by user")
         workManager.cancelUniqueWork(RuntimeInstallWorker.UNIQUE_NAME)
+        // Kill right away too: the blocked apk read ends and the worker can finish its cleanup.
+        scope.launch(Dispatchers.IO) { platform.killJobProcesses() }
     }
 
+    override fun installLog(): String? = log.tail()
+
     private fun enqueue(mode: InstallMode) {
+        // Double taps and taps during Stopping are ignored; KEEP also coalesces at the WorkManager level.
+        if (!state.value.acceptsInstallRequest() || guard.active.value) {
+            log.line("ignored $mode request: a run is active or stopping")
+            return
+        }
         val request = OneTimeWorkRequestBuilder<RuntimeInstallWorker>()
             .setInputData(workDataOf(RuntimeInstallWorker.KEY_MODE to mode.name))
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

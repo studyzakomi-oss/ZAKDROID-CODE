@@ -83,6 +83,10 @@
     <string name="runtime_error">خطأ</string>
     <string name="runtime_install">تثبيت</string>
     <string name="runtime_resume">استئناف التثبيت</string>
+    <string name="runtime_stopping">جارٍ الإيقاف…</string>
+    <string name="runtime_stopping_message">جارٍ إيقاف التثبيت وعملياته…</string>
+    <string name="runtime_locked_title">ما زال تثبيت آخر قيد التشغيل</string>
+    <string name="runtime_locked_message">ما زالت قاعدة بيانات الحزم مقفلة بواسطة تثبيت سابق لم يتوقف. حاول zakdroid-code إيقافه بالفعل. اضغط \"إصلاح\" للتنظيف والمتابعة، أو \"إعادة المحاولة\".</string>
     <string name="runtime_cancel">إلغاء</string>
     <string name="runtime_retry">إعادة المحاولة</string>
     <string name="runtime_repair">إصلاح</string>

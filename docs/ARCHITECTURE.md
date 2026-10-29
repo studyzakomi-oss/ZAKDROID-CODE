@@ -107,6 +107,10 @@ The guest runs as fake root (`-0`), so `apk add` works for extra packages. It st
 | 7 | Verify toolchain | yes | `clang --version`, `python3 --version` |
 
 - **Resume:** completed steps are recorded in `install-journal.properties`; a cancelled or failed run resumes from the first unfinished step.
+- **Single installer:** unique work (`KEEP`), plus an in-process mutex and an OS file lock (`install.lock`, holding the PIDs) in `InstallGuard`. While a cancelled run is still cleaning up, the state is *Stopping* and every install button is disabled.
+- **No orphans:** PRoot ignores SIGTERM, and after SIGKILL its guests are reparented to init and keep running. Every PRoot process and guest therefore carries `ZAKDROID_GUEST=1` (install jobs also `ZAKDROID_JOB=install`) and is killed through `/proc` (`ProcessTree`): before each run and each `apk` call, on cancel, when a terminal tab closes, and at app start.
+- **apk lock:** `apk --wait 60`. A lock still held after cleanup is retried once, then reported as *Another installation is still running* with Repair offered.
+- **Log:** `runtime/install.log` (plus the previous run) records every step and every line of `apk` output; **Copy diagnostics** includes it.
 - **Ready marker:** `.zakdroid-ready` (holding the Alpine version) is written last; it alone means *Ready*.
 - **Repair** re-runs steps 5–7 with `apk fix`. **Reinstall** deletes the rootfs and starts over; `/home/user` is kept.
 - **Status Bar** shows the state: *Not installed* / *Installing x%* / *Ready* / *Error*.

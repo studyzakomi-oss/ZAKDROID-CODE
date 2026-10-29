@@ -59,6 +59,7 @@ import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.runtime.RuntimeState
+import tech.zakomi.zakdroid.runtime.acceptsInstallRequest
 import tech.zakomi.zakdroid.ui.common.ConfirmDialog
 import tech.zakomi.zakdroid.ui.runtime.RuntimeViewModel
 import tech.zakomi.zakdroid.ui.runtime.rememberWithNotificationPermission
@@ -102,6 +103,7 @@ fun SettingsScreen(
     var confirmReinstall by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val install = rememberWithNotificationPermission(runtimeVm::install)
+    val repair = rememberWithNotificationPermission(runtimeVm::repair)
 
     ScreenScaffold(stringResource(R.string.settings_title), onBack) { padding ->
         Column(
@@ -181,11 +183,12 @@ fun SettingsScreen(
                             Text(stringResource(if (s.canResume) R.string.runtime_resume else R.string.runtime_install))
                         }
                         is RuntimeState.Installing -> OutlinedButton(onClick = runtimeVm::cancel) { Text(stringResource(R.string.runtime_cancel)) }
+                        RuntimeState.Stopping -> OutlinedButton(onClick = {}, enabled = false) { Text(stringResource(R.string.runtime_stopping)) }
                         is RuntimeState.Error -> OutlinedButton(onClick = install) { Text(stringResource(R.string.runtime_retry)) }
                         RuntimeState.Ready -> Unit
                     }
-                    if (runtime !is RuntimeState.Installing) {
-                        OutlinedButton(onClick = runtimeVm::repair) { Text(stringResource(R.string.runtime_repair)) }
+                    if (runtime.acceptsInstallRequest()) {
+                        OutlinedButton(onClick = repair) { Text(stringResource(R.string.runtime_repair)) }
                         OutlinedButton(onClick = { confirmReinstall = true }) { Text(stringResource(R.string.runtime_reinstall)) }
                     }
                 }

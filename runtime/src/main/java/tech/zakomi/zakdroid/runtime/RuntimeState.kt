@@ -17,7 +17,8 @@ enum class InstallStep(val weight: Int) {
     }
 }
 
-enum class RuntimeErrorKind { NotEnoughSpace, Network, Checksum, Extract, Packages, Verification, UnsupportedDevice, Unknown }
+/** [Locked]: the package database stayed locked even after leftover installer processes were killed. */
+enum class RuntimeErrorKind { NotEnoughSpace, Network, Checksum, Extract, Packages, Verification, UnsupportedDevice, Locked, Unknown }
 
 sealed interface RuntimeState {
     /** Nothing installed, or an install was cancelled ([canResume] = true). */
@@ -25,7 +26,13 @@ sealed interface RuntimeState {
 
     data class Installing(val step: InstallStep, val percent: Int, val detail: String? = null) : RuntimeState
 
+    /** A run was cancelled or stopped and is still killing its processes; no new run may start yet. */
+    data object Stopping : RuntimeState
+
     data object Ready : RuntimeState
 
     data class Error(val kind: RuntimeErrorKind, val message: String, val step: InstallStep?) : RuntimeState
 }
+
+/** Install, Resume, Retry, Repair and Reinstall are only accepted when no run is active or stopping. */
+fun RuntimeState.acceptsInstallRequest(): Boolean = this !is RuntimeState.Installing && this != RuntimeState.Stopping

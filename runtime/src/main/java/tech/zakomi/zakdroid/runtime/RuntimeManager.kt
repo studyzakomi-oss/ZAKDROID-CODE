@@ -16,7 +16,13 @@ interface RuntimeManager {
     /** Packages installed by [install]. */
     val packages: List<String>
 
-    /** Starts the install, or resumes a cancelled/failed one from its last completed step. */
+    /** Installer log of the latest and previous run (for diagnostics), or null if none. */
+    fun installLog(): String?
+
+    /**
+     * Starts the install, or resumes a cancelled/failed one from its last completed step.
+     * Ignored while a run is active or stopping (see [acceptsInstallRequest]).
+     */
     fun install()
 
     fun cancel()

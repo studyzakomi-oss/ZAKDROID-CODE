@@ -7,25 +7,34 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** File layout of the local runtime. The file-based constructor exists for unit tests. */
 @Singleton
-class RuntimePaths @Inject constructor(
-    @ApplicationContext context: Context,
-    storage: StoragePaths,
+class RuntimePaths(
+    nativeLibDir: File,
+    filesDir: File,
+    homeDir: File,
 ) {
-    private val nativeLibDir = File(context.applicationInfo.nativeLibraryDir)
+    @Inject
+    constructor(@ApplicationContext context: Context, storage: StoragePaths) :
+        this(File(context.applicationInfo.nativeLibraryDir), storage.filesDir, storage.homeDir)
 
     /** Executables shipped as lib*.so, so Android extracts them to an exec-allowed directory. */
     val proot = File(nativeLibDir, "libproot.so")
     val prootLoader = File(nativeLibDir, "libproot-loader.so")
 
-    val runtimeDir = File(storage.filesDir, "runtime")
+    val runtimeDir = File(filesDir, "runtime")
     val rootfs = File(runtimeDir, "rootfs")
     val prootTmp = File(runtimeDir, "tmp")
     val downloads = File(runtimeDir, "downloads")
     val journal = File(runtimeDir, "install-journal.properties")
 
+    /** Held (OS file lock) by the one running installer; contains its PIDs for diagnostics. */
+    val installLock = File(runtimeDir, "install.lock")
+    val installLog = File(runtimeDir, "install.log")
+    val previousInstallLog = File(runtimeDir, "install.previous.log")
+
     /** Written last; its presence (with the right version) means the runtime is usable. */
     val readyMarker = File(rootfs, ".zakdroid-ready")
 
-    val home = storage.homeDir
+    val home = homeDir
 }
