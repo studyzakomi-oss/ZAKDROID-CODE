@@ -8,6 +8,7 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import dagger.hilt.android.qualifiers.ApplicationContext
+import tech.zakomi.zakdroid.core.process.ProcessTree
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +66,11 @@ class TerminalSessionManager @Inject constructor(
     }
 
     fun close(id: Int) {
-        sessions.remove(id)?.finishIfRunning()
+        sessions.remove(id)?.let { session ->
+            // Termux only SIGKILLs the shell (PRoot); its guest programs would keep running.
+            if (session.isRunning) ProcessTree.current.killTree(session.pid)
+            session.finishIfRunning()
+        }
         _tabs.update { list -> list.filterNot { it.id == id } }
         if (_activeId.value == id) _activeId.value = _tabs.value.lastOrNull()?.id
     }

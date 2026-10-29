@@ -1,6 +1,7 @@
 package tech.zakomi.zakdroid.runtime.install
 
 import android.os.StatFs
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
@@ -8,6 +9,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import tech.zakomi.zakdroid.core.process.ProcessTree
 import tech.zakomi.zakdroid.runtime.InstallStep
 import tech.zakomi.zakdroid.runtime.RuntimeErrorKind
 import java.io.File
@@ -110,8 +112,10 @@ class RuntimeInstaller(
     }
 
     private suspend fun installPackages(repair: Boolean) {
-        val fix = if (repair) "apk fix --no-progress && " else ""
-        val script = "set -e; apk update --no-progress && ${fix}apk add --no-progress ${AlpineRelease.PACKAGES.joinToString(" ")}"
+        // --wait: if a user's own `apk` (terminal) holds the lock, wait instead of failing at once.
+        val apk = "apk --wait 30 --no-progress"
+        val fix = if (repair) "$apk fix && " else ""
+        val script = "set -e; $apk update && ${fix}$apk add ${AlpineRelease.PACKAGES.joinToString(" ")}"
         val progress = Regex("""^\((\d+)/(\d+)\)\s+(\S+)\s+(\S+)""")
         val output = exec(script) { line ->
             progress.find(line)?.let { m ->
@@ -137,12 +141,18 @@ class RuntimeInstaller(
 
     private class ExecResult(val exitCode: Int, val tail: List<String>)
 
-    /** Runs [script] with /bin/sh inside the rootfs, streaming output lines to [onLine]. */
+    /**
+     * Runs [script] with /bin/sh inside the rootfs, streaming output lines to [onLine].
+     * Every process of the job carries [JOB_TAG]; leftovers of an earlier, interrupted
+     * run (which would still hold apk's database lock) are killed first, and all of the
+     * job's processes are killed when it ends or is cancelled.
+     */
     private suspend fun exec(script: String, onLine: (String) -> Unit = {}): ExecResult {
-        val argv = proot.argv("/", listOf("/bin/sh", "-c", script))
+        killJobProcesses()
+        val argv = proot.argv("/", listOf("/bin/sh", "-c", script), extraEnv = listOf(JOB_TAG))
         val process = ProcessBuilder(argv).apply {
             environment().clear()
-            proot.hostEnv().forEach { kv -> kv.split("=", limit = 2).let { environment()[it[0]] = it[1] } }
+            proot.hostEnv(listOf(JOB_TAG)).forEach { kv -> kv.split("=", limit = 2).let { environment()[it[0]] = it[1] } }
             redirectErrorStream(true)
             directory(paths.runtimeDir)
         }.start()
@@ -154,7 +164,8 @@ class RuntimeInstaller(
                 try {
                     awaitCancellation()
                 } finally {
-                    if (process.isAlive) process.destroy()
+                    // SIGTERM is ignored by PRoot; kill the whole job so the blocked read returns.
+                    killJobProcesses()
                 }
             }
             try {
@@ -172,10 +183,20 @@ class RuntimeInstaller(
                 ExecResult(process.exitValue(), tail.toList())
             } finally {
                 watchdog.cancel()
-                if (process.isAlive) process.destroyForcibly()
+                killJobProcesses()
             }
         }
     }
 
+    private fun killJobProcesses() {
+        val killed = ProcessTree.current.killTagged(JOB_TAG)
+        if (killed > 0) Log.i(TAG, "killed $killed leftover install process(es)")
+    }
+
     private fun mb(bytes: Long) = bytes / (1024 * 1024)
+
+    private companion object {
+        const val JOB_TAG = "ZAKDROID_JOB=install"
+        const val TAG = "RuntimeInstaller"
+    }
 }
