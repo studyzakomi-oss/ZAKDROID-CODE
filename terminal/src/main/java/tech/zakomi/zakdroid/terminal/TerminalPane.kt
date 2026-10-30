@@ -45,13 +45,18 @@ fun TerminalPane(
                             onFontScale = { currentOnFontScale.value(it) },
                         ),
                     )
+                    // Order matters: TerminalView creates its renderer in setTextSize(); calling
+                    // setTypeface() first dereferences a null renderer and crashes the app.
+                    val px = textSizePx(fontSizeSp, resources.displayMetrics)
+                    setTextSize(px)
+                    tag = px
                     ResourcesCompat.getFont(context, CoreR.font.jetbrains_mono_regular)?.let(::setTypeface)
                     manager.attachedView = this
                     keys.view = this
                 }
             },
             update = { view ->
-                val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, fontSizeSp.toFloat(), view.resources.displayMetrics).toInt()
+                val px = textSizePx(fontSizeSp, view.resources.displayMetrics)
                 // The view keeps no public text size; remember the applied one in its tag.
                 if (view.tag != px) {
                     view.setTextSize(px)
@@ -72,3 +77,6 @@ fun TerminalPane(
         )
     }
 }
+
+private fun textSizePx(sp: Int, metrics: android.util.DisplayMetrics): Int =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), metrics).toInt()
