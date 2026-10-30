@@ -1,19 +1,30 @@
 package tech.zakomi.zakdroid.runtime.install
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.StatFs
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.zakomi.zakdroid.core.process.ProcessTree
 import tech.zakomi.zakdroid.runtime.RuntimeErrorKind
 import java.io.File
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AndroidInstallPlatform @Inject constructor(private val paths: RuntimePaths) : InstallPlatform {
+class AndroidInstallPlatform @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val paths: RuntimePaths,
+) : InstallPlatform {
     private val downloader = Downloader()
     private val proot = ProotCommand(paths)
     private val processes get() = ProcessTree.current
@@ -81,6 +92,23 @@ class AndroidInstallPlatform @Inject constructor(private val paths: RuntimePaths
     override fun killJobProcesses(): Int = processes.killTagged(JOB_TAG)
 
     override fun jobPids(): List<Int> = processes.findTagged(JOB_TAG)
+
+    override suspend fun resolve(host: String): List<String> = withContext(Dispatchers.IO) {
+        val addresses = try {
+            InetAddress.getAllByName(host).toList()
+        } catch (_: UnknownHostException) {
+            emptyList()
+        }
+        // IPv4 only when available: the guest may have no IPv6 route even if Android has one.
+        val v4 = addresses.filterIsInstance<Inet4Address>()
+        (v4.ifEmpty { addresses }).mapNotNull { it.hostAddress }.distinct()
+    }
+
+    override fun dnsServers(): List<String> {
+        val cm = context.getSystemService(ConnectivityManager::class.java) ?: return emptyList()
+        val servers = cm.getLinkProperties(cm.activeNetwork)?.dnsServers.orEmpty()
+        return servers.sortedBy { if (it is Inet4Address) 0 else 1 }.mapNotNull { it.hostAddress?.substringBefore('%') }
+    }
 
     private companion object {
         const val JOB_TAG = "ZAKDROID_JOB=install"

@@ -2,6 +2,7 @@ package tech.zakomi.zakdroid.runtime.install
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import tech.zakomi.zakdroid.runtime.InstallStep
@@ -100,8 +101,13 @@ class RuntimeInstaller(
     private fun configure() {
         val root = paths.rootfs
         File(root, "etc/apk").mkdirs()
-        File(root, "etc/resolv.conf").writeText("nameserver 1.1.1.1\nnameserver 8.8.8.8\n")
-        File(root, "etc/hosts").writeText("127.0.0.1 localhost\n::1 localhost\n")
+        // The active network's DNS servers first (some networks block public resolvers), then public fallbacks.
+        val servers = (platform.dnsServers().filter { it.isNotBlank() } + FALLBACK_DNS).distinct().take(3)
+        log.line("DNS servers: $servers")
+        File(root, "etc/resolv.conf").writeText(
+            servers.joinToString("") { "nameserver $it\n" } + "options timeout:3 attempts:3\n",
+        )
+        writeHosts(pinned = emptyList())
         File(root, "etc/apk/repositories").writeText(AlpineRelease.REPOSITORIES.joinToString("\n", postfix = "\n"))
         File(root, "etc/profile.d").mkdirs()
         File(root, "etc/profile.d/zakdroid.sh").writeText(
@@ -118,16 +124,43 @@ class RuntimeInstaller(
     }
 
     private suspend fun installPackages(repair: Boolean) {
+        // musl has no DNS cache, so apk resolves the mirror again for every package; on flaky
+        // networks some of those UDP lookups time out ("DNS: transient error"). Resolve once with
+        // Android's resolver and pin the result in /etc/hosts for the duration of the install.
+        val addresses = platform.resolve(AlpineRelease.MIRROR_HOST)
+        log.line("${AlpineRelease.MIRROR_HOST} -> ${addresses.ifEmpty { listOf("unresolved") }}")
+        if (addresses.isEmpty()) {
+            throw InstallException(RuntimeErrorKind.Network, "No internet connection: cannot reach ${AlpineRelease.MIRROR_HOST}. Connect to the internet and tap Retry.")
+        }
+        writeHosts(pinned = addresses.map { it to AlpineRelease.MIRROR_HOST })
+        try {
+            installPackagesPinned(repair)
+        } finally {
+            // Mirror IPs can change; normal DNS takes over after the install.
+            writeHosts(pinned = emptyList())
+        }
+    }
+
+    private suspend fun installPackagesPinned(repair: Boolean) {
         // --wait: a briefly held lock (e.g. the user's own apk in a terminal) waits instead of failing.
         val apk = "apk --wait $APK_LOCK_WAIT_SECONDS --no-progress"
         val fix = if (repair) "$apk fix && " else ""
         val script = "set -e; $apk update && ${fix}$apk add ${AlpineRelease.PACKAGES.joinToString(" ")}"
         val progress = Regex("""^\((\d+)/(\d+)\)\s+(\S+)\s+(\S+)""")
-        var output = execLogged(script) { line ->
+        val onLine: (String) -> Unit = { line ->
             progress.find(line)?.let { m ->
                 val (n, total, action, pkg) = m.destructured
                 onProgress(InstallStep.InstallPackages, n.toFloat() / total.toFloat(), "$action $pkg")
             }
+        }
+        var output = execLogged(script, onLine)
+        // apk add is idempotent: a retry only fetches what is still missing.
+        var attempt = 1
+        while (isNetworkFailure(output) && attempt < NETWORK_ATTEMPTS) {
+            attempt++
+            log.line("network errors from apk; retry $attempt of $NETWORK_ATTEMPTS")
+            delay(RETRY_DELAY_MS * attempt)
+            output = execLogged(script, onLine)
         }
         if (isLockFailure(output)) {
             // Something still held the lock for the whole wait: clean up once more and retry once.
@@ -139,12 +172,27 @@ class RuntimeInstaller(
             }
         }
         if (output.exitCode != 0) {
-            val network = output.tail.any { "temporary error" in it || "network" in it.lowercase() || "DNS" in it }
+            val network = isNetworkFailure(output)
             throw InstallException(
                 if (network) RuntimeErrorKind.Network else RuntimeErrorKind.Packages,
-                "Package installation failed (exit ${output.exitCode}):\n" + output.tail.takeLast(12).joinToString("\n"),
+                (if (network) "Downloading packages failed after $NETWORK_ATTEMPTS attempts because of network errors. Check the connection and tap Retry; packages that were already installed are kept.\n\n" else "") +
+                    "Package installation failed (exit ${output.exitCode}):\n" + output.tail.takeLast(12).joinToString("\n"),
             )
         }
+    }
+
+    /** Writes the rootfs /etc/hosts; [pinned] (ip to host) entries go in a marked block. */
+    private fun writeHosts(pinned: List<Pair<String, String>>) {
+        val text = buildString {
+            append("127.0.0.1 localhost\n::1 localhost\n")
+            if (pinned.isNotEmpty()) {
+                append("$HOSTS_BEGIN\n")
+                pinned.forEach { (ip, host) -> append("$ip $host\n") }
+                append("$HOSTS_END\n")
+            }
+        }
+        File(paths.rootfs, "etc").mkdirs()
+        File(paths.rootfs, "etc/hosts").writeText(text)
     }
 
     private suspend fun verifyToolchain() {
@@ -168,6 +216,20 @@ class RuntimeInstaller(
 
     companion object {
         const val APK_LOCK_WAIT_SECONDS = 60
+        const val NETWORK_ATTEMPTS = 3
+        private const val RETRY_DELAY_MS = 3_000L
+        val FALLBACK_DNS = listOf("1.1.1.1", "8.8.8.8")
+        const val HOSTS_BEGIN = "# zakdroid-install: pinned mirror (removed after the install)"
+        const val HOSTS_END = "# zakdroid-install: end"
+
+        private val NETWORK_ERRORS = listOf(
+            "DNS", "transient error", "temporary error", "network", "timed out", "timeout",
+            "Connection refused", "connection reset", "Network unreachable", "Host is unreachable",
+        )
+
+        /** apk failed because of DNS or connection problems (worth retrying). */
+        fun isNetworkFailure(result: ExecResult): Boolean =
+            result.exitCode != 0 && result.tail.any { line -> line.startsWith("ERROR") && NETWORK_ERRORS.any { line.contains(it, ignoreCase = true) } }
 
         /** apk-tools 3 exits with 99 and prints this when the database lock cannot be taken. */
         fun isLockFailure(result: ExecResult): Boolean =

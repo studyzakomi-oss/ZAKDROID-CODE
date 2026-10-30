@@ -10,7 +10,9 @@ import android.os.Build
 object AlpineRelease {
     const val VERSION = "3.24.3"
     const val BRANCH = "v3.24"
-    private const val MIRROR = "https://dl-cdn.alpinelinux.org/alpine"
+    /** Host of the package mirror; pinned in the rootfs /etc/hosts during package installs. */
+    const val MIRROR_HOST = "dl-cdn.alpinelinux.org"
+    private const val MIRROR = "https://$MIRROR_HOST/alpine"
 
     /** Packages installed into the rootfs. Phase 2 adds clang-extra-tools (clangd) and LSP servers. */
     val PACKAGES = listOf("build-base", "clang", "python3", "py3-pip")

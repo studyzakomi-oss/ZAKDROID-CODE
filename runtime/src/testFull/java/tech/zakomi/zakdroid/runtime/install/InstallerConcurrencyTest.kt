@@ -33,6 +33,10 @@ private class FakePlatform : InstallPlatform {
     var runningExecs = 0
     var maxConcurrentExecs = 0
     var lockFailuresToInject = 0
+    var networkFailuresToInject = 0
+    var resolvedAddresses = listOf("151.101.2.132")
+    var hostsDuringExec: String? = null
+    lateinit var hostsFile: File
     var blockExec: CompletableDeferred<Unit>? = null
     var slowCleanup: CompletableDeferred<Unit>? = null
     private var nextPid = 100
@@ -60,6 +64,12 @@ private class FakePlatform : InstallPlatform {
             events += "exec-locked"
             return ExecResult(99, listOf("ERROR: Unable to lock database: Resource temporarily unavailable"))
         }
+        if (::hostsFile.isInitialized && script.contains(" add ")) hostsDuringExec = hostsFile.readText()
+        if (networkFailuresToInject > 0 && script.contains(" add ")) {
+            networkFailuresToInject--
+            events += "exec-network-error"
+            return ExecResult(9, listOf("ERROR: readline-8.3.3-r1: DNS: transient error (try again later)", "(44/45) Installing python3-pyc"))
+        }
         val pid = "apk-${nextPid++}"
         alive += pid
         runningExecs++
@@ -84,6 +94,10 @@ private class FakePlatform : InstallPlatform {
     }
 
     override fun jobPids() = emptyList<Int>()
+
+    override suspend fun resolve(host: String) = resolvedAddresses
+
+    override fun dnsServers() = listOf("192.168.1.1")
 }
 
 class InstallerConcurrencyTest {
@@ -91,7 +105,7 @@ class InstallerConcurrencyTest {
     private val paths = RuntimePaths(File(dir, "lib"), File(dir, "files"), File(dir, "home"))
     private val log = InstallLog(paths.installLog, paths.previousInstallLog)
     private val guard = InstallGuard(paths.installLock)
-    private val platform = FakePlatform()
+    private val platform = FakePlatform().also { it.hostsFile = File(paths.rootfs, "etc/hosts") }
 
     private fun TestScope.installer() =
         // EmptyCoroutineContext: stay on the test dispatcher (virtual time) instead of Dispatchers.IO.
@@ -188,6 +202,51 @@ class InstallerConcurrencyTest {
         assertFalse(paths.readyMarker.isFile)
         assertFalse(guard.active.value)
         assertTrue(paths.installLog.readText().contains("apk database locked"))
+    }
+
+    @Test
+    fun `DNS errors from apk are retried and the mirror is pinned only during the install`() = runTest {
+        platform.networkFailuresToInject = 2
+        guardedRun()
+        assertEquals(2, platform.events.count { it == "exec-network-error" })
+        assertTrue(paths.readyMarker.isFile)
+        // Pinned while apk ran, removed afterwards.
+        assertTrue(platform.hostsDuringExec!!.contains("151.101.2.132 ${AlpineRelease.MIRROR_HOST}"))
+        assertFalse(File(paths.rootfs, "etc/hosts").readText().contains(AlpineRelease.MIRROR_HOST))
+        val resolv = File(paths.rootfs, "etc/resolv.conf").readText()
+        assertTrue("network DNS first: $resolv", resolv.startsWith("nameserver 192.168.1.1\n"))
+    }
+
+    @Test
+    fun `persistent network errors become a Network error after three attempts`() = runTest {
+        platform.networkFailuresToInject = 3
+        try {
+            guardedRun()
+            fail("expected InstallException")
+        } catch (e: InstallException) {
+            assertEquals(RuntimeErrorKind.Network, e.kind)
+        }
+        assertEquals(3, platform.events.count { it == "exec-network-error" })
+        assertFalse(File(paths.rootfs, "etc/hosts").readText().contains(AlpineRelease.MIRROR_HOST))
+    }
+
+    @Test
+    fun `no internet is reported before apk runs`() = runTest {
+        platform.resolvedAddresses = emptyList()
+        try {
+            guardedRun()
+            fail("expected InstallException")
+        } catch (e: InstallException) {
+            assertEquals(RuntimeErrorKind.Network, e.kind)
+        }
+        assertFalse(platform.events.any { it.startsWith("exec") })
+    }
+
+    @Test
+    fun `apk transient DNS errors are recognised as network failures`() {
+        assertTrue(RuntimeInstaller.isNetworkFailure(ExecResult(9, listOf("ERROR: sqlite-libs-3.53.4-r0: DNS: transient error (try again later)"))))
+        assertFalse(RuntimeInstaller.isNetworkFailure(ExecResult(1, listOf("ERROR: unable to select packages:", "  foo (no such package)"))))
+        assertFalse(RuntimeInstaller.isNetworkFailure(ExecResult(0, listOf("OK"))))
     }
 
     @Test
