@@ -14,6 +14,28 @@ an Alpine Linux userland under PRoot. No root is needed.
 > **Fully on-device:** after a one-time toolchain download, everything works offline,
 > with no server needed. Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
+## Download / التنزيل
+
+zakdroid-code is free and open source (Apache-2.0). Anyone can download, use, study and modify it.
+zakdroid-code مجاني ومفتوح المصدر (Apache-2.0)، ويمكن لأي شخص تنزيله واستخدامه ودراسته وتعديله.
+
+- **All versions / كل الإصدارات:** https://github.com/studyzakomi-oss/ZAKDROID-CODE/releases
+- **Most phones and tablets / معظم الهواتف والأجهزة اللوحية:** `app-full-arm64-v8a-debug.apk`
+- **Emulators, Chromebooks / المحاكيات وأجهزة Chromebook:** `app-full-universal-debug.apk`
+- Each release lists SHA-256 checksums (`SHA256SUMS.txt`) and the PRoot source (`zakdroid-proot-source.tar.gz`).
+  يتضمن كل إصدار بصمات SHA-256 وشيفرة مصدر PRoot.
+
+Install: download the APK on the device, open it, and allow "Install unknown apps" for your browser or file manager.
+التثبيت: نزّل ملف APK على الجهاز وافتحه، واسمح لمتصفحك أو مدير الملفات بـ«تثبيت التطبيقات غير المعروفة».
+
+> **Alpha builds** are signed with a temporary key: before installing a newer alpha, uninstall the
+> previous one. This removes the toolchain and projects created inside the app, so copy your files out first.
+> **الإصدارات التجريبية** موقّعة بمفتاح مؤقت: أزل الإصدار السابق قبل تثبيت الأحدث. هذا يحذف أدوات
+> البرمجة والمشاريع المنشأة داخل التطبيق، لذا انسخ ملفاتك أولًا.
+
+Requirements / المتطلبات: Android 8.0+, arm64 (or x86_64), about 400 MB free storage, internet once for the toolchain download.
+بعد تنزيل أدوات البرمجة مرة واحدة، يعمل التطبيق بالكامل دون إنترنت.
+
 ## Phase 1 features
 
 - **Workbench:**
