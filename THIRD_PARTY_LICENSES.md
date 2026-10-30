@@ -1,4 +1,4 @@
-# Third-party components (Phase 1)
+# Third-party components
 
 zakdroid-code's own code is **Apache-2.0**. The table lists every third-party
 component in the Phase 1 build: how each one is used, and what its license
@@ -78,13 +78,12 @@ Only modified EPL files must be published under the EPL. We use tm4e unmodified 
 ### Trademarks
 The Apache-2.0 license does not cover the zakomi TECH names and logo. See `TRADEMARKS.md`.
 
-## Phase 2+ additions (planned, not in this build)
+## Planned additions (not in this build)
 
-| Component | License | Phase |
+| Component | License | Milestone |
 |---|---|---|
-| sora `editor-lsp` (+ lsp4j, EPL-2.0) | LGPL-2.1 / EPL-2.0 | 2 |
-| clangd, clang-format, clang-tidy (`clang-extra-tools`, downloaded on the device) | Apache-2.0 WITH LLVM-exception | 2 |
-| python-lsp-server, ruff (pip/apk on the device) | MIT | 2 |
-| JGit or libgit2 | EDL-1.0 (BSD) / GPL-2.0 with linking exception | 3 |
-| lldb-dap, debugpy (on the device) | Apache-2.0 WITH LLVM-exception / MIT | 4 |
-| SSH library (sshj or Apache MINA SSHD) | Apache-2.0 | 4 |
+| sora `editor-lsp` (+ lsp4j, EPL-2.0) | LGPL-2.1 / EPL-2.0 | M1 |
+| clangd, clang-format, clang-tidy (`clang-extra-tools`, downloaded on the device) | Apache-2.0 WITH LLVM-exception | M1 |
+| python-lsp-server, ruff (pip/apk on the device) | MIT | M1 |
+| JGit or libgit2 | EDL-1.0 (BSD) / GPL-2.0 with linking exception | M3 |
+| lldb-dap, debugpy (on the device) | Apache-2.0 WITH LLVM-exception / MIT | M4 |

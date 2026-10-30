@@ -46,6 +46,7 @@ import tech.zakomi.zakdroid.runtime.InstallStep
 import tech.zakomi.zakdroid.runtime.RuntimeErrorKind
 import tech.zakomi.zakdroid.runtime.RuntimeState
 import tech.zakomi.zakdroid.runtime.labelRes
+import tech.zakomi.zakdroid.ui.common.BackgroundActivityCard
 
 /** Short state label: Not installed / Installing x% / Ready / Error. */
 @Composable
@@ -93,10 +94,14 @@ fun RuntimeSheet(
                         Text(stringResource(R.string.runtime_intro), color = colors.textPrimary)
                         Spacer(Modifier.height(8.dp))
                         Text(stringResource(R.string.runtime_space_note), color = colors.textSecondary)
+                        BackgroundActivityCard(onlyWhenRestricted = true, modifier = Modifier.padding(top = 8.dp))
                         Spacer(Modifier.height(4.dp))
                         Text(stringResource(R.string.runtime_packages, viewModel.packages.joinToString(", ")), color = colors.textSecondary)
                     }
-                    is RuntimeState.Installing -> InstallProgress(s)
+                    is RuntimeState.Installing -> {
+                        InstallProgress(s)
+                        BackgroundActivityCard(onlyWhenRestricted = true, modifier = Modifier.padding(top = 8.dp))
+                    }
                     RuntimeState.Stopping -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = colors.accentText)
                         Text(stringResource(R.string.runtime_stopping_message), color = colors.textPrimary)

@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import tech.zakomi.zakdroid.BuildConfig
 import tech.zakomi.zakdroid.runtime.RuntimeManager
 import tech.zakomi.zakdroid.runtime.RuntimeState
+import tech.zakomi.zakdroid.system.BackgroundRestrictions
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +25,7 @@ class DiagnosticsViewModel @Inject constructor(
         appendLine("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
         appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
         appendLine("ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
+        appendLine("Background: ${BackgroundRestrictions.describe(context)}")
         appendLine("Runtime: ${describe(runtime.state.value)}")
         appendLine("Runtime build: ${runtime.description}")
         appendLine()

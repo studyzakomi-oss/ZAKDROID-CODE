@@ -60,6 +60,7 @@ import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.runtime.RuntimeState
 import tech.zakomi.zakdroid.runtime.acceptsInstallRequest
+import tech.zakomi.zakdroid.ui.common.BackgroundActivityCard
 import tech.zakomi.zakdroid.ui.common.ConfirmDialog
 import tech.zakomi.zakdroid.ui.runtime.RuntimeViewModel
 import tech.zakomi.zakdroid.ui.runtime.rememberWithNotificationPermission
@@ -170,6 +171,9 @@ fun SettingsScreen(
                 Stepper(stringResource(R.string.settings_font_size), settings.terminalFontSizeSp) { size ->
                     viewModel.update { it.copy(terminalFontSizeSp = size) }
                 }
+
+                Section(stringResource(R.string.background_title))
+                BackgroundActivityCard(onlyWhenRestricted = false)
 
                 Section(stringResource(R.string.settings_runtime))
                 Text(runtimeStatusLabel(runtime), color = colors.textPrimary, style = MaterialTheme.typography.titleSmall)

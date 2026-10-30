@@ -13,4 +13,10 @@
     <string name="terminal_key_pgup">Page up</string>
     <string name="terminal_key_pgdn">Page down</string>
     <string name="terminal_key_paste">Paste</string>
+    <string name="terminal_notification_channel">Terminal sessions</string>
+    <plurals name="terminal_notification_title">
+        <item quantity="one">%d terminal session running</item>
+        <item quantity="other">%d terminal sessions running</item>
+    </plurals>
+    <string name="terminal_notification_text">Builds and programs keep running in the background. Tap to open zakdroid-code.</string>
 </resources>

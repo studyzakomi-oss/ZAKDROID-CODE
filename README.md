@@ -7,10 +7,12 @@ A VS Code–style IDE for Android phones and tablets, for **C, C++ and Python**.
 It runs a real toolchain (clang, gcc, make, Python 3, pip) on the device, inside
 an Alpine Linux userland under PRoot. No root is needed.
 
-> **Status: Phase 1 (MVP).** Brand and themes, Explorer, the sora-editor code
-> editor with TextMate highlighting, tabs, an integrated terminal, and one-tap
-> Run for single C/C++/Python files. LSP, Problems panel, Command Palette, Git,
-> debugging and Remote SSH come in Phases 2–4.
+> **Status: Phase 1 done, M0 (device fixes) in progress.** Brand and themes, Explorer,
+> the sora-editor code editor with TextMate highlighting, tabs, an integrated terminal,
+> and one-tap Run for single C/C++/Python files.
+>
+> **Fully on-device:** after a one-time toolchain download, everything works offline,
+> with no server needed. Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Phase 1 features
 
@@ -44,7 +46,7 @@ an Alpine Linux userland under PRoot. No root is needed.
 **Not yet in Phase 1:**
 - Code folding: sora-editor has no folding UI yet.
 - Multi-cursor and minimap.
-- Snippets, LSP features, Problems panel and the Command Palette (Phase 2).
+- Snippets, LSP features, Problems panel and the Command Palette (M1).
 
 ## Build
 

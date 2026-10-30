@@ -137,6 +137,15 @@
     <string name="settings_decrease">تصغير</string>
     <string name="settings_increase">تكبير</string>
 
+    <!-- Background activity -->
+    <string name="background_title">العمل في الخلفية</string>
+    <string name="background_ok">سيسمح أندرويد باستمرار البناء والتثبيت في الخلفية.</string>
+    <string name="background_restricted">قد يوقف تحسين البطارية التثبيت والبناء عند مغادرة التطبيق.</string>
+    <string name="background_why">لا تستمر عمليات التثبيت والبناء الطويلة في الخلفية إلا إذا لم تقيّد إدارة البطارية zakdroid-code.</string>
+    <string name="background_honor_steps">Honor / MagicOS: الإعدادات ← البطارية ← تشغيل التطبيقات ← zakdroid-code ← أوقف \"الإدارة التلقائية\"، ثم فعّل التشغيل التلقائي والتشغيل الثانوي والعمل في الخلفية.</string>
+    <string name="background_allow">السماح بالعمل في الخلفية</string>
+    <string name="background_open_app_launch">فتح إعدادات تشغيل التطبيقات</string>
+
     <!-- About -->
     <string name="about_title">حول</string>
     <string name="about_version">الإصدار %1$s</string>

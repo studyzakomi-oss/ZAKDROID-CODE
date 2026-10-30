@@ -13,4 +13,14 @@
     <string name="terminal_key_pgup">صفحة للأعلى</string>
     <string name="terminal_key_pgdn">صفحة للأسفل</string>
     <string name="terminal_key_paste">لصق</string>
+    <string name="terminal_notification_channel">جلسات الطرفية</string>
+    <plurals name="terminal_notification_title">
+        <item quantity="zero">لا توجد جلسات طرفية قيد التشغيل</item>
+        <item quantity="one">جلسة طرفية واحدة قيد التشغيل</item>
+        <item quantity="two">جلستا طرفية قيد التشغيل</item>
+        <item quantity="few">%d جلسات طرفية قيد التشغيل</item>
+        <item quantity="many">%d جلسة طرفية قيد التشغيل</item>
+        <item quantity="other">%d جلسة طرفية قيد التشغيل</item>
+    </plurals>
+    <string name="terminal_notification_text">تستمر عمليات البناء والبرامج في العمل في الخلفية. اضغط لفتح zakdroid-code.</string>
 </resources>

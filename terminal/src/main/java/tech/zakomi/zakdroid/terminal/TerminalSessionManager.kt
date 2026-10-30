@@ -58,6 +58,7 @@ class TerminalSessionManager @Inject constructor(
         sessions[id] = session
         _tabs.update { it + TerminalTab(id, spec.title, spec.kind) }
         _activeId.value = id
+        updateKeepAlive()
         return id
     }
 
@@ -73,6 +74,7 @@ class TerminalSessionManager @Inject constructor(
         }
         _tabs.update { list -> list.filterNot { it.id == id } }
         if (_activeId.value == id) _activeId.value = _tabs.value.lastOrNull()?.id
+        updateKeepAlive()
     }
 
     fun closeAll() {
@@ -89,6 +91,11 @@ class TerminalSessionManager @Inject constructor(
 
     private fun idOf(session: TerminalSession): Int? = session.mSessionName?.toIntOrNull()
 
+    /** Keeps a foreground service while any session is still running (see [TerminalKeepAliveService]). */
+    private fun updateKeepAlive() {
+        TerminalKeepAliveService.update(context, _tabs.value.count { it.running })
+    }
+
     private val client = object : TerminalSessionClient {
         override fun onTextChanged(changedSession: TerminalSession) {
             val view = attachedView ?: return
@@ -101,6 +108,7 @@ class TerminalSessionManager @Inject constructor(
             val id = idOf(finishedSession) ?: return
             val exit = finishedSession.exitStatus
             _tabs.update { list -> list.map { if (it.id == id) it.copy(running = false, exitCode = exit) else it } }
+            updateKeepAlive()
             attachedView?.takeIf { it.currentSession === finishedSession }?.invalidate()
         }
 

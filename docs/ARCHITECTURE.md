@@ -1,4 +1,4 @@
-# zakdroid-code architecture (Phase 1)
+# zakdroid-code architecture
 
 ## Modules
 
@@ -39,11 +39,7 @@ Every module with channel-specific code (`:app`, `:runtime`) applies `zakdroid.d
 
 - `full`: GitHub Releases and F-Droid. Ships PRoot and installs Alpine on the device.
 
-**Adding `play` in Phase 4** (Remote SSH only, no downloaded executables) needs no restructuring:
-1. Append `"play"` to `DISTRIBUTIONS` in `DistributionConventionPlugin.kt`.
-2. Add `runtime/src/play/`, containing an SSH-backed `RuntimeManager` and its Hilt module.
-
-Everything else depends only on the flavor-neutral `RuntimeManager` interface in `runtime/src/main`. PRoot binaries, the WorkManager install worker and their manifest entries live only in `runtime/src/full/`, so a `play` APK contains none of them.
+The app runs entirely on the device (see `docs/ROADMAP.md`), so no second flavor is planned. The dimension is kept because it costs nothing and keeps the local runtime (`runtime/src/full/`) separate from the flavor-neutral `RuntimeManager` API in `runtime/src/main`.
 
 ## MVVM and data flow
 
@@ -115,6 +111,10 @@ The guest runs as fake root (`-0`), so `apk add` works for extra packages. It st
 - **Repair** re-runs steps 5–7 with `apk fix`. **Reinstall** deletes the rootfs and starts over; `/home/user` is kept.
 - **Status Bar** shows the state: *Not installed* / *Installing x%* / *Ready* / *Error*.
 
+### Background execution
+- **Terminal keep-alive:** `TerminalKeepAliveService` (`:terminal`) is a foreground service, type `specialUse`. It runs while at least one terminal session or program is running and stops when the last one ends. It holds no state; sessions live in `TerminalSessionManager`.
+- **Battery optimization:** Settings → Background activity shows whether the app is exempt. It offers the system exemption dialog and, on Honor/Huawei, opens the vendor's *App launch* screen if found (otherwise the app's settings page). The toolchain sheet shows the same card while the app is still restricted.
+
 ### Pinned versions
 - Alpine 3.24.3 SHA-256 (cross-checked against the official `alpinelinux/docker-alpine` `v3.24` branch):
   - aarch64: `4d3f80afaebd447c5591a63a73bde380a149fe8b2d85488cafabb2ff97551f50`
@@ -140,8 +140,8 @@ The guest runs as fake root (`-0`), so `apk add` works for extra packages. It st
 
 | Feature | Evidence in the source | Plan |
 |---|---|---|
-| Code folding | `lang/folding/FoldingRegion.java` is a data class (start, end, `collapsed` flag) with **no references** in `widget/`, `EditorRenderer` or the layout classes. `language-textmate` computes indent ranges (`IndentRange.computeRanges`) only to draw code-block guide lines. The README feature list has no folding. | **Implement ourselves in Phase 3**, as a contained patch on a sora fork: hide folded line ranges in the layout and renderer, add gutter toggles, feed ranges from clangd `foldingRange` (Phase 2 LSP) with the TextMate indent ranges as fallback. Offer it upstream; drop the fork if upstream ships folding first. |
-| Multi-cursor | `Content` owns exactly one `Cursor` (`Content.getCursor()`), which holds one `leftSel`/`rightSel` pair. Editing, IME and undo all go through that single cursor; there is no cursor collection anywhere. The README feature list has no multi-cursor. | **Partial support, Phase 3:** "Select all occurrences" and "Change all occurrences" (Ctrl+Shift+L / Ctrl+F2) built on `EditorSearcher` plus a batch edit, which covers the common rename-in-file case. True multi-caret editing (Alt+Click, Ctrl+Alt+↓) needs a deep rewrite of sora's cursor, IME and undo, so **wait for upstream**; LSP rename (Phase 2) covers symbol renames. |
+| Code folding | `lang/folding/FoldingRegion.java` is a data class (start, end, `collapsed` flag) with **no references** in `widget/`, `EditorRenderer` or the layout classes. `language-textmate` computes indent ranges (`IndentRange.computeRanges`) only to draw code-block guide lines. The README feature list has no folding. | **Implement ourselves in M7**, as a contained patch on a sora fork: hide folded line ranges in the layout and renderer, add gutter toggles, feed ranges from clangd `foldingRange` (M1 LSP) with the TextMate indent ranges as fallback. Offer it upstream; drop the fork if upstream ships folding first. |
+| Multi-cursor | `Content` owns exactly one `Cursor` (`Content.getCursor()`), which holds one `leftSel`/`rightSel` pair. Editing, IME and undo all go through that single cursor; there is no cursor collection anywhere. The README feature list has no multi-cursor. | **Partial support, M7:** "Select all occurrences" and "Change all occurrences" (Ctrl+Shift+L / Ctrl+F2) built on `EditorSearcher` plus a batch edit, which covers the common rename-in-file case. True multi-caret editing (Alt+Click, Ctrl+Alt+↓) needs a deep rewrite of sora's cursor, IME and undo, so **wait for upstream**; LSP rename (M1) covers symbol renames. |
 
 ## Theming and accessibility
 
