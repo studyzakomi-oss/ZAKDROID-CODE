@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +58,21 @@ fun runtimeStatusLabel(state: RuntimeState): String = when (state) {
     RuntimeState.Ready -> stringResource(R.string.runtime_ready)
     is RuntimeState.Error -> stringResource(R.string.runtime_error)
 }
+
+/** A localized one-line explanation of [RuntimeErrorKind]; Locked has its own title and message. */
+@get:StringRes
+val RuntimeErrorKind.messageRes: Int
+    get() = when (this) {
+        RuntimeErrorKind.NotEnoughSpace -> R.string.runtime_error_not_enough_space
+        RuntimeErrorKind.Network -> R.string.runtime_error_network
+        RuntimeErrorKind.Checksum -> R.string.runtime_error_checksum
+        RuntimeErrorKind.Extract -> R.string.runtime_error_extract
+        RuntimeErrorKind.Packages -> R.string.runtime_error_packages
+        RuntimeErrorKind.Verification -> R.string.runtime_error_verification
+        RuntimeErrorKind.UnsupportedDevice -> R.string.runtime_error_unsupported_device
+        RuntimeErrorKind.Locked -> R.string.runtime_locked_message
+        RuntimeErrorKind.Unknown -> R.string.runtime_error_unknown
+    }
 
 /** Returns a callback that asks for notification permission (Android 13+) and then runs [action]. */
 @Composable
@@ -118,10 +134,8 @@ fun RuntimeSheet(
                             color = colors.error,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (locked) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(stringResource(R.string.runtime_locked_message), color = colors.textPrimary)
-                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(stringResource(s.kind.messageRes), color = colors.textPrimary)
                         s.step?.let {
                             Text(stringResource(it.labelRes), color = colors.textSecondary)
                         }

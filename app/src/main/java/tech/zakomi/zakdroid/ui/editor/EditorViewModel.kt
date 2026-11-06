@@ -35,7 +35,10 @@ import tech.zakomi.zakdroid.terminal.TerminalSessionManager
 import javax.inject.Inject
 
 sealed interface EditorEvent {
-    data class Message(val text: String) : EditorEvent
+    data class FileMissing(val name: String) : EditorEvent
+    data class OpenFailed(val name: String, val reason: LoadResult.Reason, val detail: String) : EditorEvent
+    data class SaveFailed(val name: String, val detail: String) : EditorEvent
+    data class RunFailed(val name: String, val detail: String) : EditorEvent
     data class ConfirmClose(val tab: OpenTab) : EditorEvent
     data object RuntimeNotReady : EditorEvent
     data object NothingToRun : EditorEvent
@@ -99,12 +102,12 @@ class EditorViewModel @Inject constructor(
         try {
             val entry = fs.stat(ref)
             if (entry == null) {
-                _events.send(EditorEvent.Message("\"$name\" no longer exists"))
+                _events.send(EditorEvent.FileMissing(name))
                 return
             }
             when (val result = loader.load(entry)) {
                 is LoadResult.Loaded -> documents.add(result.document, relativePath, activate)
-                is LoadResult.Failed -> _events.send(EditorEvent.Message("$name: ${result.message}"))
+                is LoadResult.Failed -> _events.send(EditorEvent.OpenFailed(name, result.reason, result.message))
             }
         } finally {
             _loading.value = false
@@ -157,7 +160,7 @@ class EditorViewModel @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            _events.send(EditorEvent.Message("Cannot save ${tab.name}: ${e.message}"))
+            _events.send(EditorEvent.SaveFailed(tab.name, e.detail()))
             false
         }
     }
@@ -195,7 +198,7 @@ class EditorViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _events.send(EditorEvent.Message("Cannot run ${tab.name}: ${e.message}"))
+                _events.send(EditorEvent.RunFailed(tab.name, e.detail()))
             } finally {
                 _running.value = false
             }
@@ -225,3 +228,6 @@ class EditorViewModel @Inject constructor(
         val HEADER_EXTENSIONS = setOf("h", "hh", "hpp", "hxx", "h++", "inl", "ipp", "tpp", "txx")
     }
 }
+
+/** The exception's own text (from the system, not translated), for after a localized prefix. */
+internal fun Exception.detail(): String = message ?: javaClass.simpleName

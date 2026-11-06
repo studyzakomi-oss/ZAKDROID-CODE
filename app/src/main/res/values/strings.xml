@@ -178,4 +178,22 @@
     <string name="purpose_ui_font">User interface typeface</string>
     <string name="purpose_code_font">Code typeface</string>
     <string name="purpose_icons">Icons</string>
+
+    <!-- Error messages (O8): the part after the colon is the system's own text. -->
+    <string name="editor_file_missing">\"%1$s\" no longer exists.</string>
+    <string name="editor_open_too_large">%1$s is larger than %2$d MB and cannot be opened.</string>
+    <string name="editor_open_binary">%1$s is a binary file and cannot be opened as text.</string>
+    <string name="editor_open_not_utf8">%1$s is not UTF-8 text.</string>
+    <string name="editor_open_failed">Cannot open %1$s: %2$s</string>
+    <string name="editor_save_failed">Cannot save %1$s: %2$s</string>
+    <string name="run_failed">Cannot run %1$s: %2$s</string>
+    <string name="explorer_error">The operation failed: %1$s</string>
+    <string name="runtime_error_not_enough_space">Not enough free storage. Free up space and try again.</string>
+    <string name="runtime_error_network">Network error. Check the internet connection and try again.</string>
+    <string name="runtime_error_checksum">A downloaded file failed its integrity check. Try again.</string>
+    <string name="runtime_error_extract">The Linux system could not be unpacked.</string>
+    <string name="runtime_error_packages">Installing the toolchain packages failed.</string>
+    <string name="runtime_error_verification">The installed tools did not pass the final check. Try Repair.</string>
+    <string name="runtime_error_unsupported_device">This device\'s processor is not supported.</string>
+    <string name="runtime_error_unknown">An unexpected error occurred.</string>
 </resources>

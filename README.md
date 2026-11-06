@@ -80,7 +80,7 @@ Requirements / المتطلبات: Android 8.0+, arm64 (or x86_64), about 400 MB
 | Android NDK | `29.0.14206865` (`sdkmanager "ndk;29.0.14206865"`) |
 | bash, git, make, **gawk**, python3 | PRoot build and the contrast check |
 
-Gradle 9.8.2 comes with the wrapper; AGP 9.5.0 and Kotlin 2.4.21 come from `gradle/libs.versions.toml`.
+Gradle 9.8.2 comes with the wrapper; AGP 9.5.1 and Kotlin 2.4.21 come from `gradle/libs.versions.toml`.
 
 ### Commands
 ```bash

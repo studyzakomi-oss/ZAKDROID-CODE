@@ -1,5 +1,6 @@
 package tech.zakomi.zakdroid.ui.workbench
 
+import android.content.res.Resources
 import android.view.KeyEvent
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -64,6 +66,8 @@ import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.designsystem.ZakomiLogo
 import tech.zakomi.zakdroid.core.fs.FileRef
 import tech.zakomi.zakdroid.core.settings.AppSettings
+import tech.zakomi.zakdroid.editor.document.DocumentLoader
+import tech.zakomi.zakdroid.editor.document.LoadResult
 import tech.zakomi.zakdroid.editor.ui.rememberEditorController
 import tech.zakomi.zakdroid.state.OpenTab
 import tech.zakomi.zakdroid.ui.editor.EditorArea
@@ -131,7 +135,10 @@ fun WorkbenchScreen(
     LaunchedEffect(Unit) {
         editorVm.events.collect { event ->
             when (event) {
-                is EditorEvent.Message -> snackbar.showSnackbar(event.text)
+                is EditorEvent.FileMissing -> snackbar.showSnackbar(messages.fileMissing(event.name))
+                is EditorEvent.OpenFailed -> snackbar.showSnackbar(messages.openFailed(event.name, event.reason, event.detail))
+                is EditorEvent.SaveFailed -> snackbar.showSnackbar(messages.saveFailed(event.name, event.detail))
+                is EditorEvent.RunFailed -> snackbar.showSnackbar(messages.runFailed(event.name, event.detail))
                 is EditorEvent.ConfirmClose -> confirmClose = event.tab
                 EditorEvent.RuntimeNotReady -> runtimeSheet = true
                 EditorEvent.NothingToRun -> snackbar.showSnackbar(messages.runNothing)
@@ -144,7 +151,7 @@ fun WorkbenchScreen(
         explorerVm.messages.collect { message ->
             snackbar.showSnackbar(
                 when (message) {
-                    is ExplorerMessage.Error -> message.text
+                    is ExplorerMessage.Error -> messages.explorerError(message.text)
                     ExplorerMessage.SaveFolderFilesFirst -> messages.saveFolderFirst
                     ExplorerMessage.AccessLost -> messages.accessLost
                 },
@@ -369,20 +376,26 @@ private fun UnsavedChangesDialog(tab: OpenTab, onSave: () -> Unit, onDiscard: ()
     )
 }
 
-/** Localized snackbar texts, resolved once per composition. */
-private class EventTexts(
-    val runNothing: String,
-    val saveFolderFirst: String,
-    val accessLost: String,
-    private val runNotSupportedFormat: String,
-) {
-    fun runNotSupported(language: String) = String.format(runNotSupportedFormat, language)
+/** Localized snackbar texts. Uses the composition's [Resources] so a language switch applies at once. */
+private class EventTexts(private val res: Resources) {
+    val runNothing: String get() = res.getString(R.string.run_nothing)
+    val saveFolderFirst: String get() = res.getString(R.string.explorer_save_folder_first)
+    val accessLost: String get() = res.getString(R.string.explorer_access_lost)
+    fun runNotSupported(language: String) = res.getString(R.string.run_not_supported, language)
+    fun fileMissing(name: String) = res.getString(R.string.editor_file_missing, name)
+    fun saveFailed(name: String, detail: String) = res.getString(R.string.editor_save_failed, name, detail)
+    fun runFailed(name: String, detail: String) = res.getString(R.string.run_failed, name, detail)
+    fun explorerError(detail: String) = res.getString(R.string.explorer_error, detail)
+    fun openFailed(name: String, reason: LoadResult.Reason, detail: String) = when (reason) {
+        LoadResult.Reason.TooLarge -> res.getString(R.string.editor_open_too_large, name, (DocumentLoader.MAX_FILE_BYTES / (1024 * 1024)).toInt())
+        LoadResult.Reason.Binary -> res.getString(R.string.editor_open_binary, name)
+        LoadResult.Reason.NotUtf8 -> res.getString(R.string.editor_open_not_utf8, name)
+        LoadResult.Reason.IoError -> res.getString(R.string.editor_open_failed, name, detail)
+    }
 }
 
 @Composable
-private fun rememberEventTexts() = EventTexts(
-    runNothing = stringResource(R.string.run_nothing),
-    saveFolderFirst = stringResource(R.string.explorer_save_folder_first),
-    accessLost = stringResource(R.string.explorer_access_lost),
-    runNotSupportedFormat = stringResource(R.string.run_not_supported, "%1\$s"),
-)
+private fun rememberEventTexts(): EventTexts {
+    val res = LocalResources.current
+    return remember(res) { EventTexts(res) }
+}

@@ -50,14 +50,13 @@ class DocumentLoader @Inject constructor(
 
     /** Writes the document and returns once it is on disk. Call from the main thread. */
     suspend fun save(document: EditorDocument) {
-        val version = document.content.documentVersion
-        val text = document.snapshotForSave()
+        val snapshot = document.snapshotForSave()
         val bytes = withContext(Dispatchers.Default) {
-            val body = text.toByteArray(Charsets.UTF_8)
+            val body = snapshot.diskText.toByteArray(Charsets.UTF_8)
             if (document.hasBom) UTF8_BOM + body else body
         }
         fs.write(document.ref, bytes)
-        document.markSaved(version)
+        document.markSaved(snapshot)
     }
 
     private class Decoded(val text: String, val lineEnding: LineEnding, val hasBom: Boolean)

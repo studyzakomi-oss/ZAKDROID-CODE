@@ -25,14 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
 
-      - uses: gradle/actions/setup-gradle@v4
+      # "basic" = the MIT-licensed provider built on actions/cache (v6 defaults to a proprietary one).
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
 
       - name: Install NDK, SDK platform and gawk
         run: |
@@ -86,19 +89,19 @@ jobs:
       - name: Package PRoot source (GPL)
         run: scripts/package-proot-source.sh zakdroid-proot-source.tar.gz
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: zakdroid-code-apks
           path: |
             app/build/outputs/apk/full/debug/*.apk
             app/build/outputs/apk/full/release/*.apk
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: proot-source
           path: zakdroid-proot-source.tar.gz
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reports
@@ -116,14 +119,23 @@ jobs:
     env:
       TAG: ${{ inputs.release_tag || github.ref_name }}
     steps:
-      - uses: actions/download-artifact@v4
+      # Artifact storage sometimes fails a download (O10): try again once after a pause.
+      - name: Download build outputs
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v8
         with:
-          name: zakdroid-code-apks
-          path: apks
-      - uses: actions/download-artifact@v4
+          pattern: "{zakdroid-code-apks,proot-source}"
+          path: artifacts
+      - name: Wait before retrying the download
+        if: steps.download.outcome == 'failure'
+        run: rm -rf artifacts && sleep 60
+      - name: Download build outputs (retry)
+        if: steps.download.outcome == 'failure'
+        uses: actions/download-artifact@v8
         with:
-          name: proot-source
-          path: source
+          pattern: "{zakdroid-code-apks,proot-source}"
+          path: artifacts
 
       # Pre-release tags (containing "-", e.g. v0.1.0-alpha) ship installable debug APKs;
       # final tags ship the release APKs (signed when the signing secrets are set).
@@ -132,13 +144,13 @@ jobs:
         run: |
           mkdir dist
           if [[ "$TAG" == *-* ]]; then
-            cp apks/debug/app-full-arm64-v8a-debug.apk apks/debug/app-full-universal-debug.apk dist/
+            cp artifacts/zakdroid-code-apks/debug/app-full-arm64-v8a-debug.apk artifacts/zakdroid-code-apks/debug/app-full-universal-debug.apk dist/
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
           else
-            cp apks/release/app-full-arm64-v8a-release*.apk apks/release/app-full-universal-release*.apk dist/
+            cp artifacts/zakdroid-code-apks/release/app-full-arm64-v8a-release*.apk artifacts/zakdroid-code-apks/release/app-full-universal-release*.apk dist/
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
-          cp source/zakdroid-proot-source.tar.gz dist/
+          cp artifacts/proot-source/zakdroid-proot-source.tar.gz dist/
           cd dist
           sha256sum * > SHA256SUMS.txt
           {
@@ -158,7 +170,7 @@ jobs:
             echo '```'
           } > ../RELEASE_NOTES.md
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.TAG }}
           target_commitish: ${{ github.sha }}

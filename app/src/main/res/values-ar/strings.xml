@@ -177,4 +177,22 @@
     <string name="purpose_ui_font">خط واجهة المستخدم</string>
     <string name="purpose_code_font">خط الشيفرة</string>
     <string name="purpose_icons">الأيقونات</string>
+
+    <!-- رسائل الأخطاء (O8): ما بعد النقطتين نص النظام نفسه. -->
+    <string name="editor_file_missing">لم يعد «%1$s» موجودًا.</string>
+    <string name="editor_open_too_large">حجم %1$s أكبر من %2$d ميغابايت، ولا يمكن فتحه.</string>
+    <string name="editor_open_binary">%1$s ملف ثنائي، ولا يمكن فتحه كنص.</string>
+    <string name="editor_open_not_utf8">%1$s ليس نصًا بترميز UTF-8.</string>
+    <string name="editor_open_failed">تعذّر فتح %1$s: %2$s</string>
+    <string name="editor_save_failed">تعذّر حفظ %1$s: %2$s</string>
+    <string name="run_failed">تعذّر تشغيل %1$s: %2$s</string>
+    <string name="explorer_error">تعذّرت العملية: %1$s</string>
+    <string name="runtime_error_not_enough_space">لا توجد مساحة تخزين كافية. أفرغ بعض المساحة وحاول مجددًا.</string>
+    <string name="runtime_error_network">خطأ في الشبكة. تحقّق من الاتصال بالإنترنت وحاول مجددًا.</string>
+    <string name="runtime_error_checksum">فشل التحقق من سلامة ملف منزَّل. حاول مجددًا.</string>
+    <string name="runtime_error_extract">تعذّر فك ضغط نظام Linux.</string>
+    <string name="runtime_error_packages">فشل تثبيت حزم أدوات البرمجة.</string>
+    <string name="runtime_error_verification">لم تجتز الأدوات المثبّتة الفحص النهائي. جرّب «إصلاح».</string>
+    <string name="runtime_error_unsupported_device">معالج هذا الجهاز غير مدعوم.</string>
+    <string name="runtime_error_unknown">حدث خطأ غير متوقع.</string>
 </resources>

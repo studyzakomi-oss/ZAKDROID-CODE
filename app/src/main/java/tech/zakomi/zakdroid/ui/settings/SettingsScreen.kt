@@ -64,6 +64,7 @@ import tech.zakomi.zakdroid.ui.common.BackgroundActivityCard
 import tech.zakomi.zakdroid.ui.common.ConfirmDialog
 import tech.zakomi.zakdroid.ui.runtime.RuntimeViewModel
 import tech.zakomi.zakdroid.ui.runtime.rememberWithNotificationPermission
+import tech.zakomi.zakdroid.ui.runtime.messageRes
 import tech.zakomi.zakdroid.ui.runtime.runtimeStatusLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -180,8 +181,9 @@ fun SettingsScreen(
                 Section(stringResource(R.string.settings_runtime))
                 Text(runtimeStatusLabel(runtime), color = colors.textPrimary, style = MaterialTheme.typography.titleSmall)
                 Text(runtimeVm.description, color = colors.textSecondary, fontSize = 13.sp)
-                if (runtime is RuntimeState.Error) {
-                    Text((runtime as RuntimeState.Error).message, color = colors.error, fontSize = 13.sp, maxLines = 4)
+                (runtime as? RuntimeState.Error)?.let { error ->
+                    Text(stringResource(error.kind.messageRes), color = colors.error, fontSize = 13.sp)
+                    Text(error.message, color = colors.textSecondary, fontSize = 12.sp, maxLines = 4)
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 8.dp)) {
                     when (val s = runtime) {
