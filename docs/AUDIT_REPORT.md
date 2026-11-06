@@ -53,6 +53,8 @@ LSP (completion, diagnostics), Problems panel, Command Palette, Git, debugger, m
 | UI mock-up "zakomi IDE v2.0.0" | App name is "zakdroid-code", Android only | The mock-up looks like a desktop window (minimize/maximize, Debian prompt). I treat it as a visual target for the tablet layout; a desktop version would be a separate project |
 | "Do not push without permission" | Until now I pushed after each fix | From now on I commit locally and push only after approval |
 
+**Decisions (2026-11-06):** extensions are declarative only; no AI assistant.
+
 ## 7. Risks
 - **Data loss on update** until a stable signing key exists (O1).
 - **Device-only bugs:** without an emulator test in CI, crashes like D3 are found only by users (O3).

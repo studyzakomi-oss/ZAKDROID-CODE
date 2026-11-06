@@ -29,12 +29,11 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | M2 | **Language packs** (request phase 3): a language = a manifest + grammar + templates + docs + an optional Alpine toolchain installed on demand. First packs: Java, JavaScript/TypeScript (Node), HTML/CSS (in-app preview), SQL (SQLite), Bash, PHP, Go, Rust, Kotlin. **Swift: no on-device toolchain on Alpine aarch64**, so editing and highlighting only | M1 | ❓ confirm language list |
 | M3 | Onboarding (choose languages → categories → resources) + categories linked to languages (request phases 4, 9) | M2 | ⏳ |
 | M4 | Resource library (request phase 5): catalog files (JSON) listing redistributable docs/tutorials/examples; SHA-256 check; no executables without explicit approval; offline storage | M3 | ⏳ |
-| M5 | **Declarative extensions** (request phase 6): manifest, install/uninstall/enable/disable/update, permissions, validation, packaging, extension-project generator, GitHub-ready export | M2 | ❓ confirm "declarative only" |
+| M5 | **Declarative extensions only** (decided 2026-11-06): themes, snippets, grammars, templates, resource catalogs, language configs. Manifest, install/uninstall/enable/disable/update, permissions, validation, packaging, extension-project generator, GitHub-ready export. No extension code runs in the app | M2 | ⏳ |
 | M6 | Local Git (init, status, diff, stage, commit, history, branches; optional push/pull) | M1 | ⏳ |
 | M7 | Multi-file C/C++ (Make, CMake), Tasks, exercise mode with tests | M1 | ⏳ |
 | M8 | Debugger (lldb-dap, debugpy); feasibility spike under PRoot first | M7 | ⏳ |
-| M9 | **AI assistant** (request phase 8): only after a decision. A: on-device model (offline, 1–2 GB, slow); B: cloud API with the user's own key (needs internet, costs money); C: drop | — | ❓ owner decision |
 | M10 | Polish: folding, multi-cursor (partial), minimap on tablets, workspace backup/restore | M1 | ⏳ |
 | M11 | Release readiness: full test matrix, signed release, F-Droid metadata, user guide (EN + AR), and the documents of request phase 10 | all | ⏳ |
 
-Removed earlier (2026-10-30): remote mode with a Debian server, server-based Claude assistant.
+Removed: remote mode with a Debian server and the server-based Claude assistant (2026-10-30); any AI coding assistant, on-device or cloud (2026-11-06).
