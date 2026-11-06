@@ -1,0 +1,26 @@
+name: Feature request / اقتراح ميزة
+description: Suggest an idea for zakdroid-code. / اقترح فكرة للتطبيق.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check docs/DEVELOPMENT_ROADMAP.md first. The app runs fully on the device, has no AI assistant, and supports declarative extensions only.
+        راجع خارطة الطريق أولًا: التطبيق يعمل على الجهاز فقط، بلا مساعد ذكاء اصطناعي، والإضافات وصفية فقط.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / المشكلة
+      description: What are you trying to do, and what makes it hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / الحل المقترح
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / بدائل أخرى

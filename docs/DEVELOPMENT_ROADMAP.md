@@ -20,7 +20,7 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | S3 | Emulator smoke test in CI (start app, open terminal, open file) | O3 | ⏳ |
 | S4 | Stale SAF copy; keep-alive crash path; Reinstall with open terminals | O4, O5, O6 | ✅ v0.1.5 (device check pending) |
 | S5 | Undo-to-saved dirty state; localized error messages; CI action upgrades; release download retry | O7–O10 | ✅ v0.1.6 (device check pending) |
-| S6 | Open-source files: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates | O11 | ⏳ |
+| S6 | Open-source files: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates | O11 | ✅ (owner: rename branch to `main`, enable private vulnerability reporting) |
 
 ## Then: features (the request's phases, re-ordered by dependency)
 | Milestone | Scope | Depends on | Status |

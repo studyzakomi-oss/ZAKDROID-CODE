@@ -31,6 +31,12 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 | O9 | AGP 9.5.0 → 9.5.1; CI actions on Node 24 majors: `checkout@v7`, `setup-java@v6`, `setup-gradle@v6` (with the MIT `basic` cache provider instead of v6's proprietary default), `upload-artifact@v7`, `download-artifact@v8`, `action-gh-release@v3`. Each action's inputs used here were checked against its `action.yml` | Local build, tests, lint: exit 0, lint "No issues found" | Fixed; CI run pending |
 | O10 | Release job downloads both artifacts in one step and retries once after 60 s if it fails. Kept as a separate job so the build job (which also runs for pull requests) never gets write permission | YAML parsed; next release run | Fixed; next release shows whether it holds |
 
+## B3. Fixed in S6
+
+| ID | Fix | Verification | Status |
+|---|---|---|---|
+| O11 (files) | Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference), `SECURITY.md`, `CHANGELOG.md`, issue forms (bug, feature) and a pull request template | YAML of the issue forms parsed; GitHub shows the forms under New issue | Fixed |
+
 ## C. Still open (O4–O10 moved to B and B2)
 
 | ID | Problem | File | Severity | Root cause | Proposed fix | Verification |
@@ -38,7 +44,7 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 | O1 | Each new release needs an uninstall, which deletes the toolchain and in-app projects | `.github/workflows/android.yml`, `app/build.gradle.kts` | High | No stable signing key: pre-releases use CI's random debug key | Owner creates a key (`docs/RELEASING.md`) and adds the 4 secrets; CI signs pre-releases and releases with it | Install vN, then vN+1 over it without uninstalling |
 | O2 | A debuggable APK is the public download | release job in `android.yml` | High (security) | Pre-releases ship the *debug* build (`debuggable=true`): with adb, anyone can read the app's private files | Publish the R8 *release* build, signed with the stable key (after O1) | `aapt2 dump badging` shows no `application-debuggable` |
 | O3 | No automated UI/instrumented tests: D3 (crash on opening the terminal) reached users | whole project | High (process) | Only JVM unit tests exist; nothing creates real Android views | CI job on an Android emulator (`reactivecircus/android-emulator-runner`, MIT) with a smoke test: open the app, open a terminal, open a file | The test fails on v0.1.3 code and passes on v0.1.4 |
-| O11 | Repository hygiene for an open-source project | repo root | Low | Missing `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, issue/PR templates; default branch is named `ccr-4bd770f7-cls19j` | Add the files; owner renames the branch to `main` in GitHub settings | Files present; GitHub shows `main` |
+| O11 | Default branch is named `ccr-4bd770f7-cls19j` | GitHub settings | Low | Created by the build environment | Owner renames it to `main` (Settings → Branches); GitHub redirects old links. The files part was fixed in S6 | GitHub shows `main` |
 
 ## D. Checked and found fine
 - Native libraries (`libproot.so`, `libproot-loader.so`, `libtermux.so`) use 16 KB page alignment (`0x4000`), as Android 15+ devices require.

@@ -144,6 +144,13 @@ identical Z pieces, one rotated 180°, in a navy (#0A1F52) square with an 18%
 corner radius. The same geometry drives the launcher icon, the splash screen and
 the in-app logo.
 
+## Contributing / المساهمة
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): how to build, test and send changes.
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): the code of conduct.
+- [`SECURITY.md`](SECURITY.md): how to report vulnerabilities privately.
+- [`CHANGELOG.md`](CHANGELOG.md): what changed in each version.
+
 ## License
 
 - **Code:** Apache-2.0 for zakdroid-code's own code (`LICENSE`).

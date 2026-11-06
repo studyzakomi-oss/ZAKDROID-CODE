@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability / الإبلاغ عن ثغرة أمنية
+    url: https://github.com/studyzakomi-oss/ZAKDROID-CODE/security/advisories/new
+    about: Report privately, not in a public issue. / أبلغ بشكل خاص، لا في بلاغ عام.
