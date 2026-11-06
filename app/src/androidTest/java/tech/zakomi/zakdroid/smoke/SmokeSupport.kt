@@ -1,14 +1,19 @@
 package tech.zakomi.zakdroid.smoke
 
+import android.app.Activity
 import android.app.LocaleManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.LocaleList
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.test.platform.app.InstrumentationRegistry
 import dagger.hilt.android.EntryPointAccessors
@@ -75,6 +80,38 @@ object Smoke {
     }
 
     fun uniqueName(prefix: String) = prefix + "_" + (System.currentTimeMillis() % 1_000_000)
+
+    /** The first view of type [cls] in [activity]'s window (e.g. the code editor or the terminal). */
+    fun <T : View> findView(activity: Activity, cls: Class<T>): T = onMain {
+        fun search(v: View): View? = if (cls.isInstance(v)) v else (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { search(g.getChildAt(it)) } }
+        cls.cast(search(activity.window.decorView)) ?: throw AssertionError("No ${cls.simpleName} on screen")
+    }
+
+    /**
+     * Taps the middle of [view] like a finger would, then waits until its window has input
+     * focus, so that typed keys reach it. Fails with the focused window's name otherwise.
+     */
+    fun tapAndFocus(view: View) {
+        val (x, y) = onMain {
+            val loc = IntArray(2).also(view::getLocationOnScreen)
+            (loc[0] + view.width / 2f) to (loc[1] + view.height / 2f)
+        }
+        val down = SystemClock.uptimeMillis()
+        instrumentation.sendPointerSync(MotionEvent.obtain(down, down, MotionEvent.ACTION_DOWN, x, y, 0))
+        instrumentation.sendPointerSync(MotionEvent.obtain(down, down + 60, MotionEvent.ACTION_UP, x, y, 0))
+        try {
+            waitFor("input focus on ${view.javaClass.simpleName}", 10_000, pollMs = 200) { onMain { view.hasWindowFocus() } }
+        } catch (e: AssertionError) {
+            throw AssertionError("${e.message}; focused window: ${focusedWindow()}")
+        }
+    }
+
+    /** `mCurrentFocus` from `dumpsys window`, for failure messages. */
+    fun focusedWindow(): String = runCatching {
+        val pfd = instrumentation.uiAutomation.executeShellCommand("dumpsys window displays")
+        ParcelFileDescriptor.AutoCloseInputStream(pfd).bufferedReader().readLines()
+            .filter { "mCurrentFocus" in it || "mFocusedApp" in it }.joinToString(" | ") { it.trim() }
+    }.getOrElse { "unknown (${it.message})" }
 }
 
 /** On failure, saves a screenshot to the app's external files dir (CI pulls `test-screenshots/`). */

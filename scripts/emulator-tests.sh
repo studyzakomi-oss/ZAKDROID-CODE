@@ -73,6 +73,8 @@ if [ "$status" != 0 ]; then
     echo "--- warnings and errors from app processes ($APP_PIDS) ---"
     awk -v pids="$APP_PIDS" 'BEGIN { n = split(pids, p, "|"); for (i = 1; i <= n; i++) want[p[i]] = 1 } ($3 in want) && ($5 == "W" || $5 == "E")' "$OUT/logcat.txt" | tail -n 200
   fi
+  echo "--- focused window now ---"
+  adb shell dumpsys window displays | grep -E "mCurrentFocus|mFocusedApp" || true
   echo "::endgroup::"
   if [ -s "$OUT/install.log" ]; then
     echo "::group::Diagnostics: installer log (last 80 lines)"; tail -n 80 "$OUT/install.log"; echo "::endgroup::"

@@ -2,9 +2,6 @@ package tech.zakomi.zakdroid.smoke
 
 import android.view.KeyEvent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.rosemoe.sora.widget.CodeEditor
 import org.junit.After
@@ -63,7 +60,7 @@ class SmokeTest {
         ui.waitForText("main.c")
 
         // Type into the code editor (sora CodeEditor, an Android View) and save with Ctrl+S.
-        onView(isAssignableFrom(CodeEditor::class.java)).perform(click())
+        Smoke.tapAndFocus(Smoke.findView(compose.activity, CodeEditor::class.java))
         Smoke.instrumentation.sendStringSync("zksmoke42")
         waitFor("typed text in the document") { onMain { hooks().documents().active?.document?.content?.toString() }.orEmpty().contains("zksmoke42") }
         waitFor("tab marked unsaved") { onMain { hooks().documents().active?.dirty } == true }

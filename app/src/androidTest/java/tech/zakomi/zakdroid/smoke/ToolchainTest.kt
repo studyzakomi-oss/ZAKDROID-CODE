@@ -4,9 +4,6 @@ import android.Manifest
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.termux.view.TerminalView
 import org.junit.After
@@ -72,7 +69,7 @@ class ToolchainTest {
             ui.clickDescription(str(R.string.terminal_new, "en"))
         }
         waitFor("a running shell") { onMain { hooks().terminals().tabs.value.any { it.running } } }
-        onView(isAssignableFrom(TerminalView::class.java)).perform(click())
+        Smoke.tapAndFocus(Smoke.findView(compose.activity, TerminalView::class.java))
         Smoke.instrumentation.sendStringSync("echo zak\$((6*7))\n")
         waitForTranscript("shell output zak42", 60_000) { it.contains("zak42") }
 
@@ -88,7 +85,7 @@ class ToolchainTest {
         waitFor("main.py open") { onMain { hooks().documents().active?.name } == "main.py" }
         runActiveFile()
         waitForTranscript("Python prompt", 2 * 60_000L) { it.contains("Your name:") }
-        onView(isAssignableFrom(TerminalView::class.java)).perform(click())
+        Smoke.tapAndFocus(Smoke.findView(compose.activity, TerminalView::class.java))
         Smoke.instrumentation.sendStringSync("Zakomi\n")
         waitForTranscript("Python output and exit code", 60_000) {
             it.contains("Hello, Zakomi! Welcome to zakdroid-code.") && it.contains("exited with code 0")
