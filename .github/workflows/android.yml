@@ -73,7 +73,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew :app:assembleFullDebug :app:assembleFullRelease
+        run: ./gradlew :app:assembleFullDebug :app:assembleFullRelease :app:assembleFullDebugAndroidTest
 
       - name: Report release signature
         run: |
@@ -96,6 +96,15 @@ jobs:
             app/build/outputs/apk/full/debug/*.apk
             app/build/outputs/apk/full/release/*.apk
 
+      # x86_64 app + instrumentation APK for the emulator job.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: emulator-apks
+          retention-days: 7
+          path: |
+            app/build/outputs/apk/full/debug/app-full-x86_64-debug.apk
+            app/build/outputs/apk/androidTest/full/debug/app-full-debug-androidTest.apk
+
       - uses: actions/upload-artifact@v7
         with:
           name: proot-source
@@ -108,6 +117,63 @@ jobs:
           path: |
             app/build/reports/lint-results-fullDebug.html
             **/build/reports/tests/
+
+  # Instrumented smoke tests on an Android emulator (S3). SmokeTest needs no network;
+  # ToolchainTest installs the real toolchain (~300 MB) and is skipped for pull requests.
+  emulator:
+    name: Emulator smoke tests
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download test APKs
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: emulator-apks
+          path: apks
+      - name: Download test APKs (retry)
+        if: steps.download.outcome == 'failure'
+        uses: actions/download-artifact@v8
+        with:
+          name: emulator-apks
+          path: apks
+
+      - name: Collect APKs in one folder
+        run: find apks -mindepth 2 -name '*.apk' -exec mv -t apks/ {} + && ls -l apks
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run tests on an Android 14 emulator (x86_64, phone)
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disk-size: 6000M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/emulator-tests.sh apks emulator-results ${{ github.event_name == 'pull_request' && '0' || '1' }}
+
+      - name: Test summary
+        if: always()
+        run: cat emulator-results/summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "No summary (the emulator did not start?)" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: emulator-results
+          retention-days: 14
+          path: emulator-results/
 
   release:
     name: GitHub Release
