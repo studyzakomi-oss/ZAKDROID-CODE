@@ -48,7 +48,7 @@ Timing: SmokeTest 42 s; ToolchainTest 71 s (install about 40–60 s on GitHub's 
 - **Storage Access Framework folders** (the system folder picker) are not tested.
 - **The Arabic RTL layout** is not checked visually; only the strings are.
 - **Network dependence:** ToolchainTest needs the Alpine mirror, so a mirror outage would turn the job red.
-- **Stability:** one green run so far (see section 6).
+- **Stability:** two green runs in a row so far (runs 10 and 11); more runs will show whether it stays green.
 
 ## 5. How the tests were made reliable (CI runs 1–10)
 Each failing run was diagnosed from the CI log. Nothing was skipped or weakened.
@@ -67,4 +67,4 @@ Each failing run was diagnosed from the CI log. Nothing was skipped or weakened.
 ## 6. Next steps (owner's decision)
 1. **Gate releases on the emulator job** (`release: needs: [build, emulator]`) after a few more green runs, so a crash like D3 can never be published again.
 2. Optional: add a tablet profile.
-3. Stability check: the docs commit for this report triggers run 11.
+3. Stability check: run 11 (commit `5ad3e7c`, run 42259276226) passed 4/4 again, emulator job 3 min 6 s.
