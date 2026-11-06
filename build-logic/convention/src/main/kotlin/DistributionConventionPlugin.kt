@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.configure
  *
  * - full: GitHub Releases + F-Droid. Ships PRoot and installs the Alpine toolchain.
  *
- * zakdroid-code runs entirely on the device (docs/ROADMAP.md), so `full` is the only flavor.
+ * zakdroid-code runs entirely on the device (docs/DEVELOPMENT_ROADMAP.md), so `full` is the only flavor.
  * The dimension keeps channel-specific code in `src/full/` source sets.
  */
 class DistributionConventionPlugin : Plugin<Project> {

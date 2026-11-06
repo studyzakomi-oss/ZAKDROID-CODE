@@ -12,7 +12,7 @@ an Alpine Linux userland under PRoot. No root is needed.
 > and one-tap Run for single C/C++/Python files.
 >
 > **Fully on-device:** after a one-time toolchain download, everything works offline,
-> with no server needed. Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> with no server needed. Roadmap: [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
 ## Download / التنزيل
 

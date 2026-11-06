@@ -39,7 +39,7 @@ Every module with channel-specific code (`:app`, `:runtime`) applies `zakdroid.d
 
 - `full`: GitHub Releases and F-Droid. Ships PRoot and installs Alpine on the device.
 
-The app runs entirely on the device (see `docs/ROADMAP.md`), so no second flavor is planned. The dimension is kept because it costs nothing and keeps the local runtime (`runtime/src/full/`) separate from the flavor-neutral `RuntimeManager` API in `runtime/src/main`.
+The app runs entirely on the device (see `docs/DEVELOPMENT_ROADMAP.md`), so no second flavor is planned. The dimension is kept because it costs nothing and keeps the local runtime (`runtime/src/full/`) separate from the flavor-neutral `RuntimeManager` API in `runtime/src/main`.
 
 ## MVVM and data flow
 
@@ -156,3 +156,24 @@ The guest runs as fake root (`-0`), so `apk add` works for extra packages. It st
   - The editor, terminal and extra-keys row are forced LTR.
   - Per-app language selection via `locales_config.xml` (Android 13+).
 - **Accessibility:** interactive elements have content descriptions and roles (tabs, switches, radio buttons), with 48 dp touch targets in settings and dialogs.
+
+## Recommended architecture for the next phases (proposal, not built yet)
+
+**Principle:** keep the existing Kotlin/Compose stack and modules. New content (languages, categories, resources, extensions) is **data described by manifests**, not code, so it can be added without changing the core app or opening a security hole.
+
+```
+:core            + pack/       manifest parsing, validation (JSON schema), SHA-256 checks
+:languages       NEW  language-pack registry: built-in C/C++/Python packs + installed packs
+:library         NEW  categories ↔ languages graph, resource catalog, downloads (offline store)
+:extensions      NEW  install/uninstall/enable, permissions, compatibility, packaging, generator
+:lsp :git :dap   planned (M1, M6, M8)
+:app             + onboarding/, dashboard/, library/, extensions/ screens
+packs/           NEW  in-repo sources of the built-in packs (one folder per language)
+  python/ manifest.json  grammar/  templates/  docs/  exercises/
+  c/ cpp/ java/ …
+sdk/             NEW  extension SDK: manifest schema, templates, CLI script to create/validate/package
+```
+
+**Extension manifest (draft):** `id`, `name`, `version`, `description`, `author`, `license`, `languages`, `dependencies`, `permissions` (e.g. `files.workspace.read`, `network.download`, `toolchain.install`), `contributes` (themes, snippets, grammars, templates, resources, tasks), `engines.zakdroid` (compatible app versions).
+
+**Isolation:** no code from an extension runs inside the app process. An extension's optional scripts run only inside the Alpine sandbox, with only the permissions the user granted.
