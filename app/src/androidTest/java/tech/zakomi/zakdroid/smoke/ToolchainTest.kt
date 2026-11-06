@@ -3,6 +3,8 @@ package tech.zakomi.zakdroid.smoke
 import android.Manifest
 import android.os.Build
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.termux.view.TerminalView
@@ -101,6 +103,14 @@ class ToolchainTest {
         val before = onMain { hooks().terminals().tabs.value.map { it.id }.toSet() }
         ui.clickDescription(str(R.string.action_run, "en"))
         waitFor("a new run terminal") { onMain { hooks().terminals().tabs.value.any { it.id !in before } } }
+        // The process starts only once a TerminalView gives the session a size (emulator created).
+        try {
+            waitFor("the run terminal to start (emulator created)") {
+                onMain { hooks().terminals().let { t -> t.activeId.value?.let { t.session(it)?.emulator } != null } }
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError("${e.message}\n${terminalReport()}")
+        }
     }
 
     /** Waits until the active terminal's text satisfies [condition]; logs the text on timeout. */
@@ -131,7 +141,16 @@ class ToolchainTest {
                 appendLine("tab ${tab.id} '${tab.title}' kind=${tab.kind} running=${tab.running} exit=${tab.exitCode} emulator=${session?.emulator != null}")
                 session?.emulator?.screen?.transcriptText?.takeLast(1500)?.let { appendLine(it) }
             }
+            for (view in terminalViews()) {
+                appendLine("TerminalView ${view.width}x${view.height} shown=${view.isShown} session=${view.currentSession?.mSessionName}")
+            }
         }
+    }
+
+    private fun terminalViews(): List<TerminalView> {
+        fun all(v: View): List<TerminalView> = (if (v is TerminalView) listOf(v) else emptyList()) +
+            ((v as? ViewGroup)?.let { g -> (0 until g.childCount).flatMap { all(g.getChildAt(it)) } } ?: emptyList())
+        return all(compose.activity.window.decorView)
     }
 
     private fun waitFor(what: String, condition: () -> Boolean) = Smoke.waitFor(what, 20_000, condition = condition)

@@ -21,8 +21,12 @@ import tech.zakomi.zakdroid.smoke.Smoke.str
  */
 class Ui(private val compose: ComposeTestRule) {
 
-    private fun visibleIndex(nodes: SemanticsNodeInteractionCollection): Int? =
+    /** Index of the first on-screen node, or null; also null while the activity is being recreated. */
+    private fun visibleIndex(nodes: SemanticsNodeInteractionCollection): Int? = try {
         nodes.fetchSemanticsNodes().indexOfFirst { it.boundsInRoot.left >= 0f && it.boundsInRoot.width > 0f }.takeIf { it >= 0 }
+    } catch (_: IllegalStateException) {
+        null // "No compose hierarchies found": e.g. during the recreation after a language change
+    }
 
     fun hasText(text: String) = visibleIndex(compose.onAllNodesWithText(text)) != null
     fun hasDescription(text: String) = visibleIndex(compose.onAllNodesWithContentDescription(text)) != null
