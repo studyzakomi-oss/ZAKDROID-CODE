@@ -21,6 +21,10 @@ import tech.zakomi.zakdroid.smoke.Smoke.str
  */
 class Ui(private val compose: ComposeTestRule) {
 
+    init {
+        Smoke.advanceFrames = { ms -> compose.mainClock.advanceTimeBy(ms) }
+    }
+
     /** Index of the first on-screen node, or null; also null while the activity is being recreated. */
     private fun visibleIndex(nodes: SemanticsNodeInteractionCollection): Int? = try {
         nodes.fetchSemanticsNodes().indexOfFirst { it.boundsInRoot.left >= 0f && it.boundsInRoot.width > 0f }.takeIf { it >= 0 }

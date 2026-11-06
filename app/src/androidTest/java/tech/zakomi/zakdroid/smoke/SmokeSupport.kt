@@ -55,11 +55,19 @@ object Smoke {
         }
     }
 
-    /** Polls [condition] off the main thread until it holds or [timeoutMs] passes. */
+    /**
+     * Advances the Compose test clock. A Compose test rule drives the app's frames with a test
+     * clock, so a plain sleep lets no recomposition happen; set by [Ui] for the running test.
+     */
+    @Volatile
+    var advanceFrames: (Long) -> Unit = {}
+
+    /** Polls [condition] on the test thread, letting the app recompose, until it holds or [timeoutMs] passes. */
     fun waitFor(what: String, timeoutMs: Long, pollMs: Long = 500, condition: () -> Boolean) {
         val end = SystemClock.uptimeMillis() + timeoutMs
         while (SystemClock.uptimeMillis() < end) {
             if (condition()) return
+            advanceFrames(pollMs)
             Thread.sleep(pollMs)
         }
         throw AssertionError("Timed out after ${timeoutMs / 1000} s waiting for: $what")
