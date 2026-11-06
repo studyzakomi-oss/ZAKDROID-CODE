@@ -18,7 +18,7 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | S1 | Confirm v0.1.4 on the tablet (Run, terminal, `scanf` input) | D3 | 🔧 waiting for device test |
 | S2 | Stable signing key; publish signed **release** builds instead of debug | O1, O2 | ❓ owner creates the key |
 | S3 | Emulator smoke test in CI (start app, open terminal, open file) | O3 | ⏳ |
-| S4 | Stale SAF copy; keep-alive crash path; Reinstall with open terminals | O4, O5, O6 | ⏳ |
+| S4 | Stale SAF copy; keep-alive crash path; Reinstall with open terminals | O4, O5, O6 | ✅ v0.1.5 (device check pending) |
 | S5 | Undo-to-saved dirty state; localized error messages; CI action upgrades and one-job release | O7–O10 | ⏳ |
 | S6 | Open-source files: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates | O11 | ⏳ |
 

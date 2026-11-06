@@ -11,8 +11,11 @@ import javax.inject.Singleton
  * Linux runtime, so internal projects can be built in place.
  */
 @Singleton
-class StoragePaths @Inject constructor(@ApplicationContext context: Context) {
-    val filesDir: File = context.filesDir
+class StoragePaths(val filesDir: File) {
+    /** The file-based constructor exists for unit tests. */
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context.filesDir)
+
     val homeDir: File = File(filesDir, "home")
     val projectsDir: File = File(homeDir, "projects")
 

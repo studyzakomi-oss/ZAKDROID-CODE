@@ -102,6 +102,8 @@ fun SettingsScreen(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val runtime by runtimeVm.state.collectAsStateWithLifecycle()
     var confirmReinstall by rememberSaveable { mutableStateOf(false) }
+    var confirmRepair by rememberSaveable { mutableStateOf(false) }
+    val runningTerminals by runtimeVm.runningTerminals.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val install = rememberWithNotificationPermission(runtimeVm::install)
     val repair = rememberWithNotificationPermission(runtimeVm::repair)
@@ -192,7 +194,9 @@ fun SettingsScreen(
                         RuntimeState.Ready -> Unit
                     }
                     if (runtime.acceptsInstallRequest()) {
-                        OutlinedButton(onClick = repair) { Text(stringResource(R.string.runtime_repair)) }
+                        OutlinedButton(onClick = { if (runningTerminals > 0) confirmRepair = true else repair() }) {
+                            Text(stringResource(R.string.runtime_repair))
+                        }
                         OutlinedButton(onClick = { confirmReinstall = true }) { Text(stringResource(R.string.runtime_reinstall)) }
                     }
                 }
@@ -207,10 +211,24 @@ fun SettingsScreen(
         }
     }
 
+    if (confirmRepair) {
+        ConfirmDialog(
+            title = stringResource(R.string.runtime_repair),
+            message = stringResource(R.string.runtime_terminals_will_close, runningTerminals),
+            confirmLabel = stringResource(R.string.runtime_repair),
+            onDismiss = { confirmRepair = false },
+            onConfirm = {
+                confirmRepair = false
+                repair()
+            },
+        )
+    }
+
     if (confirmReinstall) {
         ConfirmDialog(
             title = stringResource(R.string.runtime_reinstall_title),
-            message = stringResource(R.string.runtime_reinstall_message),
+            message = stringResource(R.string.runtime_reinstall_message) +
+                (if (runningTerminals > 0) "\n\n" + stringResource(R.string.runtime_terminals_will_close, runningTerminals) else ""),
             confirmLabel = stringResource(R.string.runtime_reinstall),
             destructive = true,
             onDismiss = { confirmReinstall = false },

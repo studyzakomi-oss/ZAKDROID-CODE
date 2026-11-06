@@ -27,6 +27,7 @@ import tech.zakomi.zakdroid.runtime.install.ProotCommand
 import tech.zakomi.zakdroid.runtime.install.RuntimeInstallWorker
 import tech.zakomi.zakdroid.runtime.install.RuntimePaths
 import tech.zakomi.zakdroid.terminal.ShellSpec
+import tech.zakomi.zakdroid.terminal.TerminalSessionManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +36,7 @@ import javax.inject.Singleton
 class ProotRuntimeManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val paths: RuntimePaths,
+    private val terminals: TerminalSessionManager,
     private val guard: InstallGuard,
     private val platform: AndroidInstallPlatform,
     private val log: InstallLog,
@@ -82,6 +84,13 @@ class ProotRuntimeManager @Inject constructor(
         if (!state.value.acceptsInstallRequest() || guard.active.value) {
             log.line("ignored $mode request: a run is active or stopping")
             return
+        }
+        if (mode != InstallMode.Install) {
+            // Repair and Reinstall change (or delete) the rootfs that terminal programs run in.
+            // Finished tabs keep their output; only running sessions are closed.
+            val running = terminals.tabs.value.filter { it.running }
+            if (running.isNotEmpty()) log.line("$mode: closing ${running.size} running terminal session(s)")
+            running.forEach { terminals.close(it.id) }
         }
         val request = OneTimeWorkRequestBuilder<RuntimeInstallWorker>()
             .setInputData(workDataOf(RuntimeInstallWorker.KEY_MODE to mode.name))

@@ -11,4 +11,5 @@ android {
 dependencies {
     api(project(":core"))
     api(project(":termux-terminal-view"))
+    implementation(libs.androidx.lifecycle.process)
 }

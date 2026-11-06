@@ -32,7 +32,7 @@ class WorkspaceStager @Inject constructor(
             WorkspaceKind.Internal -> toGuest(File((file as FileRef.Local).path))
             WorkspaceKind.Saf -> {
                 val dir = File(paths.stagingDir, stagingName(workspace))
-                sync(workspace.root, dir)
+                sync(workspace.root, dir, alwaysCopy = file.key)
                 toGuest(File(dir, relativePath))
             }
         }
@@ -50,7 +50,13 @@ class WorkspaceStager @Inject constructor(
         return StoragePaths.GUEST_HOME + canonical.path.removePrefix(home.path)
     }
 
-    private suspend fun sync(root: FileRef, target: File) {
+    /**
+     * Mirrors [root] into [target]. Size and modification time decide whether a file changed,
+     * but some SAF providers report no modification time (0), and a same-size edit would then
+     * keep a stale copy. So the file being run ([alwaysCopy]) and files without a time are
+     * compared by content, and only rewritten when they differ.
+     */
+    private suspend fun sync(root: FileRef, target: File, alwaysCopy: String?) {
         target.mkdirs()
         val seen = HashSet<String>()
         var files = 0
@@ -70,9 +76,13 @@ class WorkspaceStager @Inject constructor(
                     if (files > MAX_FILES || bytes > MAX_BYTES) {
                         throw FileOperationException("Folder is too large to run from shared storage (limit $MAX_FILES files / ${MAX_BYTES / 1024 / 1024} MB)")
                     }
-                    if (!dest.exists() || dest.length() != entry.size || dest.lastModified() < entry.lastModified) {
-                        dest.writeBytes(fs.read(entry.ref))
-                        if (entry.lastModified > 0) dest.setLastModified(entry.lastModified)
+                    val unknownTime = entry.lastModified <= 0
+                    val maybeChanged = !dest.exists() || dest.length() != entry.size ||
+                        dest.lastModified() < entry.lastModified || unknownTime || entry.ref.key == alwaysCopy
+                    if (maybeChanged) {
+                        val content = fs.read(entry.ref)
+                        if (!dest.exists() || !dest.readBytes().contentEquals(content)) dest.writeBytes(content)
+                        if (!unknownTime) dest.setLastModified(entry.lastModified)
                     }
                 }
             }

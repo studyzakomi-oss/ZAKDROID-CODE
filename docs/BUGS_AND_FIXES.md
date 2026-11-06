@@ -14,7 +14,15 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 | D4 | Closing a terminal tab left its program running | `terminal/.../TerminalSessionManager.kt` | High | Termux kills only the PRoot process | Kill the whole process tree on close | `ProcessTreeTest` (real processes) | Fixed |
 | D5 | "App not installed / package conflicts" when updating | CI signing | High | Every CI build is signed with a new temporary debug key | — (needs a stable key from the owner, see O1) | — | Open |
 
-## B. Open issues found in this audit
+## B. Fixed in S4 (v0.1.5)
+
+| ID | Fix | Verification | Status |
+|---|---|---|---|
+| O4 | `WorkspaceStager`: the file being run, and files whose provider reports no time, are compared by content and rewritten when they differ | `WorkspaceStagerTest` (3 tests); with the old logic 2 of them fail | Fixed |
+| O5 | `TerminalKeepAliveService`: started only while the app is visible; `startForeground()` is always called before stopping; it uses the live session count, so a short program that already ended does not leave a notification | Build + lint; no automated test (needs a device or emulator, see O3) | Fixed, device check pending |
+| O6 | Repair/Reinstall close running terminal sessions (whole process trees) first; Settings asks for confirmation when terminals are open | Build + lint; no automated test (UI) | Fixed, device check pending |
+
+## C. Open issues found in this audit
 
 | ID | Problem | File | Severity | Root cause | Proposed fix | Verification |
 |---|---|---|---|---|---|---|
@@ -26,11 +34,11 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 | O6 | Reinstall/Repair while terminals are running | `RuntimeInstaller.kt:41-44`, `RuntimeSheet.kt`, `SettingsScreen.kt` | Medium | Reinstall deletes the rootfs under running programs; their output and state become undefined | Before Repair/Reinstall, ask to close open terminals and kill guest processes | Manual: open a shell, tap Reinstall → confirmation and clean stop |
 | O7 | A file stays "unsaved" after undoing back to the saved text | `editor/.../document/EditorDocument.kt:31-56` | Low | Dirty state compares document *versions*, and undo creates a new version | Keep a hash of the saved text; recompute on change (debounced) | Unit test with sora `Content`: edit → undo → not dirty |
 | O8 | Some messages are English-only in the Arabic UI | `app/.../ui/editor/EditorViewModel.kt:102,107,160,198`; installer messages | Low | Strings are built in the ViewModel/installer, not taken from resources | Return typed errors; map them to string resources in the UI | Switch the app to Arabic; trigger a save error |
-| O9 | GitHub Actions use Node-20-based action versions (deprecated) | `.github/workflows/android.yml` | Low | Pinned to `@v4` | Move to the current major versions | CI log has no deprecation warning |
+| O9 | GitHub Actions use Node-20-based action versions (deprecated); AGP 9.5.1 is available (lint warning) | `.github/workflows/android.yml` | Low | Pinned to `@v4` | Move to the current major versions | CI log has no deprecation warning |
 | O10 | The release job failed once while downloading an artifact | `android.yml` release job | Low | GitHub artifact-storage flake; the job re-downloads what the build job made | Build and publish in one job (no artifact round trip), or retry the download | Two releases in a row without manual re-runs |
 | O11 | Repository hygiene for an open-source project | repo root | Low | Missing `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, issue/PR templates; default branch is named `ccr-4bd770f7-cls19j` | Add the files; owner renames the branch to `main` in GitHub settings | Files present; GitHub shows `main` |
 
-## C. Checked and found fine
+## D. Checked and found fine
 - Native libraries (`libproot.so`, `libproot-loader.so`, `libtermux.so`) use 16 KB page alignment (`0x4000`), as Android 15+ devices require.
 - Archive extraction rejects `..` and does not follow absolute symlinks (`RootfsExtractor.kt`).
 - File names are validated before create/rename (`FileNames.validate`).

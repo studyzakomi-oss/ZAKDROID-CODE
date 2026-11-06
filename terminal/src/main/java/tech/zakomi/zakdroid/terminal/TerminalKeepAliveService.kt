@@ -14,6 +14,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 
 /**
  * Foreground service that exists while at least one terminal session is running, so that
@@ -25,18 +27,20 @@ class TerminalKeepAliveService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val count = intent?.getIntExtra(EXTRA_COUNT, 0) ?: 0
-        if (count <= 0) {
-            stopSelf()
-            return START_NOT_STICKY
-        }
+        // The latest count, not the one in the intent: a short program may already have ended.
+        val count = currentCount
+        // After startForegroundService(), Android 12+ crashes the app unless startForeground()
+        // is called, even if the service only wants to stop again. So always call it first.
         val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
         try {
-            ServiceCompat.startForeground(this, NOTIFICATION_ID, notification(this, count), type)
-            running = true
+            ServiceCompat.startForeground(this, NOTIFICATION_ID, notification(this, count.coerceAtLeast(1)), type)
+            running = count > 0
         } catch (e: Exception) {
-            // Android 12+ may refuse when started from the background; the sessions keep running unprotected.
             Log.w(TAG, "cannot start foreground service", e)
+            running = false
+        }
+        if (!running) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
         // Sessions do not survive process death, so there is nothing to restart.
@@ -52,29 +56,38 @@ class TerminalKeepAliveService : Service() {
         private const val TAG = "TerminalKeepAlive"
         private const val CHANNEL_ID = "terminal-sessions"
         private const val NOTIFICATION_ID = 4202
-        private const val EXTRA_COUNT = "count"
 
         @Volatile
         private var running = false
 
+        @Volatile
+        private var currentCount = 0
+
         /** Called by [TerminalSessionManager] whenever the number of running sessions changes. */
         fun update(context: Context, runningSessions: Int) {
             val app = context.applicationContext
+            currentCount = runningSessions
             when {
                 runningSessions <= 0 -> if (running) app.stopService(Intent(app, TerminalKeepAliveService::class.java))
                 // Already in the foreground: only refresh the notification (no new service start from the background).
                 running -> app.getSystemService(NotificationManager::class.java)
                     .notify(NOTIFICATION_ID, notification(app, runningSessions))
+                // Only start while the app is visible: Android 12+ forbids starting a foreground
+                // service from the background. Sessions are only opened from the UI anyway.
+                !isAppVisible() -> Log.i(TAG, "not starting keep-alive: app is in the background")
                 else -> try {
                     ContextCompat.startForegroundService(
                         app,
-                        Intent(app, TerminalKeepAliveService::class.java).putExtra(EXTRA_COUNT, runningSessions),
+                        Intent(app, TerminalKeepAliveService::class.java),
                     )
                 } catch (e: Exception) {
                     Log.w(TAG, "cannot start keep-alive service", e)
                 }
             }
         }
+
+        private fun isAppVisible(): Boolean =
+            ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
         private fun notification(context: Context, count: Int): Notification {
             val manager = context.getSystemService(NotificationManager::class.java)
