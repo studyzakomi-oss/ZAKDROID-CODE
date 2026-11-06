@@ -111,7 +111,12 @@ object Smoke {
         instrumentation.sendPointerSync(MotionEvent.obtain(down, down, MotionEvent.ACTION_DOWN, x, y, 0))
         instrumentation.sendPointerSync(MotionEvent.obtain(down, down + 60, MotionEvent.ACTION_UP, x, y, 0))
         try {
-            waitFor("input focus on ${view.javaClass.simpleName}", 10_000, pollMs = 200) { onMain { view.hasWindowFocus() } }
+            // The window must have input focus, and the view itself must hold focus, or typed
+            // keys go to whatever had focus before (CI run 6 lost the first characters this way).
+            waitFor("input focus on ${view.javaClass.simpleName}", 10_000, pollMs = 200) {
+                onMain { view.hasWindowFocus() && (view.isFocused || view.requestFocus()) && view.isFocused }
+            }
+            instrumentation.waitForIdleSync()
         } catch (e: AssertionError) {
             throw AssertionError("${e.message}; focused window: ${focusedWindow()}")
         }
