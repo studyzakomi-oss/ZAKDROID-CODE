@@ -81,10 +81,14 @@ object Smoke {
 
     fun uniqueName(prefix: String) = prefix + "_" + (System.currentTimeMillis() % 1_000_000)
 
-    /** The first view of type [cls] in [activity]'s window (e.g. the code editor or the terminal). */
-    fun <T : View> findView(activity: Activity, cls: Class<T>): T = onMain {
-        fun search(v: View): View? = if (cls.isInstance(v)) v else (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { search(g.getChildAt(it)) } }
-        cls.cast(search(activity.window.decorView)) ?: throw AssertionError("No ${cls.simpleName} on screen")
+    /** The first laid-out view of type [cls] in [activity]'s window, waiting up to 10 s for it to appear. */
+    fun <T : View> findView(activity: Activity, cls: Class<T>): T {
+        fun search(v: View): View? =
+            if (cls.isInstance(v) && v.isShown && v.width > 0) v
+            else (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { search(g.getChildAt(it)) } }
+        var found: View? = null
+        waitFor("${cls.simpleName} on screen", 10_000, pollMs = 200) { found = onMain { search(activity.window.decorView) }; found != null }
+        return cls.cast(found)!!
     }
 
     /**
