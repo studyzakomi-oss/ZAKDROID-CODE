@@ -5,7 +5,11 @@ Bug IDs (D1, O4, …) refer to [`docs/BUGS_AND_FIXES.md`](docs/BUGS_AND_FIXES.md
 
 ## [Unreleased]
 ### Added
+- Emulator smoke tests in CI (S3, O3). They cover launch, the editor and saving, the terminal, running C and Python, and English and Arabic messages. Crash and ANR detection, screenshots and logs on failure. See `docs/S3_EMULATOR_TESTS.md`.
 - Open-source project files: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, this changelog, and issue and pull request templates (O11).
+
+### Removed
+- Two unused Python wheel files (16 MB) that had been committed by mistake.
 
 ## [0.1.6] - 2026-11-06
 ### Fixed

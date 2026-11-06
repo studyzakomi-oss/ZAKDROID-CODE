@@ -21,7 +21,13 @@ python3 scripts/check_contrast.py                     # WCAG AA check of both th
 ./gradlew :app:assembleFullDebug :app:lintFullDebug   # build + lint (must report "No issues found")
 ```
 
-CI runs the same steps on every push and pull request.
+CI runs the same steps on every push and pull request, plus emulator smoke tests (`app/src/androidTest`, run by `scripts/emulator-tests.sh`). To run them yourself on an emulator or device (Android 13+):
+
+```bash
+./gradlew :app:assembleFullDebug :app:assembleFullDebugAndroidTest
+scripts/emulator-tests.sh app/build/outputs/apk/full/debug results 0   # 1 = also ToolchainTest (downloads ~300 MB)
+```
+(copy `app-full-debug-androidTest.apk` from `app/build/outputs/apk/androidTest/full/debug/` into the same folder first)
 
 ## Code guidelines
 - Kotlin + Jetpack Compose. Follow the style of the surrounding code; keep changes small and focused.

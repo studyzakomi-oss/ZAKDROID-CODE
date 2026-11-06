@@ -37,13 +37,18 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 |---|---|---|---|
 | O11 (files) | Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference), `SECURITY.md`, `CHANGELOG.md`, issue forms (bug, feature) and a pull request template | YAML of the issue forms parsed; GitHub shows the forms under New issue | Fixed |
 
-## C. Still open (O4–O10 moved to B and B2)
+## B4. Fixed in S3
+
+| ID | Fix | Verification | Status |
+|---|---|---|---|
+| O3 | Emulator smoke tests in CI. `SmokeTest` covers launch, main UI, creating and opening files, typing and Ctrl+S save (checked on disk), and the "cannot run" message in English and Arabic. `ToolchainTest` installs the toolchain through the UI, types in the terminal, and runs C and Python (stdin) with exit code 0. Every test checks for crashes; logcat is scanned for crashes and ANRs. Report: `docs/S3_EMULATOR_TESTS.md` | CI run 42258050449: 4/4 passed. Not yet shown against a real crash; arm64, tablet layout and SAF are not covered | Fixed (release gating pending the owner's decision) |
+
+## C. Still open (O3–O10 moved to B–B4)
 
 | ID | Problem | File | Severity | Root cause | Proposed fix | Verification |
 |---|---|---|---|---|---|---|
 | O1 | Each new release needs an uninstall, which deletes the toolchain and in-app projects | `.github/workflows/android.yml`, `app/build.gradle.kts` | High | No stable signing key: pre-releases use CI's random debug key | Owner creates a key (`docs/RELEASING.md`) and adds the 4 secrets; CI signs pre-releases and releases with it | Install vN, then vN+1 over it without uninstalling |
 | O2 | A debuggable APK is the public download | release job in `android.yml` | High (security) | Pre-releases ship the *debug* build (`debuggable=true`): with adb, anyone can read the app's private files | Publish the R8 *release* build, signed with the stable key (after O1) | `aapt2 dump badging` shows no `application-debuggable` |
-| O3 | No automated UI/instrumented tests: D3 (crash on opening the terminal) reached users | whole project | High (process) | Only JVM unit tests exist; nothing creates real Android views | CI job on an Android emulator (`reactivecircus/android-emulator-runner`, MIT) with a smoke test: open the app, open a terminal, open a file | The test fails on v0.1.3 code and passes on v0.1.4 |
 | O11 | Default branch is named `ccr-4bd770f7-cls19j` | GitHub settings | Low | Created by the build environment | Owner renames it to `main` (Settings → Branches); GitHub redirects old links. The files part was fixed in S6 | GitHub shows `main` |
 
 ## D. Checked and found fine
