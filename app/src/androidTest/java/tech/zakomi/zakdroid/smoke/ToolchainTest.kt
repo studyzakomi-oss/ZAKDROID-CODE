@@ -64,7 +64,9 @@ class ToolchainTest {
         }
 
         // 2. Terminal: open a shell, type a command, read the result from the screen buffer.
-        ui.clickDescription(str(R.string.action_terminal, "en"))
+        // The Terminal button toggles the panel: press it only if the panel is not already open.
+        if (!ui.hasText(str(R.string.terminal_title, "en"))) ui.clickDescription(str(R.string.action_terminal, "en"))
+        ui.waitForText(str(R.string.terminal_title, "en"))
         if (onMain { hooks().terminals().tabs.value.none { it.running } }) {
             ui.clickDescription(str(R.string.terminal_new, "en"))
         }

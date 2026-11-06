@@ -86,8 +86,15 @@ object Smoke {
         fun search(v: View): View? =
             if (cls.isInstance(v) && v.isShown && v.width > 0) v
             else (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { search(g.getChildAt(it)) } }
+        fun all(v: View): List<View> = (if (cls.isInstance(v)) listOf(v) else emptyList()) +
+            ((v as? ViewGroup)?.let { g -> (0 until g.childCount).flatMap { all(g.getChildAt(it)) } } ?: emptyList())
         var found: View? = null
-        waitFor("${cls.simpleName} on screen", 10_000, pollMs = 200) { found = onMain { search(activity.window.decorView) }; found != null }
+        try {
+            waitFor("${cls.simpleName} on screen", 10_000, pollMs = 200) { found = onMain { search(activity.window.decorView) }; found != null }
+        } catch (e: AssertionError) {
+            val views = onMain { all(activity.window.decorView).map { "shown=${it.isShown} ${it.width}x${it.height}" } }
+            throw AssertionError("${e.message}; instances: $views")
+        }
         return cls.cast(found)!!
     }
 
