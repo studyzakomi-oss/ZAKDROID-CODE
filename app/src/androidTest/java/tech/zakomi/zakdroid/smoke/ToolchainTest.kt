@@ -116,8 +116,22 @@ class ToolchainTest {
                 condition(text)
             }
         } catch (e: AssertionError) {
-            Log.e(Smoke.TAG, "Terminal text:\n$text")
-            throw AssertionError("${e.message}\n--- terminal ---\n${text.takeLast(3000)}")
+            val report = terminalReport()
+            Log.e(Smoke.TAG, report)
+            throw AssertionError("${e.message}\n$report")
+        }
+    }
+
+    /** State and text of every terminal tab, for failure messages. */
+    private fun terminalReport(): String = onMain {
+        val terminals = hooks().terminals()
+        buildString {
+            appendLine("--- terminals (active=${terminals.activeId.value}) ---")
+            for (tab in terminals.tabs.value) {
+                val session = terminals.session(tab.id)
+                appendLine("tab ${tab.id} '${tab.title}' kind=${tab.kind} running=${tab.running} exit=${tab.exitCode} emulator=${session?.emulator != null}")
+                session?.emulator?.screen?.transcriptText?.takeLast(1500)?.let { appendLine(it) }
+            }
         }
     }
 

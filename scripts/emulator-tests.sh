@@ -64,6 +64,21 @@ if grep -E "FATAL EXCEPTION|ANR in $PKG" -A2 "$OUT/logcat.txt" | grep -q "$PKG";
   grep -E "FATAL EXCEPTION|ANR in" -A20 "$OUT/logcat.txt" > "$OUT/crashes-from-logcat.txt" || true
 fi
 
+# On failure, put the most useful diagnostics into the job log too (the artifact has the full files).
+if [ "$status" != 0 ]; then
+  echo "::group::Diagnostics: app logcat (errors, test log, runtime, terminal)"
+  APP_PIDS=$(grep -E "Start proc [0-9]+:$PKG/" "$OUT/logcat.txt" | sed -E 's/.*Start proc ([0-9]+):.*/\1/' | sort -u | tr '\n' '|' | sed 's/|$//')
+  grep -E "ZakdroidSmoke|AndroidRuntime|FATAL|ANR in|zakdroid|proot|PRoot" "$OUT/logcat.txt" | tail -n 300
+  if [ -n "$APP_PIDS" ]; then
+    echo "--- warnings and errors from app processes ($APP_PIDS) ---"
+    awk -v pids="$APP_PIDS" 'BEGIN { n = split(pids, p, "|"); for (i = 1; i <= n; i++) want[p[i]] = 1 } ($3 in want) && ($5 == "W" || $5 == "E")' "$OUT/logcat.txt" | tail -n 200
+  fi
+  echo "::endgroup::"
+  if [ -s "$OUT/install.log" ]; then
+    echo "::group::Diagnostics: installer log (last 80 lines)"; tail -n 80 "$OUT/install.log"; echo "::endgroup::"
+  fi
+fi
+
 {
   echo "## Emulator smoke tests"
   echo

@@ -2,7 +2,9 @@ package tech.zakomi.zakdroid.smoke
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -40,10 +42,11 @@ class Ui(private val compose: ComposeTestRule) {
         nodes[visibleIndex(nodes)!!].performClick()
     }
 
-    /** Replaces the text of the (single) visible text field, e.g. in a dialog. */
+    /** Replaces the text of the text field in the open dialog (not, e.g., the Explorer search box). */
     fun typeInField(value: String) {
-        compose.waitUntil(10_000) { visibleIndex(compose.onAllNodes(hasSetTextAction())) != null }
-        val nodes = compose.onAllNodes(hasSetTextAction())
+        val matcher = hasSetTextAction() and hasAnyAncestor(isDialog())
+        compose.waitUntil(10_000) { visibleIndex(compose.onAllNodes(matcher)) != null }
+        val nodes = compose.onAllNodes(matcher)
         nodes[visibleIndex(nodes)!!].performTextReplacement(value)
     }
 
