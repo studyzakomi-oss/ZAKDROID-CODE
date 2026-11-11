@@ -13,7 +13,7 @@ texts ship in the APK under `assets/licenses/`.
 | Eclipse tm4e (inside `language-textmate`) | as shipped by sora 0.24.7 | EPL-2.0 | TextMate grammar engine | Unmodified, via sora |
 | Eclipse JDT annotations | 2.4.100 | EPL-2.0 | Annotations used by tm4e | Unmodified, transitive |
 | Joni / JCodings | 2.2.7 / 1.0.64 | MIT | Oniguruma-compatible regex for grammars | Unmodified, transitive |
-| Gson | 2.14.0 | Apache-2.0 | JSON parsing (grammars, themes) | Unmodified, transitive |
+| Gson | 2.15.0 | Apache-2.0 | JSON parsing (grammars, themes, extension manifests and snippets) | Unmodified |
 | SnakeYAML Engine | 3.2 | Apache-2.0 | YAML grammar support in tm4e | Unmodified, transitive |
 | VS Code grammars + language configurations (c, cpp, python) | vscode @ `a06ee7a` | MIT | Syntax highlighting, brackets, comments, indentation rules | Data files copied unmodified (`editor/src/main/assets/textmate`) |
 | ↳ better-c-syntax, better-cpp-syntax (Jeff Hykin) | via VS Code | MIT | C / C++ grammars | as above |

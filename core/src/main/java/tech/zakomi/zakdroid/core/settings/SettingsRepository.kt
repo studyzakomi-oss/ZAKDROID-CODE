@@ -30,6 +30,12 @@ class DataStoreSettingsRepository @Inject constructor(
         dataStore.edit { prefs ->
             val next = transform(prefs.toSettings())
             prefs[THEME] = next.theme.storageKey
+            prefs[FOLLOW_SYSTEM_THEME] = next.followSystemTheme
+            prefs[SIDE_POSITION] = next.sidePosition.storageKey
+            prefs[SHOW_STATUS_BAR] = next.showStatusBar
+            prefs[UI_SCALE] = next.uiScalePercent.takeIf { it in AppSettings.UI_SCALES } ?: 100
+            prefs[LINE_HEIGHT] = next.editorLineHeightPercent.takeIf { it in AppSettings.LINE_HEIGHTS } ?: AppSettings.DEFAULT_LINE_HEIGHT
+            prefs[TERMINAL_EXTRA_KEYS] = next.terminalExtraKeys
             prefs[EDITOR_FONT_SIZE] = next.editorFontSizeSp.coerceIn(AppSettings.FONT_SIZE_RANGE)
             prefs[LIGATURES] = next.ligatures
             prefs[WORD_WRAP] = next.wordWrap
@@ -46,6 +52,12 @@ class DataStoreSettingsRepository @Inject constructor(
 
     private fun Preferences.toSettings() = AppSettings(
         theme = ThemeId.fromStorageKey(this[THEME]),
+        followSystemTheme = this[FOLLOW_SYSTEM_THEME] ?: false,
+        sidePosition = SidePosition.fromStorageKey(this[SIDE_POSITION]),
+        showStatusBar = this[SHOW_STATUS_BAR] ?: true,
+        uiScalePercent = this[UI_SCALE]?.takeIf { it in AppSettings.UI_SCALES } ?: 100,
+        editorLineHeightPercent = this[LINE_HEIGHT]?.takeIf { it in AppSettings.LINE_HEIGHTS } ?: AppSettings.DEFAULT_LINE_HEIGHT,
+        terminalExtraKeys = this[TERMINAL_EXTRA_KEYS] ?: true,
         editorFontSizeSp = this[EDITOR_FONT_SIZE] ?: AppSettings.DEFAULT_EDITOR_FONT_SIZE,
         ligatures = this[LIGATURES] ?: true,
         wordWrap = this[WORD_WRAP] ?: false,
@@ -61,6 +73,12 @@ class DataStoreSettingsRepository @Inject constructor(
 
     private companion object {
         val THEME = stringPreferencesKey("theme")
+        val FOLLOW_SYSTEM_THEME = booleanPreferencesKey("workbench.followSystemTheme")
+        val SIDE_POSITION = stringPreferencesKey("workbench.sideBar.location")
+        val SHOW_STATUS_BAR = booleanPreferencesKey("workbench.statusBar.visible")
+        val UI_SCALE = intPreferencesKey("window.zoomPercent")
+        val LINE_HEIGHT = intPreferencesKey("editor.lineHeightPercent")
+        val TERMINAL_EXTRA_KEYS = booleanPreferencesKey("terminal.extraKeys")
         val EDITOR_FONT_SIZE = intPreferencesKey("editor.fontSize")
         val LIGATURES = booleanPreferencesKey("editor.ligatures")
         val WORD_WRAP = booleanPreferencesKey("editor.wordWrap")

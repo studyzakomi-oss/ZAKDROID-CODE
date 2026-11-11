@@ -58,6 +58,7 @@ import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.AutoSave
+import tech.zakomi.zakdroid.core.settings.SidePosition
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.runtime.RuntimeState
 import tech.zakomi.zakdroid.runtime.acceptsInstallRequest
@@ -117,6 +118,9 @@ fun SettingsScreen(
         ) {
             Column(Modifier.widthIn(max = 720.dp).fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                 Section(stringResource(R.string.settings_appearance))
+                SwitchRow(stringResource(R.string.settings_follow_system_theme), stringResource(R.string.settings_follow_system_theme_hint), settings.followSystemTheme) { on ->
+                    viewModel.update { it.copy(followSystemTheme = on) }
+                }
                 Text(stringResource(R.string.settings_theme), color = colors.textSecondary, fontSize = 13.sp)
                 Column(Modifier.selectableGroup()) {
                     ThemeId.entries.forEach { theme ->
@@ -125,12 +129,14 @@ fun SettingsScreen(
                             Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = 48.dp)
-                                .selectable(settings.theme == theme, role = Role.RadioButton) { viewModel.update { it.copy(theme = theme) } },
+                                .selectable(settings.theme == theme, enabled = !settings.followSystemTheme, role = Role.RadioButton) {
+                                    viewModel.update { it.copy(theme = theme) }
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            RadioButton(selected = settings.theme == theme, onClick = null)
+                            RadioButton(selected = settings.theme == theme, onClick = null, enabled = !settings.followSystemTheme)
                             Spacer(Modifier.width(8.dp))
-                            Text(label, color = colors.textPrimary)
+                            Text(label, color = if (settings.followSystemTheme) colors.textSecondary else colors.textPrimary)
                         }
                     }
                 }
@@ -146,6 +152,23 @@ fun SettingsScreen(
                     },
                 )
 
+                Section(stringResource(R.string.settings_workbench))
+                Choice(
+                    title = stringResource(R.string.settings_side_position),
+                    options = SidePosition.entries,
+                    selected = settings.sidePosition,
+                    label = { stringResource(if (it == SidePosition.Start) R.string.settings_side_start else R.string.settings_side_end) },
+                ) { position -> viewModel.update { it.copy(sidePosition = position) } }
+                Choice(
+                    title = stringResource(R.string.settings_ui_scale),
+                    options = AppSettings.UI_SCALES,
+                    selected = settings.uiScalePercent,
+                    label = { stringResource(R.string.settings_percent, it) },
+                ) { percent -> viewModel.update { it.copy(uiScalePercent = percent) } }
+                SwitchRow(stringResource(R.string.settings_status_bar), null, settings.showStatusBar) { on ->
+                    viewModel.update { it.copy(showStatusBar = on) }
+                }
+
                 Section(stringResource(R.string.settings_editor))
                 Stepper(stringResource(R.string.settings_font_size), settings.editorFontSizeSp) { size ->
                     viewModel.update { it.copy(editorFontSizeSp = size) }
@@ -156,6 +179,12 @@ fun SettingsScreen(
                 SwitchRow(stringResource(R.string.settings_word_wrap), null, settings.wordWrap) { on ->
                     viewModel.update { it.copy(wordWrap = on) }
                 }
+                Choice(
+                    title = stringResource(R.string.settings_line_height),
+                    options = AppSettings.LINE_HEIGHTS,
+                    selected = settings.editorLineHeightPercent,
+                    label = { stringResource(R.string.settings_percent, it) },
+                ) { percent -> viewModel.update { it.copy(editorLineHeightPercent = percent) } }
                 Text(stringResource(R.string.settings_tab_size), color = colors.textSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
                 Row(Modifier.selectableGroup()) {
                     AppSettings.TAB_SIZES.forEach { size ->
@@ -195,6 +224,10 @@ fun SettingsScreen(
                 Section(stringResource(R.string.settings_terminal))
                 Stepper(stringResource(R.string.settings_font_size), settings.terminalFontSizeSp) { size ->
                     viewModel.update { it.copy(terminalFontSizeSp = size) }
+                }
+
+                SwitchRow(stringResource(R.string.settings_extra_keys), stringResource(R.string.settings_extra_keys_hint), settings.terminalExtraKeys) { on ->
+                    viewModel.update { it.copy(terminalExtraKeys = on) }
                 }
 
                 Section(stringResource(R.string.background_title))
@@ -261,6 +294,24 @@ fun SettingsScreen(
                 runtimeVm.reinstall()
             },
         )
+    }
+}
+
+/** A labelled row of radio buttons for a setting with a few fixed values. */
+@Composable
+private fun <T> Choice(title: String, options: List<T>, selected: T, label: @Composable (T) -> String, onSelect: (T) -> Unit) {
+    val colors = WorkbenchTheme
+    Text(title, color = colors.textSecondary, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
+    FlowRow(Modifier.selectableGroup()) {
+        options.forEach { option ->
+            Row(
+                Modifier.heightIn(min = 48.dp).selectable(selected == option, role = Role.RadioButton) { onSelect(option) }.padding(end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = selected == option, onClick = null)
+                Text(label(option), color = colors.textPrimary, modifier = Modifier.padding(start = 4.dp))
+            }
+        }
     }
 }
 

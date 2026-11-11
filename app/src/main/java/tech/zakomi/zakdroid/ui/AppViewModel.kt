@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -35,6 +37,7 @@ class AppViewModel @Inject constructor(
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    private val effectiveTheme = MutableStateFlow<ThemeId?>(null)
     private val _ready = MutableStateFlow(false)
 
     /** False while the branded splash is shown (settings, grammars and themes loading). */
@@ -43,8 +46,9 @@ class AppViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val started = System.currentTimeMillis()
-            val first = settingsRepository.settings.first()
-            applyTheme(first.theme)
+            settingsRepository.settings.first()
+            // The UI reports the theme to show (it knows whether the device is in dark mode).
+            applyTheme(effectiveTheme.filterNotNull().first())
             textMate.ensureInitialized()
             // Keep the brand splash visible long enough to be read, but never block longer than needed.
             val elapsed = System.currentTimeMillis() - started
@@ -52,8 +56,13 @@ class AppViewModel @Inject constructor(
             _ready.value = true
         }
         viewModelScope.launch {
-            settingsRepository.settings.map { it.theme }.distinctUntilChanged().collect { applyTheme(it) }
+            effectiveTheme.filterNotNull().distinctUntilChanged().drop(1).collect { applyTheme(it) }
         }
+    }
+
+    /** Called by the UI with the theme it shows, so the editor grammar colors and terminal match. */
+    fun onThemeShown(theme: ThemeId) {
+        effectiveTheme.value = theme
     }
 
     fun updateSettings(transform: (AppSettings) -> AppSettings) {

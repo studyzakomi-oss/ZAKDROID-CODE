@@ -13,6 +13,7 @@ dependencies {
     api(platform(libs.sora.bom))
     api(libs.sora.editor)
     implementation(libs.sora.language.textmate)
+    implementation(libs.gson)
 
     testImplementation(libs.junit)
 }

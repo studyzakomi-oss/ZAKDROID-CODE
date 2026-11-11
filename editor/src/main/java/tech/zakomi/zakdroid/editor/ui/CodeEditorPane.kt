@@ -29,6 +29,7 @@ data class EditorViewSettings(
     val lineNumbers: Boolean = true,
     val showWhitespace: Boolean = false,
     val stickyScroll: Boolean = true,
+    val lineHeightPercent: Int = 100,
 )
 
 /**
@@ -83,6 +84,8 @@ fun CodeEditorPane(
                 editor.setLigatureEnabled(settings.ligatures)
                 if (editor.isWordwrap != settings.wordWrap) editor.setWordwrap(settings.wordWrap)
                 editor.tabWidth = settings.tabSize
+                val lineSpacing = settings.lineHeightPercent / 100f
+                if (editor.lineSpacingMultiplier != lineSpacing) editor.setLineSpacing(0f, lineSpacing)
                 if (editor.isLineNumberEnabled != settings.lineNumbers) editor.isLineNumberEnabled = settings.lineNumbers
                 val whitespace = if (settings.showWhitespace) WHITESPACE_FLAGS else 0
                 if (editor.nonPrintablePaintingFlags != whitespace) editor.nonPrintablePaintingFlags = whitespace

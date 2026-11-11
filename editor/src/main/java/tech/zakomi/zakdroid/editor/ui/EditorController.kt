@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import tech.zakomi.zakdroid.editor.commands.LineCommands
 import tech.zakomi.zakdroid.editor.commands.TextSelection
 import tech.zakomi.zakdroid.editor.document.EditorDocument
+import tech.zakomi.zakdroid.editor.extensions.Snippet
+import tech.zakomi.zakdroid.editor.extensions.SnippetExpander
 
 /** 1-based cursor position (left end of a selection) and the number of selected characters. */
 data class CursorPosition(val line: Int = 1, val column: Int = 1, val selected: Int = 0)
@@ -99,6 +101,38 @@ class EditorController {
 
     fun selectAll() {
         editor?.selectAll()
+    }
+
+    /** Inserts [snippet] at the cursor (replacing a selection) and selects its first tab stop. */
+    fun insertSnippet(snippet: Snippet, fileName: String): Boolean {
+        val e = editor ?: return false
+        if (!e.isEditable) return false
+        val text = e.text
+        val c = e.cursor
+        val line = text.getLineString(c.leftLine)
+        val indent = line.take(c.leftColumn).takeWhile { it == ' ' || it == '\t' }
+        val selected = if (c.isSelected) text.subContent(c.leftLine, c.leftColumn, c.rightLine, c.rightColumn).toString() else ""
+        val expanded = SnippetExpander.expand(
+            snippet.body,
+            indent,
+            mapOf(
+                "TM_FILENAME" to fileName,
+                "TM_FILENAME_BASE" to fileName.substringBeforeLast('.'),
+                "TM_SELECTED_TEXT" to selected,
+            ),
+        )
+        val start = c.left
+        text.replace(c.leftLine, c.leftColumn, c.rightLine, c.rightColumn, expanded.text)
+        val from = text.indexer.getCharPosition(start + expanded.selectionStart)
+        val to = text.indexer.getCharPosition(start + expanded.selectionEnd)
+        if (expanded.selectionEnd > expanded.selectionStart) {
+            e.setSelectionRegion(from.line, from.column, to.line, to.column)
+        } else {
+            e.setSelection(from.line, from.column)
+        }
+        e.requestFocus()
+        refreshHistory()
+        return true
     }
 
     /** Runs a line command on the current selection. [lineComment] is the language's comment prefix. */

@@ -305,4 +305,41 @@
     <string name="settings_trim_whitespace">Trim trailing whitespace</string>
     <string name="settings_final_newline">Insert final newline</string>
     <string name="settings_on_save_hint">Applied when you save a file yourself</string>
+
+    <!-- Interface customization -->
+    <string name="settings_follow_system_theme">Follow the system theme</string>
+    <string name="settings_follow_system_theme_hint">Light or dark, like the device</string>
+    <string name="settings_workbench">Workbench</string>
+    <string name="settings_side_position">Side Bar position</string>
+    <string name="settings_side_start">Default side</string>
+    <string name="settings_side_end">Opposite side</string>
+    <string name="settings_ui_scale">Interface size</string>
+    <string name="settings_percent">%1$d%%</string>
+    <string name="settings_status_bar">Status Bar</string>
+    <string name="settings_line_height">Line height</string>
+    <string name="settings_extra_keys">Touch key row</string>
+    <string name="settings_extra_keys_hint">Esc, Tab, Ctrl, Alt and arrows above the keyboard</string>
+    <string name="command_toggle_side_position">Move Side Bar to the Other Side</string>
+    <string name="command_toggle_status_bar">Toggle Status Bar</string>
+
+    <!-- Extensions and snippets -->
+    <string name="action_extensions">Extensions</string>
+    <string name="extensions_title">Extensions</string>
+    <string name="extensions_intro">Extensions add snippets to the editor. They are data files only: no extension code runs in the app.</string>
+    <string name="extensions_install">Install from a .zip file…</string>
+    <string name="extensions_built_in">Built-in</string>
+    <string name="extensions_version">Version %1$s</string>
+    <string name="extensions_by">by %1$s</string>
+    <string name="extensions_snippet_languages">Snippets: %1$s</string>
+    <string name="extensions_uninstall">Uninstall</string>
+    <string name="extensions_uninstall_title">Uninstall \"%1$s\"?</string>
+    <string name="extensions_uninstall_message">The extension\'s files are removed from this device.</string>
+    <string name="extensions_installed">Installed %1$s %2$s</string>
+    <string name="extensions_install_failed">This file is not a valid extension: %1$s</string>
+    <string name="extensions_format_title">Make your own</string>
+    <string name="extensions_format">A .zip with extension.json (id, name, version, contributes.snippets) and snippet files in VS Code\'s format for c, cpp or python.</string>
+    <string name="command_insert_snippet">Insert Snippet…</string>
+    <string name="command_extensions">Extensions</string>
+    <string name="quick_hint_snippets">Type a snippet name, e.g. for or main</string>
+    <string name="quick_no_snippets">No snippets for this language. Enable or install an extension.</string>
 </resources>

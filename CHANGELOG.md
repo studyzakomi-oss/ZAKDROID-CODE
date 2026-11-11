@@ -5,6 +5,8 @@ Bug IDs (D1, O4, …) refer to [`docs/BUGS_AND_FIXES.md`](docs/BUGS_AND_FIXES.md
 
 ## [Unreleased]
 ### Added
+- Interface customization (milestone V2): follow the system theme, Side Bar on either side, interface size (85–130%), Status Bar on/off, editor line height, terminal touch key row on/off.
+- Declarative extensions, first part (milestone V3): an Extensions screen (enable, disable, install from a .zip, uninstall), `extension.json` manifests, and snippets in VS Code's format with an **Insert Snippet** command. Two built-in snippet packs: C/C++ and Python. Extensions are data only; no extension code runs.
 - VS Code essentials (milestone V1; full comparison in `docs/VSCODE_COMPARISON.md`):
   - **Command Palette** (Ctrl+Shift+P, F1), **Quick Open** (Ctrl+P), **Go to Line** (Ctrl+G) and **Go to Symbol in File** (Ctrl+Shift+O) in one picker; type `>`, `:` or `@` to switch.
   - **Search view**: find in all files of the folder, with match case, whole word and regular expressions. Unsaved text of open editors is searched as shown.

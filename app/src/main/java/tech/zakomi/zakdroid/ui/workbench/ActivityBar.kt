@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Terminal
@@ -45,6 +46,7 @@ fun ActivityBar(
     onSearch: () -> Unit,
     onRun: () -> Unit,
     onTerminal: () -> Unit,
+    onExtensions: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -60,6 +62,7 @@ fun ActivityBar(
         ActivityItem(Icons.Outlined.Search, stringResource(R.string.action_search), searchSelected, onSearch)
         ActivityItem(Icons.Filled.PlayArrow, stringResource(R.string.action_run), false, onRun, busy = running)
         ActivityItem(Icons.Outlined.Terminal, stringResource(R.string.action_terminal), terminalSelected, onTerminal)
+        ActivityItem(Icons.Outlined.Extension, stringResource(R.string.action_extensions), false, onExtensions)
         Spacer(Modifier.weight(1f))
         ActivityItem(Icons.Outlined.Settings, stringResource(R.string.action_settings), false, onSettings)
         Spacer(Modifier.height(4.dp))

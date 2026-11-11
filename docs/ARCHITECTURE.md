@@ -69,6 +69,8 @@ Compose screen ──intent──► ViewModel ──► store/repository/manage
 - **Key bindings** are handled in `WorkbenchScreen` through `ShortcutWindowCallback`. Line commands need editor focus; Ctrl+P, Ctrl+G and Ctrl+H are left to the shell while the terminal has focus.
 - **Find in Files** reads files up to 1 MB, skips binary files and the folders in `WorkspaceFiles.SKIPPED_DIRS`, and stops at 2000 matches (200 per file).
 - **Jump to a position:** `EditorViewModel.openAt` sends `EditorEvent.Reveal`; `EditorController.reveal` waits until the editor view shows that document.
+- **Extensions** (`:editor` `extensions/`): `ExtensionManifest` (validated `extension.json`), `ExtensionInstaller` (zip unpacking with path, count and size checks), `ExtensionRepository` (built-in packs from `assets/extensions`, installed ones in `files/extensions/<id>`, disabled ids in `disabled.txt`), `SnippetParser` and `SnippetExpander`. Only data files are read; nothing from an extension is executed.
+- **Interface customization:** the interface size scales `LocalDensity` in `AppRoot`; the Side Bar side flips the layout direction of the workbench row and drawer and restores it inside each part; the theme shown is `AppSettings.effectiveTheme(systemIsDark)`, reported to `AppViewModel.onThemeShown` for the grammar colors and terminal palette.
 - **Auto save** runs in `EditorViewModel`: one second after the last edit, files that were not edited during that second are written. Saves are serialized by a mutex.
 
 ### Run (one tap, F5)

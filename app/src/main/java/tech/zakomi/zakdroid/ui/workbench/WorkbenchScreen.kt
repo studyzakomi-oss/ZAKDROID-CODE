@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -52,11 +53,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -70,6 +73,7 @@ import tech.zakomi.zakdroid.core.fs.FileRef
 import com.termux.view.TerminalView
 import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.AutoSave
+import tech.zakomi.zakdroid.core.settings.SidePosition
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.editor.ui.LineCommand
 import tech.zakomi.zakdroid.ui.editor.EditorActions
@@ -107,6 +111,7 @@ enum class SideView { Explorer, Search }
 fun WorkbenchScreen(
     settings: AppSettings,
     onOpenSettings: () -> Unit,
+    onOpenExtensions: () -> Unit,
     onUpdateSettings: ((AppSettings) -> AppSettings) -> Unit,
     explorerVm: ExplorerViewModel = hiltViewModel(),
     searchVm: SearchViewModel = hiltViewModel(),
@@ -281,9 +286,19 @@ fun WorkbenchScreen(
         )
     }
 
+    // "Side Bar on the other side": the row (and the phone drawer) is laid out in the opposite
+    // direction, and each part gets the real direction back for its own content.
+    val direction = LocalLayoutDirection.current
+    val sideDirection = if (settings.sidePosition == SidePosition.Start) direction else direction.opposite()
+    val inOwnDirection = @Composable { content: @Composable () -> Unit ->
+        CompositionLocalProvider(LocalLayoutDirection provides direction, content = content)
+    }
+
     val workbench = @Composable {
         Column(Modifier.fillMaxSize()) {
+            CompositionLocalProvider(LocalLayoutDirection provides sideDirection) {
             Row(Modifier.weight(1f)) {
+                inOwnDirection {
                 ActivityBar(
                     explorerSelected = sideOpen && sideView == SideView.Explorer,
                     searchSelected = sideOpen && sideView == SideView.Search,
@@ -293,13 +308,17 @@ fun WorkbenchScreen(
                     onSearch = { toggleSide(SideView.Search) },
                     onRun = editorVm::runActive,
                     onTerminal = { toggleTerminal() },
+                    onExtensions = onOpenExtensions,
                     onSettings = onOpenSettings,
                 )
+                }
                 if (isTablet && sideBarVisible) {
-                    explorerPane(Modifier.width(280.dp).fillMaxHeight())
+                    Box(Modifier.width(280.dp).fillMaxHeight()) { inOwnDirection { explorerPane(Modifier.fillMaxSize()) } }
                     Box(Modifier.width(1.dp).fillMaxHeight().background(colors.border))
                 }
-                BoxWithConstraints(Modifier.weight(1f).fillMaxHeight()) {
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                inOwnDirection {
+                BoxWithConstraints(Modifier.fillMaxSize()) {
                     val maxPanel = (maxHeight.value * 0.8f).coerceAtLeast(120f)
                     val panelHeight = panelHeightDp.coerceIn(120f, maxPanel)
                     Column(Modifier.fillMaxSize()) {
@@ -314,6 +333,7 @@ fun WorkbenchScreen(
                             actions = EditorActions(
                                 onGoToLine = { quickPick = QuickPickMode.Line },
                                 onGoToSymbol = { quickPick = QuickPickMode.Symbols },
+                                onInsertSnippet = { quickPick = QuickPickMode.Snippets },
                                 onCommandPalette = { quickPick = QuickPickMode.Commands },
                                 onLineCommand = lineCommand,
                             ),
@@ -338,6 +358,7 @@ fun WorkbenchScreen(
                             TerminalPanel(
                                 viewModel = terminalVm,
                                 fontSizeSp = settings.terminalFontSizeSp,
+                                showExtraKeys = settings.terminalExtraKeys,
                                 onHide = { panelVisible = false },
                                 onInstallRuntime = { runtimeSheet = false },
                                 modifier = Modifier.fillMaxWidth().height(panelHeight.dp),
@@ -345,8 +366,11 @@ fun WorkbenchScreen(
                         }
                     }
                 }
+                }
+                }
             }
-            StatusBar(
+            }
+            if (settings.showStatusBar) StatusBar(
                 runtime = runtime,
                 workspaceName = explorer.workspace?.name,
                 document = activeTab?.let {
@@ -368,17 +392,19 @@ fun WorkbenchScreen(
             if (isTablet) {
                 workbench()
             } else {
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    gesturesEnabled = drawerState.isOpen,
-                    drawerContent = {
-                        ModalDrawerSheet(
-                            drawerContainerColor = colors.sideBar,
-                            drawerShape = RoundedCornerShape(0.dp),
-                            modifier = Modifier.width(300.dp),
-                        ) { explorerPane(Modifier.fillMaxSize()) }
-                    },
-                ) { workbench() }
+                CompositionLocalProvider(LocalLayoutDirection provides sideDirection) {
+                    ModalNavigationDrawer(
+                        drawerState = drawerState,
+                        gesturesEnabled = drawerState.isOpen,
+                        drawerContent = {
+                            ModalDrawerSheet(
+                                drawerContainerColor = colors.sideBar,
+                                drawerShape = RoundedCornerShape(0.dp),
+                                modifier = Modifier.width(300.dp),
+                            ) { inOwnDirection { explorerPane(Modifier.fillMaxSize()) } }
+                        },
+                    ) { inOwnDirection { workbench() } }
+                }
             }
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
@@ -418,6 +444,8 @@ fun WorkbenchScreen(
             command(R.string.command_go_to_file, "Ctrl+P") { quickPick = QuickPickMode.Files },
             command(R.string.command_go_to_line, "Ctrl+G", hasFile) { quickPick = QuickPickMode.Line },
             command(R.string.command_go_to_symbol, "Ctrl+Shift+O", hasFile) { quickPick = QuickPickMode.Symbols },
+            command(R.string.command_insert_snippet, enabled = hasFile) { quickPick = QuickPickMode.Snippets },
+            command(R.string.command_extensions) { onOpenExtensions() },
             command(R.string.command_find_in_files, "Ctrl+Shift+F") { findInFiles() },
             command(R.string.command_find, "Ctrl+F", hasFile) { controller.openSearch() },
             command(R.string.command_replace, "Ctrl+H", hasFile) { controller.openSearch(withReplace = true) },
@@ -450,8 +478,13 @@ fun WorkbenchScreen(
                 onUpdateSettings { it.copy(autoSave = if (it.autoSave == AutoSave.Off) AutoSave.AfterDelay else AutoSave.Off) }
             },
             command(R.string.command_toggle_theme) {
-                onUpdateSettings { it.copy(theme = if (it.theme == ThemeId.NavyDark) ThemeId.Light else ThemeId.NavyDark) }
+                // Choosing a theme by hand ends "follow the system theme".
+                onUpdateSettings { it.copy(followSystemTheme = false, theme = if (colors.isDark) ThemeId.Light else ThemeId.NavyDark) }
             },
+            command(R.string.command_toggle_side_position) {
+                onUpdateSettings { it.copy(sidePosition = if (it.sidePosition == SidePosition.Start) SidePosition.End else SidePosition.Start) }
+            },
+            command(R.string.command_toggle_status_bar) { onUpdateSettings { it.copy(showStatusBar = !it.showStatusBar) } },
             command(R.string.command_zoom_in, "Ctrl+=") { zoom(1) },
             command(R.string.command_zoom_out, "Ctrl+-") { zoom(-1) },
             command(R.string.command_zoom_reset, "Ctrl+0") { zoom(0) },
@@ -468,6 +501,8 @@ fun WorkbenchScreen(
                 commands = commands,
                 lineCount = if (hasFile) controller.lineCount else 0,
                 loadSymbols = editorVm::symbolsOfActive,
+                loadSnippets = editorVm::snippetsOfActive,
+                onInsertSnippet = { snippet -> controller.insertSnippet(snippet, activeTab?.name.orEmpty()) },
                 onOpenFile = { file -> openFile(file.entry.ref, file.entry.name, file.relativePath) },
                 onGotoLine = { line, column -> controller.gotoLine(line, column) },
                 onGotoSymbol = { symbol -> activeTab?.let { controller.reveal(it.document, symbol.line) } },
@@ -476,6 +511,8 @@ fun WorkbenchScreen(
         }
     }
 }
+
+private fun LayoutDirection.opposite() = if (this == LayoutDirection.Ltr) LayoutDirection.Rtl else LayoutDirection.Ltr
 
 @Composable
 private fun PanelResizeHandle(onDrag: (Float) -> Unit) {

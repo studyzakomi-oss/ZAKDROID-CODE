@@ -9,6 +9,15 @@ enum class EditorLanguage(val displayName: String, val scopeName: String?, /** L
     Python("Python", "source.python", "#"),
     PlainText("Plain Text", null, null);
 
+    /** Language id used by extensions (VS Code's ids), or null for plain text. */
+    val id: String?
+        get() = when (this) {
+            C -> "c"
+            Cpp -> "cpp"
+            Python -> "python"
+            PlainText -> null
+        }
+
     companion object {
         private val C_EXTENSIONS = setOf("c", "i")
         private val CPP_EXTENSIONS = setOf(

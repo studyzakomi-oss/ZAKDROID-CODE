@@ -44,7 +44,7 @@ Status: ✅ available · 🆕 added in milestone V1 (this change) · ◐ partial
 | Word-based completion | ✅ | |
 | IntelliSense, diagnostics, hover, go to definition, rename, format | ⏳ M1 | clangd, pylsp/ruff |
 | Problems panel | ⏳ M1 | |
-| Snippets | ⏳ M5 | Declarative extensions |
+| Snippets | 🆕 ◐ | Insert Snippet command with VS Code-format snippet files; completion while typing and Tab between stops come with M5 |
 | Code folding | ⏳ M7 | Missing in the editor component; see `ARCHITECTURE.md` |
 | Multi-cursor | ⏳ M7 ◐ | "Change all occurrences" first |
 | Block comment, Emmet, column selection | ⏳ | After M7 |
@@ -63,9 +63,10 @@ Status: ✅ available · 🆕 added in milestone V1 (this change) · ◐ partial
 | Source control (Git) | ⏳ M6 | |
 | Test explorer | ⏳ M7 | Exercise mode with tests |
 | More languages | ⏳ M2 | Language packs |
-| Extensions marketplace | ◐ ⏳ M5 | Declarative extensions only: themes, snippets, grammars, templates |
-| Themes, icon themes | ◐ | Two built-in themes; more through M5 |
-| AI assistant (Copilot, chat) | ✖ | Project decision (2026-11-06) |
+| Extensions | 🆕 ◐ | Declarative only. Install from a .zip, enable, disable, uninstall; snippets today, themes/grammars/templates in M5. No marketplace |
+| Themes, icon themes | ◐ | Two built-in themes, optional "follow the system"; more through M5 |
+| Layout customization (side bar side, zoom, status bar) | 🆕 | Settings → Workbench |
+| AI assistant (Copilot, chat) | ⏳ M9 | Not built in; the external Claude Code CLI in the terminal is planned |
 
 ## Key bindings (hardware keyboard)
 

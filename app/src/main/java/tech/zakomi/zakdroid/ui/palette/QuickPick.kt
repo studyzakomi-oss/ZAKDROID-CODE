@@ -72,6 +72,7 @@ import tech.zakomi.zakdroid.core.designsystem.JetBrainsMono
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.search.FuzzyMatcher
 import tech.zakomi.zakdroid.core.search.WorkspaceFile
+import tech.zakomi.zakdroid.editor.extensions.Snippet
 import tech.zakomi.zakdroid.editor.outline.DocumentSymbol
 import tech.zakomi.zakdroid.editor.outline.SymbolKind
 
@@ -80,13 +81,15 @@ enum class QuickPickMode(val prefix: String) {
     Files(""),
     Commands(">"),
     Line(":"),
-    Symbols("@");
+    Symbols("@"),
+    Snippets("$");
 
     companion object {
         fun of(text: String): QuickPickMode = when {
             text.startsWith(Commands.prefix) -> Commands
             text.startsWith(Line.prefix) -> Line
             text.startsWith(Symbols.prefix) -> Symbols
+            text.startsWith(Snippets.prefix) -> Snippets
             else -> Files
         }
     }
@@ -120,6 +123,8 @@ fun QuickPick(
     /** Lines of the active file, or 0 when no file is open. */
     lineCount: Int,
     loadSymbols: suspend () -> List<DocumentSymbol>,
+    loadSnippets: suspend () -> List<Snippet>,
+    onInsertSnippet: (Snippet) -> Unit,
     onOpenFile: (WorkspaceFile) -> Unit,
     onGotoLine: (line: Int, column: Int) -> Unit,
     onGotoSymbol: (DocumentSymbol) -> Unit,
@@ -133,6 +138,7 @@ fun QuickPick(
     val query = input.text.removePrefix(mode.prefix).trim()
     val files by viewModel.state.collectAsStateWithLifecycle()
     val symbols by produceState<List<DocumentSymbol>?>(null) { value = loadSymbols() }
+    val snippets by produceState<List<Snippet>?>(null) { value = loadSnippets() }
     val focus = remember { FocusRequester() }
     val listState = rememberLazyListState()
 
@@ -189,6 +195,17 @@ fun QuickPick(
                     onPick = { onGotoSymbol(symbol) },
                 )
             }
+        QuickPickMode.Snippets -> snippets.orEmpty()
+            .mapNotNull { snippet -> FuzzyMatcher.match(query, snippet.prefix + " " + snippet.name)?.let { snippet to it } }
+            .let { hits -> if (query.isEmpty()) hits else hits.sortedByDescending { it.second.score } }
+            .map { (snippet, _) ->
+                PickRow(
+                    title = AnnotatedString(snippet.name),
+                    detail = snippet.description.ifEmpty { null },
+                    trailing = snippet.prefix.ifEmpty { null },
+                    onPick = { onInsertSnippet(snippet) },
+                )
+            }
     }
     val current = selected.coerceIn(0, (rows.size - 1).coerceAtLeast(0))
     LaunchedEffect(current, rows.size) { if (rows.isNotEmpty()) listState.scrollToItem(current) }
@@ -206,6 +223,7 @@ fun QuickPick(
             QuickPickMode.Commands -> R.string.quick_hint_commands
             QuickPickMode.Line -> R.string.quick_hint_line
             QuickPickMode.Symbols -> R.string.quick_hint_symbols
+            QuickPickMode.Snippets -> R.string.quick_hint_snippets
         },
     )
     val emptyText = when {
@@ -214,6 +232,9 @@ fun QuickPick(
         mode == QuickPickMode.Symbols && symbols == null -> null
         mode == QuickPickMode.Symbols && lineCount <= 0 -> noFile
         mode == QuickPickMode.Symbols && query.isEmpty() -> stringResource(R.string.quick_no_symbols)
+        mode == QuickPickMode.Snippets && snippets == null -> null
+        mode == QuickPickMode.Snippets && lineCount <= 0 -> noFile
+        mode == QuickPickMode.Snippets && query.isEmpty() -> stringResource(R.string.quick_no_snippets)
         else -> stringResource(R.string.quick_no_results)
     }
 

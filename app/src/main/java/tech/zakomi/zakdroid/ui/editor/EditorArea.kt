@@ -114,6 +114,7 @@ fun EditorArea(
                         lineNumbers = settings.lineNumbers,
                         showWhitespace = settings.showWhitespace,
                         stickyScroll = settings.stickyScroll,
+                        lineHeightPercent = settings.editorLineHeightPercent,
                     ),
                     controller = controller,
                     languageFactory = viewModel.textMate::newLanguage,
@@ -133,6 +134,7 @@ fun EditorArea(
 class EditorActions(
     val onGoToLine: () -> Unit,
     val onGoToSymbol: () -> Unit,
+    val onInsertSnippet: () -> Unit,
     val onCommandPalette: () -> Unit,
     val onLineCommand: (LineCommand) -> Unit,
 )
@@ -267,6 +269,7 @@ private fun EditorToolbar(
                 item(R.string.command_palette, action = actions.onCommandPalette)
                 item(R.string.command_go_to_line, action = actions.onGoToLine)
                 item(R.string.command_go_to_symbol, action = actions.onGoToSymbol)
+                item(R.string.command_insert_snippet, enabled = tab.document.language.id != null, action = actions.onInsertSnippet)
                 HorizontalDivider()
                 item(R.string.command_toggle_comment, enabled = canComment) { actions.onLineCommand(LineCommand.ToggleComment) }
                 item(R.string.command_duplicate_line) { actions.onLineCommand(LineCommand.DuplicateDown) }

@@ -1,0 +1,13 @@
+{
+  "id": "zakomi.snippets-python",
+  "name": "Python Snippets",
+  "version": "1.0.0",
+  "description": "Common Python code templates: main, loops, conditions, functions, classes and file handling.",
+  "author": "zakomi TECH",
+  "license": "Apache-2.0",
+  "contributes": {
+    "snippets": [
+      { "language": "python", "path": "snippets/python.json" }
+    ]
+  }
+}

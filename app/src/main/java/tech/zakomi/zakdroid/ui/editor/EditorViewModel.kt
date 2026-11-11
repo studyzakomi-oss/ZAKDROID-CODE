@@ -27,6 +27,8 @@ import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.AutoSave
 import tech.zakomi.zakdroid.core.settings.SettingsRepository
 import tech.zakomi.zakdroid.editor.commands.DocumentCleanup
+import tech.zakomi.zakdroid.editor.extensions.ExtensionRepository
+import tech.zakomi.zakdroid.editor.extensions.Snippet
 import tech.zakomi.zakdroid.editor.outline.DocumentSymbol
 import tech.zakomi.zakdroid.editor.outline.SymbolOutline
 import tech.zakomi.zakdroid.core.data.OpenTabEntity
@@ -78,6 +80,7 @@ class EditorViewModel @Inject constructor(
     private val stager: WorkspaceStager,
     private val terminals: TerminalSessionManager,
     settingsRepository: SettingsRepository,
+    private val extensions: ExtensionRepository,
     val textMate: TextMateSetup,
 ) : ViewModel() {
 
@@ -147,6 +150,12 @@ class EditorViewModel @Inject constructor(
             openInternal(ref, name, relativePath, activate = true)
             if (documents.find(ref.key) != null) _events.send(EditorEvent.Reveal(ref.key, line, startColumn, endColumn))
         }
+    }
+
+    /** Snippets that enabled extensions offer for the active file's language. */
+    suspend fun snippetsOfActive(): List<Snippet> {
+        val language = documents.active?.document?.language?.id ?: return emptyList()
+        return extensions.snippetsFor(language)
     }
 
     /** Definitions in the active file, for "Go to Symbol in File". */

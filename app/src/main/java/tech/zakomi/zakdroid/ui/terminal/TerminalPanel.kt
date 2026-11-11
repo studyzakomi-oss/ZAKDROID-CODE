@@ -48,6 +48,7 @@ import tech.zakomi.zakdroid.terminal.TerminalPane
 fun TerminalPanel(
     viewModel: TerminalViewModel,
     fontSizeSp: Int,
+    showExtraKeys: Boolean,
     onHide: () -> Unit,
     onInstallRuntime: () -> Unit,
     modifier: Modifier = Modifier,
@@ -123,7 +124,7 @@ fun TerminalPanel(
                 }
             }
         }
-        if (id != null) ExtraKeysRow(viewModel.keys)
+        if (id != null && showExtraKeys) ExtraKeysRow(viewModel.keys)
         Spacer(Modifier.height(0.dp))
     }
 }

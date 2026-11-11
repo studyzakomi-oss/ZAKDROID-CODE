@@ -1,0 +1,14 @@
+{
+  "id": "zakomi.snippets-c-cpp",
+  "name": "C and C++ Snippets",
+  "version": "1.0.0",
+  "description": "Common C and C++ code templates: main, loops, conditions, functions, structs and classes.",
+  "author": "zakomi TECH",
+  "license": "Apache-2.0",
+  "contributes": {
+    "snippets": [
+      { "language": "c", "path": "snippets/c.json" },
+      { "language": "cpp", "path": "snippets/cpp.json" }
+    ]
+  }
+}

@@ -316,4 +316,41 @@
     <string name="settings_trim_whitespace">حذف المسافات في نهايات الأسطر</string>
     <string name="settings_final_newline">إضافة سطر جديد في نهاية الملف</string>
     <string name="settings_on_save_hint">يُطبَّق عند حفظ الملف يدويًا</string>
+
+    <!-- Interface customization -->
+    <string name="settings_follow_system_theme">اتباع سمة النظام</string>
+    <string name="settings_follow_system_theme_hint">فاتحة أو داكنة، مثل الجهاز</string>
+    <string name="settings_workbench">منطقة العمل</string>
+    <string name="settings_side_position">موضع الشريط الجانبي</string>
+    <string name="settings_side_start">الجهة الافتراضية</string>
+    <string name="settings_side_end">الجهة المقابلة</string>
+    <string name="settings_ui_scale">حجم الواجهة</string>
+    <string name="settings_percent">%1$d٪</string>
+    <string name="settings_status_bar">شريط الحالة</string>
+    <string name="settings_line_height">ارتفاع السطر</string>
+    <string name="settings_extra_keys">صف مفاتيح اللمس</string>
+    <string name="settings_extra_keys_hint">Esc وTab وCtrl وAlt والأسهم فوق لوحة المفاتيح</string>
+    <string name="command_toggle_side_position">نقل الشريط الجانبي إلى الجهة الأخرى</string>
+    <string name="command_toggle_status_bar">إظهار شريط الحالة أو إخفاؤه</string>
+
+    <!-- Extensions and snippets -->
+    <string name="action_extensions">الإضافات</string>
+    <string name="extensions_title">الإضافات</string>
+    <string name="extensions_intro">تضيف الإضافات مقتطفات شيفرة إلى المحرر. وهي ملفات بيانات فقط: لا تُشغَّل أي شيفرة من الإضافات داخل التطبيق.</string>
+    <string name="extensions_install">التثبيت من ملف ‎.zip…</string>
+    <string name="extensions_built_in">مضمَّنة</string>
+    <string name="extensions_version">الإصدار %1$s</string>
+    <string name="extensions_by">من %1$s</string>
+    <string name="extensions_snippet_languages">المقتطفات: %1$s</string>
+    <string name="extensions_uninstall">إزالة</string>
+    <string name="extensions_uninstall_title">إزالة \"%1$s\"؟</string>
+    <string name="extensions_uninstall_message">ستُحذف ملفات الإضافة من هذا الجهاز.</string>
+    <string name="extensions_installed">ثُبِّتت %1$s %2$s</string>
+    <string name="extensions_install_failed">هذا الملف ليس إضافة صالحة: %1$s</string>
+    <string name="extensions_format_title">أنشئ إضافتك</string>
+    <string name="extensions_format">ملف ‎.zip يحتوي extension.json (id وname وversion وcontributes.snippets) وملفات مقتطفات بصيغة VS Code للغات c أو cpp أو python.</string>
+    <string name="command_insert_snippet">إدراج مقتطف…</string>
+    <string name="command_extensions">الإضافات</string>
+    <string name="quick_hint_snippets">اكتب اسم مقتطف، مثل for أو main</string>
+    <string name="quick_no_snippets">لا توجد مقتطفات لهذه اللغة. فعِّل إضافة أو ثبِّت واحدة.</string>
 </resources>

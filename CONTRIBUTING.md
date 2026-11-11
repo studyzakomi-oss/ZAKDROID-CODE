@@ -8,7 +8,7 @@ Bug reports, translations, documentation and code are all welcome.
 - For anything larger than a small fix, open an issue first so the approach can be agreed before you write the code.
 - Project decisions that pull requests must respect:
   - **On-device only.** No server or account is needed. The network is used only to download a toolchain or resource pack once.
-  - **No AI assistant**, on-device or cloud.
+  - **No built-in AI assistant.** The only allowed link is starting the user's own Claude Code CLI in the terminal (roadmap M9).
   - **Declarative extensions only:** themes, snippets, grammars, templates, resource catalogs and language configs. No extension code runs inside the app.
   - **No secrets** in the repository, logs or plain files. Signing uses environment variables only, and no keystore is ever committed.
 

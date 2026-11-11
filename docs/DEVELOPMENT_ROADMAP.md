@@ -21,6 +21,8 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | S4 | Stale SAF copy; keep-alive crash path; Reinstall with open terminals | O4, O5, O6 | ✅ v0.1.5 (device check pending) |
 | S5 | Undo-to-saved dirty state; localized error messages; CI action upgrades; release download retry | O7–O10 | ✅ v0.1.6 (device check pending) |
 | V1 | VS Code essentials that need no language server: Command Palette, Quick Open, Go to Line/Symbol, Find in Files, line commands, tab menu, auto save, save clean-ups, editor view settings. Gap list: `docs/VSCODE_COMPARISON.md` | — | ✅ built and unit-tested (device check pending) |
+| V2 | Interface customization: system theme, Side Bar side, interface size, Status Bar, line height, terminal key row | — | ✅ built and unit-tested (device check pending) |
+| V3 | Declarative extensions, part 1: manifest, install/uninstall/enable from a .zip, snippets (VS Code format) with Insert Snippet, two built-in packs. Part 2 = M5 (themes, grammars, templates, snippet completion while typing) | — | ✅ built and unit-tested (device check pending) |
 | S6 | Open-source files: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates | O11 | ✅ (owner: rename branch to `main`, enable private vulnerability reporting) |
 
 ## Then: features (the request's phases, re-ordered by dependency)
@@ -37,4 +39,6 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | M10 | Polish: folding, multi-cursor (partial), minimap on tablets, workspace backup/restore | M1 | ⏳ |
 | M11 | Release readiness: full test matrix, signed release, F-Droid metadata, user guide (EN + AR), and the documents of request phase 10 | all | ⏳ |
 
-Removed: remote mode with a Debian server and the server-based Claude assistant (2026-10-30); any AI coding assistant, on-device or cloud (2026-11-06).
+| M9 | **Claude Code in the terminal** (decided 2026-11-11): a command that installs the Claude Code CLI in the Alpine system and starts it in the open project. Optional, needs internet and the user's own account; the app itself still ships no assistant. Feasibility on Alpine aarch64 under PRoot must be checked on a device first | V1 | ⏳ next |
+
+Removed: remote mode with a Debian server and the server-based Claude assistant (2026-10-30). The 2026-11-06 decision "no AI coding assistant" was narrowed on 2026-11-11: no assistant is built into the app, but linking the external Claude Code CLI in the terminal is allowed (M9). Extensions stay declarative only.

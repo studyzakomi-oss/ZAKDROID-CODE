@@ -17,6 +17,8 @@ coroutines = "1.11.0"
 sora = "0.24.7"
 commonsCompress = "1.28.0"
 okhttp = "5.5.1"
+# Already shipped through sora language-textmate; declared for extension manifests and snippets.
+gson = "2.15.0"
 annotation = "1.11.0"
 junit = "4.13.2"
 androidxTest = "1.7.0"
@@ -62,6 +64,7 @@ sora-editor = { module = "io.github.rosemoe:editor" }
 sora-language-textmate = { module = "io.github.rosemoe:language-textmate" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTest" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidxTest" }

@@ -1,0 +1,16 @@
+{
+  "main": { "prefix": "main", "body": ["def main():", "    ${0:pass}", "", "", "if __name__ == \"__main__\":", "    main()"], "description": "Script with main()" },
+  "for loop": { "prefix": "for", "body": ["for ${1:item} in ${2:items}:", "    ${0:pass}"], "description": "for loop" },
+  "for range": { "prefix": "forr", "body": ["for ${1:i} in range(${2:n}):", "    ${0:pass}"], "description": "for loop over a range" },
+  "while loop": { "prefix": "while", "body": ["while ${1:condition}:", "    ${0:pass}"], "description": "while loop" },
+  "if": { "prefix": "if", "body": ["if ${1:condition}:", "    ${0:pass}"], "description": "if statement" },
+  "if else": { "prefix": "ifelse", "body": ["if ${1:condition}:", "    ${2:pass}", "else:", "    ${0:pass}"], "description": "if ... else" },
+  "function": { "prefix": "def", "body": ["def ${1:name}(${2}):", "    ${0:pass}"], "description": "Function definition" },
+  "class": { "prefix": "class", "body": ["class ${1:Name}:", "    def __init__(self${2}):", "        ${0:pass}"], "description": "Class with __init__" },
+  "try except": { "prefix": "try", "body": ["try:", "    ${1:pass}", "except ${2:Exception} as ${3:error}:", "    ${0:print(error)}"], "description": "try ... except" },
+  "with open": { "prefix": "with", "body": ["with open(${1:\"file.txt\"}, encoding=\"utf-8\") as ${2:f}:", "    ${0:text = f.read()}"], "description": "Open a file" },
+  "print": { "prefix": "print", "body": "print(${1:value})", "description": "Print a value" },
+  "input": { "prefix": "input", "body": "${1:value} = input(${2:\"> \"})", "description": "Read a line" },
+  "list comprehension": { "prefix": "lc", "body": "[${1:x} for ${2:x} in ${3:items}]", "description": "List comprehension" },
+  "lambda": { "prefix": "lambda", "body": "lambda ${1:x}: ${2:x}", "description": "Lambda expression" }
+}
