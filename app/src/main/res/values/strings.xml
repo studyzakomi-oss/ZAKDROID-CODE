@@ -289,7 +289,10 @@
     <string name="tab_copy_path">Copy Relative Path</string>
 
     <!-- Status bar and settings added with the VS Code essentials -->
-    <string name="status_selected">(%1$d selected)</string>
+    <plurals name="status_selected">
+        <item quantity="one">(%1$d selected)</item>
+        <item quantity="other">(%1$d selected)</item>
+    </plurals>
     <string name="status_tab_size">Tab Size: %1$d</string>
     <string name="settings_line_numbers">Line numbers</string>
     <string name="settings_show_whitespace">Render whitespace</string>

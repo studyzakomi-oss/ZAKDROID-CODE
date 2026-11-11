@@ -296,7 +296,14 @@
     <string name="tab_copy_path">نسخ المسار النسبي</string>
 
     <!-- Status bar and settings added with the VS Code essentials -->
-    <string name="status_selected">(%1$d محددة)</string>
+    <plurals name="status_selected">
+        <item quantity="zero">(%1$d محددة)</item>
+        <item quantity="one">(محرف واحد محدد)</item>
+        <item quantity="two">(محرفان محددان)</item>
+        <item quantity="few">(%1$d محارف محددة)</item>
+        <item quantity="many">(%1$d محرفًا محددًا)</item>
+        <item quantity="other">(%1$d محرف محدد)</item>
+    </plurals>
     <string name="status_tab_size">حجم الجدولة: %1$d</string>
     <string name="settings_line_numbers">أرقام الأسطر</string>
     <string name="settings_show_whitespace">إظهار المسافات</string>

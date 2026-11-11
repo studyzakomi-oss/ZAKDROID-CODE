@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -76,7 +77,7 @@ fun StatusBar(
         Spacer(Modifier.weight(1f))
         if (document != null) {
             val position = stringResource(R.string.status_line_col, document.cursor.line, document.cursor.column) +
-                if (document.cursor.selected > 0) " " + stringResource(R.string.status_selected, document.cursor.selected) else ""
+                if (document.cursor.selected > 0) " " + pluralStringResource(R.plurals.status_selected, document.cursor.selected, document.cursor.selected) else ""
             val goToLine = stringResource(R.string.command_go_to_line)
             StatusText(
                 position,
