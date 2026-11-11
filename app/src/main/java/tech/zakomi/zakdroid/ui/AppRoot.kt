@@ -38,7 +38,11 @@ fun AppRoot(viewModel: AppViewModel = hiltViewModel()) {
         }
         AnimatedContent(targetState = screen, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "screen") { target ->
             when (target) {
-                Screen.Workbench -> WorkbenchScreen(settings = current, onOpenSettings = { screen = Screen.Settings })
+                Screen.Workbench -> WorkbenchScreen(
+                    settings = current,
+                    onOpenSettings = { screen = Screen.Settings },
+                    onUpdateSettings = viewModel::updateSettings,
+                )
                 Screen.Settings -> SettingsScreen(onBack = { screen = Screen.Workbench }, onOpenAbout = { screen = Screen.About })
                 Screen.About -> AboutScreen(onBack = { screen = Screen.Settings })
             }

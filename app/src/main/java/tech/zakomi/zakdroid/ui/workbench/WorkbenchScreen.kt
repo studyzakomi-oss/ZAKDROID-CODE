@@ -40,6 +40,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,7 +67,17 @@ import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.designsystem.ZakomiLogo
 import tech.zakomi.zakdroid.core.fs.FileRef
+import com.termux.view.TerminalView
 import tech.zakomi.zakdroid.core.settings.AppSettings
+import tech.zakomi.zakdroid.core.settings.AutoSave
+import tech.zakomi.zakdroid.core.settings.ThemeId
+import tech.zakomi.zakdroid.editor.ui.LineCommand
+import tech.zakomi.zakdroid.ui.editor.EditorActions
+import tech.zakomi.zakdroid.ui.palette.QuickPick
+import tech.zakomi.zakdroid.ui.palette.QuickPickMode
+import tech.zakomi.zakdroid.ui.palette.WorkbenchCommand
+import tech.zakomi.zakdroid.ui.search.SearchPane
+import tech.zakomi.zakdroid.ui.search.SearchViewModel
 import tech.zakomi.zakdroid.editor.document.DocumentLoader
 import tech.zakomi.zakdroid.editor.document.LoadResult
 import tech.zakomi.zakdroid.editor.ui.rememberEditorController
@@ -84,6 +96,9 @@ import tech.zakomi.zakdroid.ui.terminal.TerminalPanel
 import tech.zakomi.zakdroid.ui.terminal.TerminalViewModel
 import java.io.File
 
+/** The views of the Side Bar, chosen in the Activity Bar. */
+enum class SideView { Explorer, Search }
+
 /**
  * The VS Code-style workbench. Tablets (>= 600dp) show the Side Bar next to the
  * editor; phones show one pane and open the Explorer as a drawer.
@@ -92,7 +107,9 @@ import java.io.File
 fun WorkbenchScreen(
     settings: AppSettings,
     onOpenSettings: () -> Unit,
+    onUpdateSettings: ((AppSettings) -> AppSettings) -> Unit,
     explorerVm: ExplorerViewModel = hiltViewModel(),
+    searchVm: SearchViewModel = hiltViewModel(),
     editorVm: EditorViewModel = hiltViewModel(),
     terminalVm: TerminalViewModel = hiltViewModel(),
     runtimeVm: RuntimeViewModel = hiltViewModel(),
@@ -106,6 +123,7 @@ fun WorkbenchScreen(
     val controller = rememberEditorController()
 
     val explorer by explorerVm.state.collectAsStateWithLifecycle()
+    val search by searchVm.state.collectAsStateWithLifecycle()
     val recent by explorerVm.recent.collectAsStateWithLifecycle()
     val projects by explorerVm.projects.collectAsStateWithLifecycle()
     val tabs by editorVm.tabs.collectAsStateWithLifecycle()
@@ -116,11 +134,15 @@ fun WorkbenchScreen(
     val cursor by controller.cursor.collectAsState()
 
     var sideBarVisible by rememberSaveable { mutableStateOf(true) }
+    var sideView by rememberSaveable { mutableStateOf(SideView.Explorer) }
+    var searchFocusRequest by remember { mutableIntStateOf(0) }
+    var quickPick by remember { mutableStateOf<QuickPickMode?>(null) }
     var panelVisible by rememberSaveable { mutableStateOf(false) }
     var panelHeightDp by rememberSaveable { mutableFloatStateOf(280f) }
     var runtimeSheet by rememberSaveable { mutableStateOf<Boolean?>(null) } // null = hidden, true = opened for a run
     var newProject by rememberSaveable { mutableStateOf(false) }
-    var confirmClose by remember { mutableStateOf<OpenTab?>(null) }
+    // Closing several unsaved tabs at once asks about them one after another.
+    val confirmClose = remember { mutableStateListOf<OpenTab>() }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -139,7 +161,10 @@ fun WorkbenchScreen(
                 is EditorEvent.OpenFailed -> snackbar.showSnackbar(messages.openFailed(event.name, event.reason, event.detail))
                 is EditorEvent.SaveFailed -> snackbar.showSnackbar(messages.saveFailed(event.name, event.detail))
                 is EditorEvent.RunFailed -> snackbar.showSnackbar(messages.runFailed(event.name, event.detail))
-                is EditorEvent.ConfirmClose -> confirmClose = event.tab
+                is EditorEvent.ConfirmClose -> if (confirmClose.none { it.key == event.tab.key }) confirmClose += event.tab
+                is EditorEvent.Reveal -> editorVm.tabs.value.firstOrNull { it.key == event.key }?.let { tab ->
+                    controller.reveal(tab.document, event.line, event.startColumn, event.endColumn)
+                }
                 EditorEvent.RuntimeNotReady -> runtimeSheet = true
                 EditorEvent.NothingToRun -> snackbar.showSnackbar(messages.runNothing)
                 is EditorEvent.UnsupportedRun -> snackbar.showSnackbar(messages.runNotSupported(event.language.displayName))
@@ -160,8 +185,26 @@ fun WorkbenchScreen(
     }
 
     // ---- Actions --------------------------------------------------------------------------
-    val toggleExplorer = {
-        if (isTablet) sideBarVisible = !sideBarVisible else scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
+    val sideOpen = if (isTablet) sideBarVisible else drawerState.isOpen
+    // Tapping the shown view's icon hides the Side Bar; tapping the other one switches to it.
+    val toggleSide = { view: SideView ->
+        val hide = sideOpen && sideView == view
+        sideView = view
+        if (isTablet) sideBarVisible = !hide else scope.launch { if (hide) drawerState.close() else drawerState.open() }
+        Unit
+    }
+    val toggleExplorer = { toggleSide(SideView.Explorer) }
+    val findInFiles = {
+        controller.selectedTextOnOneLine()?.let(searchVm::setText)
+        sideView = SideView.Search
+        if (isTablet) sideBarVisible = true else scope.launch { drawerState.open() }
+        searchFocusRequest++
+    }
+    val closeDrawer = { if (!isTablet) scope.launch { drawerState.close() } }
+    val activeTab = tabs.firstOrNull { it.key == activeKey }
+    val lineCommand = { command: LineCommand -> controller.run(command, activeTab?.document?.language?.lineComment); Unit }
+    val zoom = { delta: Int ->
+        onUpdateSettings { it.copy(editorFontSizeSp = if (delta == 0) AppSettings.DEFAULT_EDITOR_FONT_SIZE else it.editorFontSizeSp + delta) }
     }
     val toggleTerminal = {
         panelVisible = !panelVisible
@@ -177,7 +220,26 @@ fun WorkbenchScreen(
     val shortcutState = rememberUpdatedState { event: KeyEvent ->
         val ctrl = event.isCtrlPressed
         val shift = event.isShiftPressed
+        val alt = event.isAltPressed
+        val inEditor = controller.hasFocus
+        // Ctrl+P, Ctrl+G and Ctrl+H belong to the shell while the terminal has focus.
+        val inTerminal = activity?.currentFocus is TerminalView
         when {
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_P || event.keyCode == KeyEvent.KEYCODE_F1 -> { quickPick = QuickPickMode.Commands; true }
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_O -> { quickPick = QuickPickMode.Symbols; true }
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_F -> { findInFiles(); true }
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_E -> { if (!(sideOpen && sideView == SideView.Explorer)) toggleExplorer(); true }
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_T -> { editorVm.reopenClosed(); true }
+            ctrl && shift && event.keyCode == KeyEvent.KEYCODE_K && inEditor -> { lineCommand(LineCommand.Delete); true }
+            ctrl && !shift && event.keyCode == KeyEvent.KEYCODE_P && !inTerminal -> { quickPick = QuickPickMode.Files; true }
+            ctrl && !shift && event.keyCode == KeyEvent.KEYCODE_G && !inTerminal -> { quickPick = QuickPickMode.Line; true }
+            ctrl && !shift && event.keyCode == KeyEvent.KEYCODE_H && !inTerminal -> { controller.openSearch(withReplace = true); true }
+            ctrl && event.keyCode == KeyEvent.KEYCODE_SLASH && inEditor -> { lineCommand(LineCommand.ToggleComment); true }
+            alt && !ctrl && event.keyCode == KeyEvent.KEYCODE_DPAD_UP && inEditor -> { lineCommand(if (shift) LineCommand.DuplicateUp else LineCommand.MoveUp); true }
+            alt && !ctrl && event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN && inEditor -> { lineCommand(if (shift) LineCommand.DuplicateDown else LineCommand.MoveDown); true }
+            ctrl && (event.keyCode == KeyEvent.KEYCODE_EQUALS || event.keyCode == KeyEvent.KEYCODE_PLUS || event.keyCode == KeyEvent.KEYCODE_NUMPAD_ADD) -> { zoom(1); true }
+            ctrl && (event.keyCode == KeyEvent.KEYCODE_MINUS || event.keyCode == KeyEvent.KEYCODE_NUMPAD_SUBTRACT) && !inTerminal -> { zoom(-1); true }
+            ctrl && (event.keyCode == KeyEvent.KEYCODE_0 || event.keyCode == KeyEvent.KEYCODE_NUMPAD_0) && !inTerminal -> { zoom(0); true }
             ctrl && event.keyCode == KeyEvent.KEYCODE_S -> { if (shift) editorVm.saveAll() else editorVm.saveActive(); true }
             ctrl && event.keyCode == KeyEvent.KEYCODE_F -> { controller.openSearch(); true }
             ctrl && event.keyCode == KeyEvent.KEYCODE_W -> { activeKey?.let(editorVm::requestClose); true }
@@ -196,7 +258,18 @@ fun WorkbenchScreen(
 
     // ---- Layout ---------------------------------------------------------------------------
     val explorerPane = @Composable { modifier: Modifier ->
-        ExplorerPane(
+        if (sideView == SideView.Search) {
+            SearchPane(
+                state = search,
+                viewModel = searchVm,
+                focusRequest = searchFocusRequest,
+                onOpenMatch = { file, match ->
+                    editorVm.openAt(file.entry.ref, file.entry.name, file.relativePath, match.line, match.startColumn, match.endColumn)
+                    closeDrawer()
+                },
+                modifier = modifier,
+            )
+        } else ExplorerPane(
             state = explorer,
             activeFileKey = activeKey,
             viewModel = explorerVm,
@@ -212,10 +285,12 @@ fun WorkbenchScreen(
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.weight(1f)) {
                 ActivityBar(
-                    explorerSelected = if (isTablet) sideBarVisible else drawerState.isOpen,
+                    explorerSelected = sideOpen && sideView == SideView.Explorer,
+                    searchSelected = sideOpen && sideView == SideView.Search,
                     terminalSelected = panelVisible,
                     running = running,
                     onExplorer = { toggleExplorer() },
+                    onSearch = { toggleSide(SideView.Search) },
                     onRun = editorVm::runActive,
                     onTerminal = { toggleTerminal() },
                     onSettings = onOpenSettings,
@@ -236,6 +311,12 @@ fun WorkbenchScreen(
                             controller = controller,
                             viewModel = editorVm,
                             swipeToSwitchTabs = !isTablet,
+                            actions = EditorActions(
+                                onGoToLine = { quickPick = QuickPickMode.Line },
+                                onGoToSymbol = { quickPick = QuickPickMode.Symbols },
+                                onCommandPalette = { quickPick = QuickPickMode.Commands },
+                                onLineCommand = lineCommand,
+                            ),
                             emptyContent = {
                                 if (explorer.workspace == null) {
                                     WelcomePane(
@@ -265,14 +346,14 @@ fun WorkbenchScreen(
                     }
                 }
             }
-            val active = tabs.firstOrNull { it.key == activeKey }
             StatusBar(
                 runtime = runtime,
                 workspaceName = explorer.workspace?.name,
-                document = active?.let {
-                    StatusDocumentInfo(cursor, it.document.language.displayName, it.document.lineEnding.label)
+                document = activeTab?.let {
+                    StatusDocumentInfo(cursor, it.document.language.displayName, it.document.lineEnding.label, settings.tabSize)
                 },
                 onRuntimeClick = { runtimeSheet = false },
+                onPositionClick = { quickPick = QuickPickMode.Line },
             )
         }
     }
@@ -318,13 +399,81 @@ fun WorkbenchScreen(
             },
         )
     }
-    confirmClose?.let { tab ->
+    confirmClose.firstOrNull()?.let { tab ->
         UnsavedChangesDialog(
             tab = tab,
-            onSave = { confirmClose = null; editorVm.saveAndClose(tab.key) },
-            onDiscard = { confirmClose = null; editorVm.closeDiscarding(tab.key) },
-            onCancel = { confirmClose = null },
+            onSave = { confirmClose.remove(tab); editorVm.saveAndClose(tab.key) },
+            onDiscard = { confirmClose.remove(tab); editorVm.closeDiscarding(tab.key) },
+            // Cancel stops the whole "close several tabs" request, as in VS Code.
+            onCancel = { confirmClose.clear() },
         )
+    }
+    quickPick?.let { mode ->
+        val hasFile = activeTab != null
+        val canComment = activeTab?.document?.language?.lineComment != null
+        @Composable
+        fun command(title: Int, shortcut: String? = null, enabled: Boolean = true, run: () -> Unit) =
+            WorkbenchCommand(stringResource(title), shortcut, enabled, run)
+        val commands = listOf(
+            command(R.string.command_go_to_file, "Ctrl+P") { quickPick = QuickPickMode.Files },
+            command(R.string.command_go_to_line, "Ctrl+G", hasFile) { quickPick = QuickPickMode.Line },
+            command(R.string.command_go_to_symbol, "Ctrl+Shift+O", hasFile) { quickPick = QuickPickMode.Symbols },
+            command(R.string.command_find_in_files, "Ctrl+Shift+F") { findInFiles() },
+            command(R.string.command_find, "Ctrl+F", hasFile) { controller.openSearch() },
+            command(R.string.command_replace, "Ctrl+H", hasFile) { controller.openSearch(withReplace = true) },
+            command(R.string.command_save, "Ctrl+S", activeTab?.dirty == true) { editorVm.saveActive() },
+            command(R.string.command_save_all, "Ctrl+Shift+S", tabs.any { it.dirty }) { editorVm.saveAll() },
+            command(R.string.command_run, "F5") { editorVm.runActive() },
+            command(R.string.command_toggle_comment, "Ctrl+/", canComment) { lineCommand(LineCommand.ToggleComment) },
+            command(R.string.command_duplicate_line, "Shift+Alt+↓", hasFile) { lineCommand(LineCommand.DuplicateDown) },
+            command(R.string.command_move_line_up, "Alt+↑", hasFile) { lineCommand(LineCommand.MoveUp) },
+            command(R.string.command_move_line_down, "Alt+↓", hasFile) { lineCommand(LineCommand.MoveDown) },
+            command(R.string.command_delete_line, "Ctrl+Shift+K", hasFile) { lineCommand(LineCommand.Delete) },
+            command(R.string.command_select_all, "Ctrl+A", hasFile) { controller.selectAll() },
+            command(R.string.command_undo, "Ctrl+Z", hasFile) { controller.undo() },
+            command(R.string.command_redo, "Ctrl+Y", hasFile) { controller.redo() },
+            command(R.string.command_close_editor, "Ctrl+W", hasFile) { activeKey?.let(editorVm::requestClose) },
+            command(R.string.command_close_other_editors, enabled = tabs.size > 1) { activeKey?.let(editorVm::closeOthers) },
+            command(R.string.command_close_saved_editors, enabled = tabs.isNotEmpty()) { editorVm.closeSaved() },
+            command(R.string.command_close_all_editors, enabled = tabs.isNotEmpty()) { editorVm.closeAll() },
+            command(R.string.command_reopen_closed, "Ctrl+Shift+T") { editorVm.reopenClosed() },
+            command(R.string.command_next_editor, "Ctrl+Tab", tabs.size > 1) { editorVm.nextTab() },
+            command(R.string.command_previous_editor, "Ctrl+Shift+Tab", tabs.size > 1) { editorVm.previousTab() },
+            command(R.string.command_toggle_explorer, "Ctrl+B") { toggleExplorer() },
+            command(R.string.command_toggle_terminal, "Ctrl+`") { toggleTerminal() },
+            command(R.string.command_new_terminal) { panelVisible = true; terminalVm.newShell() },
+            command(R.string.command_toggle_word_wrap) { onUpdateSettings { it.copy(wordWrap = !it.wordWrap) } },
+            command(R.string.command_toggle_line_numbers) { onUpdateSettings { it.copy(lineNumbers = !it.lineNumbers) } },
+            command(R.string.command_toggle_whitespace) { onUpdateSettings { it.copy(showWhitespace = !it.showWhitespace) } },
+            command(R.string.command_toggle_sticky_scroll) { onUpdateSettings { it.copy(stickyScroll = !it.stickyScroll) } },
+            command(R.string.command_toggle_auto_save) {
+                onUpdateSettings { it.copy(autoSave = if (it.autoSave == AutoSave.Off) AutoSave.AfterDelay else AutoSave.Off) }
+            },
+            command(R.string.command_toggle_theme) {
+                onUpdateSettings { it.copy(theme = if (it.theme == ThemeId.NavyDark) ThemeId.Light else ThemeId.NavyDark) }
+            },
+            command(R.string.command_zoom_in, "Ctrl+=") { zoom(1) },
+            command(R.string.command_zoom_out, "Ctrl+-") { zoom(-1) },
+            command(R.string.command_zoom_reset, "Ctrl+0") { zoom(0) },
+            command(R.string.welcome_open_folder) { folderPicker.launch(null) },
+            command(R.string.welcome_new_project) { newProject = true },
+            command(R.string.explorer_close_folder, enabled = explorer.workspace != null) { explorerVm.closeWorkspace() },
+            command(R.string.command_toolchain) { runtimeSheet = false },
+            command(R.string.command_open_settings, "Ctrl+,") { onOpenSettings() },
+        )
+        // key: reopening in another mode (a command such as "Go to line") starts with that mode's prefix.
+        androidx.compose.runtime.key(mode) {
+            QuickPick(
+                initialMode = mode,
+                commands = commands,
+                lineCount = if (hasFile) controller.lineCount else 0,
+                loadSymbols = editorVm::symbolsOfActive,
+                onOpenFile = { file -> openFile(file.entry.ref, file.entry.name, file.relativePath) },
+                onGotoLine = { line, column -> controller.gotoLine(line, column) },
+                onGotoSymbol = { symbol -> activeTab?.let { controller.reveal(it.document, symbol.line) } },
+                onDismiss = { quickPick = null },
+            )
+        }
     }
 }
 

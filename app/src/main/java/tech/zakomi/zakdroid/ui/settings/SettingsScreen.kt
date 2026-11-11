@@ -57,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.settings.AppSettings
+import tech.zakomi.zakdroid.core.settings.AutoSave
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.runtime.RuntimeState
 import tech.zakomi.zakdroid.runtime.acceptsInstallRequest
@@ -168,6 +169,27 @@ fun SettingsScreen(
                             Text(size.toString(), color = colors.textPrimary, modifier = Modifier.padding(start = 4.dp))
                         }
                     }
+                }
+
+                SwitchRow(stringResource(R.string.settings_line_numbers), null, settings.lineNumbers) { on ->
+                    viewModel.update { it.copy(lineNumbers = on) }
+                }
+                SwitchRow(stringResource(R.string.settings_show_whitespace), stringResource(R.string.settings_show_whitespace_hint), settings.showWhitespace) { on ->
+                    viewModel.update { it.copy(showWhitespace = on) }
+                }
+                SwitchRow(stringResource(R.string.settings_sticky_scroll), stringResource(R.string.settings_sticky_scroll_hint), settings.stickyScroll) { on ->
+                    viewModel.update { it.copy(stickyScroll = on) }
+                }
+
+                Section(stringResource(R.string.settings_files))
+                SwitchRow(stringResource(R.string.settings_auto_save), stringResource(R.string.settings_auto_save_hint), settings.autoSave == AutoSave.AfterDelay) { on ->
+                    viewModel.update { it.copy(autoSave = if (on) AutoSave.AfterDelay else AutoSave.Off) }
+                }
+                SwitchRow(stringResource(R.string.settings_trim_whitespace), stringResource(R.string.settings_on_save_hint), settings.trimTrailingWhitespace) { on ->
+                    viewModel.update { it.copy(trimTrailingWhitespace = on) }
+                }
+                SwitchRow(stringResource(R.string.settings_final_newline), stringResource(R.string.settings_on_save_hint), settings.insertFinalNewline) { on ->
+                    viewModel.update { it.copy(insertFinalNewline = on) }
                 }
 
                 Section(stringResource(R.string.settings_terminal))

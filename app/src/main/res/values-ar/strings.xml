@@ -195,4 +195,118 @@
     <string name="runtime_error_verification">لم تجتز الأدوات المثبّتة الفحص النهائي. جرّب «إصلاح».</string>
     <string name="runtime_error_unsupported_device">معالج هذا الجهاز غير مدعوم.</string>
     <string name="runtime_error_unknown">حدث خطأ غير متوقع.</string>
+
+    <!-- Search view (find in files) -->
+    <string name="action_search">البحث</string>
+    <string name="search_title">البحث</string>
+    <string name="search_hint">البحث في الملفات</string>
+    <string name="search_refresh">إعادة البحث</string>
+    <string name="search_match_case">مطابقة حالة الأحرف</string>
+    <string name="search_whole_word">مطابقة الكلمة كاملة</string>
+    <string name="search_regex">استخدام تعبير نمطي</string>
+    <string name="search_no_folder">افتح مجلدًا للبحث في ملفاته.</string>
+    <string name="search_no_results">لا توجد نتائج</string>
+    <string name="search_bad_pattern">تعبير نمطي غير صالح: %1$s</string>
+    <string name="search_summary">%1$s في %2$s</string>
+    <string name="search_summary_truncated">%1$s في %2$s. يُعرض جزء من النتائج فقط؛ اجعل البحث أكثر تحديدًا.</string>
+    <plurals name="search_matches">
+        <item quantity="zero">لا نتائج</item>
+        <item quantity="one">نتيجة واحدة</item>
+        <item quantity="two">نتيجتان</item>
+        <item quantity="few">%1$d نتائج</item>
+        <item quantity="many">%1$d نتيجة</item>
+        <item quantity="other">%1$d نتيجة</item>
+    </plurals>
+    <plurals name="search_files">
+        <item quantity="zero">لا ملفات</item>
+        <item quantity="one">ملف واحد</item>
+        <item quantity="two">ملفين</item>
+        <item quantity="few">%1$d ملفات</item>
+        <item quantity="many">%1$d ملفًا</item>
+        <item quantity="other">%1$d ملف</item>
+    </plurals>
+
+    <!-- Quick Open, Command Palette, Go to Line, Go to Symbol -->
+    <string name="quick_hint_files">ابحث عن ملف بالاسم (اكتب &gt; للأوامر، و: لرقم سطر، و@ للرموز)</string>
+    <string name="quick_hint_commands">اكتب اسم أمر</string>
+    <string name="quick_hint_line">اكتب رقم السطر، مثل 42 أو 42:7</string>
+    <string name="quick_hint_symbols">اكتب اسم دالة أو صنف</string>
+    <string name="quick_line_hint">اكتب رقم سطر بين 1 و%1$d</string>
+    <string name="quick_go_to_line">الانتقال إلى السطر %1$d، العمود %2$d</string>
+    <string name="quick_no_results">لا توجد نتائج مطابقة</string>
+    <string name="quick_no_folder">افتح مجلدًا للبحث في ملفاته.</string>
+    <string name="quick_no_file">افتح ملفًا أولًا.</string>
+    <string name="quick_no_symbols">لم يُعثر على دوال أو أصناف في هذا الملف</string>
+    <string name="symbol_function">دالة</string>
+    <string name="symbol_class">صنف</string>
+    <string name="symbol_struct">بنية</string>
+    <string name="symbol_enum">تعداد</string>
+    <string name="symbol_namespace">فضاء أسماء</string>
+    <string name="symbol_macro">ماكرو</string>
+
+    <!-- Commands (Command Palette and editor menu) -->
+    <string name="command_palette">لوحة الأوامر…</string>
+    <string name="command_go_to_file">الانتقال إلى ملف…</string>
+    <string name="command_go_to_line">الانتقال إلى سطر…</string>
+    <string name="command_go_to_symbol">الانتقال إلى رمز في الملف…</string>
+    <string name="command_find_in_files">البحث في الملفات</string>
+    <string name="command_find">بحث</string>
+    <string name="command_replace">استبدال</string>
+    <string name="command_save">حفظ</string>
+    <string name="command_save_all">حفظ الكل</string>
+    <string name="command_run">تشغيل الملف الحالي</string>
+    <string name="command_toggle_comment">تبديل تعليق السطر</string>
+    <string name="command_duplicate_line">تكرار السطر</string>
+    <string name="command_move_line_up">نقل السطر إلى الأعلى</string>
+    <string name="command_move_line_down">نقل السطر إلى الأسفل</string>
+    <string name="command_delete_line">حذف السطر</string>
+    <string name="command_select_all">تحديد الكل</string>
+    <string name="command_undo">تراجع</string>
+    <string name="command_redo">إعادة</string>
+    <string name="command_close_editor">إغلاق المحرر</string>
+    <string name="command_close_other_editors">إغلاق المحررات الأخرى</string>
+    <string name="command_close_saved_editors">إغلاق المحررات المحفوظة</string>
+    <string name="command_close_all_editors">إغلاق كل المحررات</string>
+    <string name="command_reopen_closed">إعادة فتح المحرر المغلق</string>
+    <string name="command_next_editor">فتح المحرر التالي</string>
+    <string name="command_previous_editor">فتح المحرر السابق</string>
+    <string name="command_toggle_explorer">إظهار المستكشف أو إخفاؤه</string>
+    <string name="command_toggle_terminal">إظهار الطرفية أو إخفاؤها</string>
+    <string name="command_new_terminal">طرفية جديدة</string>
+    <string name="command_toggle_word_wrap">تبديل التفاف الأسطر</string>
+    <string name="command_toggle_line_numbers">تبديل أرقام الأسطر</string>
+    <string name="command_toggle_whitespace">تبديل إظهار المسافات</string>
+    <string name="command_toggle_sticky_scroll">تبديل التمرير الثابت</string>
+    <string name="command_toggle_auto_save">تبديل الحفظ التلقائي</string>
+    <string name="command_toggle_theme">تبديل السمة الفاتحة/الداكنة</string>
+    <string name="command_zoom_in">تكبير خط المحرر</string>
+    <string name="command_zoom_out">تصغير خط المحرر</string>
+    <string name="command_zoom_reset">إعادة ضبط حجم خط المحرر</string>
+    <string name="command_toolchain">سلسلة أدوات Linux…</string>
+    <string name="command_open_settings">فتح الإعدادات</string>
+
+    <!-- Tabs and editor menu -->
+    <string name="editor_more_actions">إجراءات أخرى للمحرر</string>
+    <string name="tab_more_actions">إجراءات علامة التبويب</string>
+    <string name="tab_close">إغلاق</string>
+    <string name="tab_close_others">إغلاق الأخرى</string>
+    <string name="tab_close_right">إغلاق التبويبات التالية</string>
+    <string name="tab_close_saved">إغلاق المحفوظة</string>
+    <string name="tab_close_all">إغلاق الكل</string>
+    <string name="tab_copy_path">نسخ المسار النسبي</string>
+
+    <!-- Status bar and settings added with the VS Code essentials -->
+    <string name="status_selected">(%1$d محددة)</string>
+    <string name="status_tab_size">حجم الجدولة: %1$d</string>
+    <string name="settings_line_numbers">أرقام الأسطر</string>
+    <string name="settings_show_whitespace">إظهار المسافات</string>
+    <string name="settings_show_whitespace_hint">يعرض المسافات وعلامات الجدولة كعلامات باهتة</string>
+    <string name="settings_sticky_scroll">التمرير الثابت</string>
+    <string name="settings_sticky_scroll_hint">يُبقي عنوان الدالة أو الكتلة الحالية في الأعلى</string>
+    <string name="settings_files">الملفات</string>
+    <string name="settings_auto_save">الحفظ التلقائي</string>
+    <string name="settings_auto_save_hint">يحفظ الملف بعد نحو ثانية من التوقف عن الكتابة</string>
+    <string name="settings_trim_whitespace">حذف المسافات في نهايات الأسطر</string>
+    <string name="settings_final_newline">إضافة سطر جديد في نهاية الملف</string>
+    <string name="settings_on_save_hint">يُطبَّق عند حفظ الملف يدويًا</string>
 </resources>

@@ -64,11 +64,12 @@ Requirements / المتطلبات: Android 8.0+, arm64 (or x86_64), about 400 MB
 - **Themes:** *Zakomi Navy Dark* (default) and *Zakomi Light*. All 80 checked color pairs pass WCAG AA (`docs/CONTRAST.md`).
 - **Localization:** English and Arabic (full RTL UI; the editor and terminal stay LTR).
 - **Hardware keyboard:** Ctrl+S, Ctrl+Shift+S, Ctrl+F, Ctrl+W, Ctrl+(Shift+)Tab, Ctrl+`, Ctrl+B, Ctrl+, and F5.
+- **VS Code essentials** (after v0.1.6): Command Palette, Quick Open, Go to Line and Symbol, Find in Files, line commands (comment, move, copy, delete), tab menu, auto save. See [`docs/VSCODE_COMPARISON.md`](docs/VSCODE_COMPARISON.md) for the full comparison and key bindings.
 
 **Not yet in Phase 1:**
 - Code folding: sora-editor has no folding UI yet.
 - Multi-cursor and minimap.
-- Snippets, LSP features, Problems panel and the Command Palette (M1).
+- Snippets (M5), LSP features and the Problems panel (M1).
 
 ## Build
 

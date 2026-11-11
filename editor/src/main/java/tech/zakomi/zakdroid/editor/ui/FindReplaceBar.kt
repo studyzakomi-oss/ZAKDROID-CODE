@@ -58,7 +58,7 @@ fun FindReplaceBar(controller: EditorController, modifier: Modifier = Modifier) 
     val state by controller.search.collectAsState()
     var query by rememberSaveable { mutableStateOf(state.query) }
     var replacement by rememberSaveable { mutableStateOf("") }
-    var showReplace by rememberSaveable { mutableStateOf(false) }
+    val showReplace = state.showReplace
     var matchCase by rememberSaveable { mutableStateOf(false) }
     var wholeWord by rememberSaveable { mutableStateOf(false) }
     var regex by rememberSaveable { mutableStateOf(false) }
@@ -76,7 +76,7 @@ fun FindReplaceBar(controller: EditorController, modifier: Modifier = Modifier) 
             .padding(horizontal = 4.dp, vertical = 4.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { showReplace = !showReplace }, modifier = Modifier.size(36.dp)) {
+            IconButton(onClick = controller::toggleReplace, modifier = Modifier.size(36.dp)) {
                 Icon(
                     if (showReplace) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = stringResource(R.string.editor_toggle_replace),

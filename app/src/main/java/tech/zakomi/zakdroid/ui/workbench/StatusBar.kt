@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ data class StatusDocumentInfo(
     val cursor: CursorPosition,
     val language: String,
     val lineEnding: String,
+    val tabSize: Int,
 )
 
 @Composable
@@ -44,6 +46,7 @@ fun StatusBar(
     workspaceName: String?,
     document: StatusDocumentInfo?,
     onRuntimeClick: () -> Unit,
+    onPositionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = WorkbenchTheme
@@ -72,7 +75,21 @@ fun StatusBar(
         StatusText(workspaceName ?: stringResource(R.string.status_no_folder), Modifier.weight(1f, fill = false))
         Spacer(Modifier.weight(1f))
         if (document != null) {
-            StatusText(stringResource(R.string.status_line_col, document.cursor.line, document.cursor.column))
+            val position = stringResource(R.string.status_line_col, document.cursor.line, document.cursor.column) +
+                if (document.cursor.selected > 0) " " + stringResource(R.string.status_selected, document.cursor.selected) else ""
+            val goToLine = stringResource(R.string.command_go_to_line)
+            StatusText(
+                position,
+                Modifier
+                    .fillMaxHeight()
+                    .clickable(onClick = onPositionClick)
+                    .semantics {
+                        contentDescription = "$position. $goToLine"
+                        role = Role.Button
+                    }
+                    .wrapContentHeight(),
+            )
+            StatusText(stringResource(R.string.status_tab_size, document.tabSize))
             StatusText("UTF-8")
             StatusText(document.lineEnding)
             StatusText(document.language)

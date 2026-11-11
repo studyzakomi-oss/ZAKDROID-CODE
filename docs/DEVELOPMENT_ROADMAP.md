@@ -20,12 +20,13 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | S3 | Emulator smoke test in CI (start app, open terminal, open file) | O3 | ✅ 4/4 on CI (report: `docs/S3_EMULATOR_TESTS.md`; owner: gate releases on it?) |
 | S4 | Stale SAF copy; keep-alive crash path; Reinstall with open terminals | O4, O5, O6 | ✅ v0.1.5 (device check pending) |
 | S5 | Undo-to-saved dirty state; localized error messages; CI action upgrades; release download retry | O7–O10 | ✅ v0.1.6 (device check pending) |
+| V1 | VS Code essentials that need no language server: Command Palette, Quick Open, Go to Line/Symbol, Find in Files, line commands, tab menu, auto save, save clean-ups, editor view settings. Gap list: `docs/VSCODE_COMPARISON.md` | — | ✅ built and unit-tested (device check pending) |
 | S6 | Open-source files: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates | O11 | ✅ (owner: rename branch to `main`, enable private vulnerability reporting) |
 
 ## Then: features (the request's phases, re-ordered by dependency)
 | Milestone | Scope | Depends on | Status |
 |---|---|---|---|
-| M1 | Language intelligence for C/C++/Python: clangd, pylsp/ruff, Problems panel, Command Palette, Quick Open, keymap | S1–S3 | ⏳ |
+| M1 | Language intelligence for C/C++/Python: clangd, pylsp/ruff, Problems panel, Replace in Files, custom key bindings (Command Palette and Quick Open came with V1) | S1–S3 | ⏳ |
 | M2 | **Language packs** (request phase 3): a language = a manifest + grammar + templates + docs + an optional Alpine toolchain installed on demand. First packs: Java, JavaScript/TypeScript (Node), HTML/CSS (in-app preview), SQL (SQLite), Bash, PHP, Go, Rust, Kotlin. **Swift: no on-device toolchain on Alpine aarch64**, so editing and highlighting only | M1 | ❓ confirm language list |
 | M3 | Onboarding (choose languages → categories → resources) + categories linked to languages (request phases 4, 9) | M2 | ⏳ |
 | M4 | Resource library (request phase 5): catalog files (JSON) listing redistributable docs/tutorials/examples; SHA-256 check; no executables without explicit approval; offline storage | M3 | ⏳ |
