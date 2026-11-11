@@ -26,6 +26,9 @@ data class EditorViewSettings(
     val ligatures: Boolean,
     val wordWrap: Boolean,
     val tabSize: Int,
+    val lineNumbers: Boolean = true,
+    val showWhitespace: Boolean = false,
+    val stickyScroll: Boolean = true,
 )
 
 /**
@@ -60,7 +63,7 @@ fun CodeEditorPane(
                     isScalable = true
                     setCursorAnimationEnabled(true)
                     subscribeAlways<SelectionChangeEvent> { event ->
-                        controller.onCursorMoved(event.left.line, event.left.column)
+                        controller.onCursorMoved(event.left.line, event.left.column, event.right.index - event.left.index)
                     }
                     subscribeAlways<ContentChangeEvent> { controller.refreshHistory() }
                     subscribeAlways<PublishSearchResultEvent> { controller.onSearchResultPublished() }
@@ -72,13 +75,21 @@ fun CodeEditorPane(
                     editor.searcher.stopSearch()
                     editor.setText(document.content, true, null)
                     editor.setEditorLanguage(languageFactory(document.language))
-                    controller.onCursorMoved(editor.cursor.leftLine, editor.cursor.leftColumn)
+                    controller.onCursorMoved(editor.cursor.leftLine, editor.cursor.leftColumn, editor.cursor.right - editor.cursor.left)
                     controller.refreshHistory()
+                    controller.onDocumentShown(document)
                 }
                 editor.setTextSize(settings.fontSizeSp.toFloat())
                 editor.setLigatureEnabled(settings.ligatures)
                 if (editor.isWordwrap != settings.wordWrap) editor.setWordwrap(settings.wordWrap)
                 editor.tabWidth = settings.tabSize
+                if (editor.isLineNumberEnabled != settings.lineNumbers) editor.isLineNumberEnabled = settings.lineNumbers
+                val whitespace = if (settings.showWhitespace) WHITESPACE_FLAGS else 0
+                if (editor.nonPrintablePaintingFlags != whitespace) editor.nonPrintablePaintingFlags = whitespace
+                if (editor.props.stickyScroll != settings.stickyScroll) {
+                    editor.props.stickyScroll = settings.stickyScroll
+                    editor.invalidate()
+                }
             },
             onRelease = { editor ->
                 controller.detach(editor)
@@ -87,6 +98,11 @@ fun CodeEditorPane(
         )
     }
 }
+
+private const val WHITESPACE_FLAGS = CodeEditor.FLAG_DRAW_WHITESPACE_LEADING or
+    CodeEditor.FLAG_DRAW_WHITESPACE_INNER or
+    CodeEditor.FLAG_DRAW_WHITESPACE_TRAILING or
+    CodeEditor.FLAG_DRAW_WHITESPACE_IN_SELECTION
 
 /** Keeps one [EditorController] for the lifetime of the composition. */
 @Composable

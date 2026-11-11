@@ -196,4 +196,113 @@
     <string name="runtime_error_verification">The installed tools did not pass the final check. Try Repair.</string>
     <string name="runtime_error_unsupported_device">This device\'s processor is not supported.</string>
     <string name="runtime_error_unknown">An unexpected error occurred.</string>
+
+    <!-- Search view (find in files) -->
+    <string name="action_search">Search</string>
+    <string name="search_title">SEARCH</string>
+    <string name="search_hint">Search in files</string>
+    <string name="search_refresh">Search again</string>
+    <string name="search_match_case">Match case</string>
+    <string name="search_whole_word">Match whole word</string>
+    <string name="search_regex">Use regular expression</string>
+    <string name="search_no_folder">Open a folder to search in its files.</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_bad_pattern">Invalid regular expression: %1$s</string>
+    <string name="search_summary">%1$s in %2$s</string>
+    <string name="search_summary_truncated">%1$s in %2$s. Only part of the results is shown; make the search more specific.</string>
+    <plurals name="search_matches">
+        <item quantity="one">%1$d result</item>
+        <item quantity="other">%1$d results</item>
+    </plurals>
+    <plurals name="search_files">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+
+    <!-- Quick Open, Command Palette, Go to Line, Go to Symbol -->
+    <string name="quick_hint_files">Search files by name (type &gt; for commands, : for a line, @ for symbols)</string>
+    <string name="quick_hint_commands">Type a command</string>
+    <string name="quick_hint_line">Type a line number, e.g. 42 or 42:7</string>
+    <string name="quick_hint_symbols">Type the name of a function or class</string>
+    <string name="quick_line_hint">Type a line number between 1 and %1$d</string>
+    <string name="quick_go_to_line">Go to line %1$d, column %2$d</string>
+    <string name="quick_no_results">No matching results</string>
+    <string name="quick_no_folder">Open a folder to search its files.</string>
+    <string name="quick_no_file">Open a file first.</string>
+    <string name="quick_no_symbols">No functions or classes found in this file</string>
+    <string name="symbol_function">function</string>
+    <string name="symbol_class">class</string>
+    <string name="symbol_struct">struct</string>
+    <string name="symbol_enum">enum</string>
+    <string name="symbol_namespace">namespace</string>
+    <string name="symbol_macro">macro</string>
+
+    <!-- Commands (Command Palette and editor menu) -->
+    <string name="command_palette">Command Palette…</string>
+    <string name="command_go_to_file">Go to File…</string>
+    <string name="command_go_to_line">Go to Line…</string>
+    <string name="command_go_to_symbol">Go to Symbol in File…</string>
+    <string name="command_find_in_files">Find in Files</string>
+    <string name="command_find">Find</string>
+    <string name="command_replace">Replace</string>
+    <string name="command_save">Save</string>
+    <string name="command_save_all">Save All</string>
+    <string name="command_run">Run Active File</string>
+    <string name="command_toggle_comment">Toggle Line Comment</string>
+    <string name="command_duplicate_line">Duplicate Line</string>
+    <string name="command_move_line_up">Move Line Up</string>
+    <string name="command_move_line_down">Move Line Down</string>
+    <string name="command_delete_line">Delete Line</string>
+    <string name="command_select_all">Select All</string>
+    <string name="command_undo">Undo</string>
+    <string name="command_redo">Redo</string>
+    <string name="command_close_editor">Close Editor</string>
+    <string name="command_close_other_editors">Close Other Editors</string>
+    <string name="command_close_saved_editors">Close Saved Editors</string>
+    <string name="command_close_all_editors">Close All Editors</string>
+    <string name="command_reopen_closed">Reopen Closed Editor</string>
+    <string name="command_next_editor">Open Next Editor</string>
+    <string name="command_previous_editor">Open Previous Editor</string>
+    <string name="command_toggle_explorer">Toggle Explorer</string>
+    <string name="command_toggle_terminal">Toggle Terminal</string>
+    <string name="command_new_terminal">New Terminal</string>
+    <string name="command_toggle_word_wrap">Toggle Word Wrap</string>
+    <string name="command_toggle_line_numbers">Toggle Line Numbers</string>
+    <string name="command_toggle_whitespace">Toggle Render Whitespace</string>
+    <string name="command_toggle_sticky_scroll">Toggle Sticky Scroll</string>
+    <string name="command_toggle_auto_save">Toggle Auto Save</string>
+    <string name="command_toggle_theme">Toggle Light/Dark Theme</string>
+    <string name="command_zoom_in">Editor Font Zoom In</string>
+    <string name="command_zoom_out">Editor Font Zoom Out</string>
+    <string name="command_zoom_reset">Editor Font Zoom Reset</string>
+    <string name="command_toolchain">Linux Toolchain…</string>
+    <string name="command_open_settings">Open Settings</string>
+
+    <!-- Tabs and editor menu -->
+    <string name="editor_more_actions">More editor actions</string>
+    <string name="tab_more_actions">Tab actions</string>
+    <string name="tab_close">Close</string>
+    <string name="tab_close_others">Close Others</string>
+    <string name="tab_close_right">Close to the Right</string>
+    <string name="tab_close_saved">Close Saved</string>
+    <string name="tab_close_all">Close All</string>
+    <string name="tab_copy_path">Copy Relative Path</string>
+
+    <!-- Status bar and settings added with the VS Code essentials -->
+    <plurals name="status_selected">
+        <item quantity="one">(%1$d selected)</item>
+        <item quantity="other">(%1$d selected)</item>
+    </plurals>
+    <string name="status_tab_size">Tab Size: %1$d</string>
+    <string name="settings_line_numbers">Line numbers</string>
+    <string name="settings_show_whitespace">Render whitespace</string>
+    <string name="settings_show_whitespace_hint">Shows spaces and tabs as faint marks</string>
+    <string name="settings_sticky_scroll">Sticky scroll</string>
+    <string name="settings_sticky_scroll_hint">Keeps the current function or block header at the top</string>
+    <string name="settings_files">Files</string>
+    <string name="settings_auto_save">Auto save</string>
+    <string name="settings_auto_save_hint">Saves a file about one second after you stop typing</string>
+    <string name="settings_trim_whitespace">Trim trailing whitespace</string>
+    <string name="settings_final_newline">Insert final newline</string>
+    <string name="settings_on_save_hint">Applied when you save a file yourself</string>
 </resources>

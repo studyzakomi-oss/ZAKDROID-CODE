@@ -7,13 +7,28 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import tech.zakomi.zakdroid.core.settings.AppSettings
+import tech.zakomi.zakdroid.core.settings.AutoSave
+import tech.zakomi.zakdroid.core.settings.SettingsRepository
+import tech.zakomi.zakdroid.editor.commands.DocumentCleanup
+import tech.zakomi.zakdroid.editor.outline.DocumentSymbol
+import tech.zakomi.zakdroid.editor.outline.SymbolOutline
 import tech.zakomi.zakdroid.core.data.OpenTabEntity
 import tech.zakomi.zakdroid.core.fs.FileRef
 import tech.zakomi.zakdroid.core.fs.FileSystem
@@ -44,7 +59,13 @@ sealed interface EditorEvent {
     data object NothingToRun : EditorEvent
     data class UnsupportedRun(val language: EditorLanguage) : EditorEvent
     data object RunStarted : EditorEvent
+
+    /** Show a 0-based position of an open file (Quick Open, search result, symbol). */
+    data class Reveal(val key: String, val line: Int, val startColumn: Int, val endColumn: Int) : EditorEvent
 }
+
+/** A closed tab that "Reopen closed editor" can bring back. */
+private data class ClosedTab(val ref: FileRef, val name: String, val relativePath: String)
 
 @HiltViewModel
 class EditorViewModel @Inject constructor(
@@ -56,8 +77,12 @@ class EditorViewModel @Inject constructor(
     private val runtime: RuntimeManager,
     private val stager: WorkspaceStager,
     private val terminals: TerminalSessionManager,
+    settingsRepository: SettingsRepository,
     val textMate: TextMateSetup,
 ) : ViewModel() {
+
+    private val settings: StateFlow<AppSettings> = settingsRepository.settings
+        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
 
     val tabs: StateFlow<List<OpenTab>> = documents.tabs
     val activeKey: StateFlow<String?> = documents.activeKey
@@ -73,12 +98,15 @@ class EditorViewModel @Inject constructor(
 
     private var restoredFor: String? = null
     private var persistJob: Job? = null
+    private val saveMutex = Mutex()
+    private val recentlyClosed = ArrayDeque<ClosedTab>()
 
     init {
         viewModelScope.launch {
             session.current.collect { ws ->
                 if (ws == null || ws.id != restoredFor) {
                     documents.clear()
+                    recentlyClosed.clear()
                     restoredFor = ws?.id
                     if (ws != null) restoreTabs(ws)
                 }
@@ -87,10 +115,45 @@ class EditorViewModel @Inject constructor(
         viewModelScope.launch {
             combine(documents.tabs, documents.activeKey) { _, _ -> }.drop(1).collect { schedulePersist() }
         }
+        viewModelScope.launch { autoSaveLoop() }
+    }
+
+    /**
+     * Auto save "after delay": while a file is unsaved, write it once typing has paused.
+     * A failed write stops the loop until the next change, so one error is reported once.
+     */
+    private suspend fun autoSaveLoop() {
+        combine(settings.map { it.autoSave }, documents.tabs.map { tabs -> tabs.any { it.dirty } }) { mode, dirty ->
+            mode == AutoSave.AfterDelay && dirty
+        }.distinctUntilChanged().collectLatest { pending ->
+            if (!pending) return@collectLatest
+            while (documents.tabs.value.any { it.dirty }) {
+                val before = documents.tabs.value.filter { it.dirty }.associate { it.key to it.document.content.documentVersion }
+                delay(AppSettings.AUTO_SAVE_DELAY_MS)
+                // Save only files that were not edited during the delay; the others wait for the next round.
+                val idle = documents.tabs.value.filter { it.dirty && before[it.key] == it.document.content.documentVersion }
+                if (idle.any { !save(it.key, cleanUp = false) }) return@collectLatest
+            }
+        }
     }
 
     fun open(ref: FileRef, name: String, relativePath: String, activate: Boolean = true) {
         viewModelScope.launch { openInternal(ref, name, relativePath, activate) }
+    }
+
+    /** Opens the file (or switches to its tab) and jumps to a 0-based position, selecting up to [endColumn]. */
+    fun openAt(ref: FileRef, name: String, relativePath: String, line: Int, startColumn: Int = 0, endColumn: Int = startColumn) {
+        viewModelScope.launch {
+            openInternal(ref, name, relativePath, activate = true)
+            if (documents.find(ref.key) != null) _events.send(EditorEvent.Reveal(ref.key, line, startColumn, endColumn))
+        }
+    }
+
+    /** Definitions in the active file, for "Go to Symbol in File". */
+    suspend fun symbolsOfActive(): List<DocumentSymbol> {
+        val tab = documents.active ?: return emptyList()
+        val text = tab.document.content.toString()
+        return withContext(Dispatchers.Default) { SymbolOutline.of(tab.document.language, text) }
     }
 
     private suspend fun openInternal(ref: FileRef, name: String, relativePath: String, activate: Boolean) {
@@ -125,15 +188,48 @@ class EditorViewModel @Inject constructor(
         if (tab.dirty) {
             viewModelScope.launch { _events.send(EditorEvent.ConfirmClose(tab)) }
         } else {
-            documents.remove(key)
+            close(key)
         }
     }
 
-    fun closeDiscarding(key: String) = documents.remove(key)
+    /** Closes several tabs; each unsaved one asks first, like closing it by hand. */
+    private fun requestCloseAll(tabs: List<OpenTab>) = tabs.forEach { requestClose(it.key) }
+
+    fun closeOthers(key: String) = requestCloseAll(documents.tabs.value.filter { it.key != key })
+
+    fun closeToTheRight(key: String) {
+        val list = documents.tabs.value
+        val index = list.indexOfFirst { it.key == key }
+        if (index >= 0) requestCloseAll(list.drop(index + 1))
+    }
+
+    fun closeSaved() = requestCloseAll(documents.tabs.value.filter { !it.dirty })
+
+    fun closeAll() = requestCloseAll(documents.tabs.value)
+
+    fun closeDiscarding(key: String) = close(key)
 
     fun saveAndClose(key: String) {
         viewModelScope.launch {
-            if (save(key)) documents.remove(key)
+            if (save(key)) close(key)
+        }
+    }
+
+    private fun close(key: String) {
+        val tab = documents.find(key) ?: return
+        recentlyClosed.remove(ClosedTab(tab.document.ref, tab.name, tab.relativePath))
+        recentlyClosed.addLast(ClosedTab(tab.document.ref, tab.name, tab.relativePath))
+        while (recentlyClosed.size > MAX_RECENTLY_CLOSED) recentlyClosed.removeFirst()
+        documents.remove(key)
+    }
+
+    /** Ctrl+Shift+T: reopens the tab closed last, skipping files that are open again. */
+    fun reopenClosed() {
+        while (recentlyClosed.isNotEmpty()) {
+            val closed = recentlyClosed.removeLast()
+            if (documents.find(closed.ref.key) != null) continue
+            open(closed.ref, closed.name, closed.relativePath)
+            return
         }
     }
 
@@ -152,9 +248,18 @@ class EditorViewModel @Inject constructor(
         return ok
     }
 
-    private suspend fun save(key: String): Boolean {
+    /**
+     * Writes one file. [cleanUp] applies the save-time settings (trim trailing whitespace,
+     * final newline); auto save skips them so text does not change under the cursor.
+     */
+    private suspend fun save(key: String, cleanUp: Boolean = true): Boolean = saveMutex.withLock {
         val tab = documents.find(key) ?: return false
-        return try {
+        try {
+            if (cleanUp) {
+                val current = settings.value
+                if (current.trimTrailingWhitespace) DocumentCleanup.trimTrailingWhitespace(tab.document.content)
+                if (current.insertFinalNewline) DocumentCleanup.ensureFinalNewline(tab.document.content)
+            }
             loader.save(tab.document)
             true
         } catch (e: CancellationException) {
@@ -225,6 +330,7 @@ class EditorViewModel @Inject constructor(
     }
 
     private companion object {
+        const val MAX_RECENTLY_CLOSED = 20
         val HEADER_EXTENSIONS = setOf("h", "hh", "hpp", "hxx", "h++", "inl", "ipp", "tpp", "txx")
     }
 }

@@ -5,6 +5,13 @@ Bug IDs (D1, O4, …) refer to [`docs/BUGS_AND_FIXES.md`](docs/BUGS_AND_FIXES.md
 
 ## [Unreleased]
 ### Added
+- VS Code essentials (milestone V1; full comparison in `docs/VSCODE_COMPARISON.md`):
+  - **Command Palette** (Ctrl+Shift+P, F1), **Quick Open** (Ctrl+P), **Go to Line** (Ctrl+G) and **Go to Symbol in File** (Ctrl+Shift+O) in one picker; type `>`, `:` or `@` to switch.
+  - **Search view**: find in all files of the folder, with match case, whole word and regular expressions. Unsaved text of open editors is searched as shown.
+  - Line commands: toggle comment (Ctrl+/), move line (Alt+↑/↓), copy line (Shift+Alt+↑/↓), delete line (Ctrl+Shift+K). Also in the editor's new ⋮ menu.
+  - Tab menu (long-press): close others, close following, close saved, close all, copy path. Reopen closed editor (Ctrl+Shift+T).
+  - Settings: auto save, trim trailing whitespace, insert final newline, render whitespace, line numbers, sticky scroll.
+  - Status Bar: selection count, tab size, and tapping the position opens Go to Line. Font zoom with Ctrl+=, Ctrl+- and Ctrl+0. Ctrl+H opens find with replace.
 - Emulator smoke tests in CI (S3, O3). They cover launch, the editor and saving, the terminal, running C and Python, and English and Arabic messages. Crash and ANR detection, screenshots and logs on failure. See `docs/S3_EMULATOR_TESTS.md`.
 - Open-source project files: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, this changelog, and issue and pull request templates (O11).
 

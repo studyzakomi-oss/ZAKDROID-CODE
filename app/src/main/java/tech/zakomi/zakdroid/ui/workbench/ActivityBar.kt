@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,9 +38,11 @@ val ActivityBarWidth = 52.dp
 @Composable
 fun ActivityBar(
     explorerSelected: Boolean,
+    searchSelected: Boolean,
     terminalSelected: Boolean,
     running: Boolean,
     onExplorer: () -> Unit,
+    onSearch: () -> Unit,
     onRun: () -> Unit,
     onTerminal: () -> Unit,
     onSettings: () -> Unit,
@@ -54,6 +57,7 @@ fun ActivityBar(
             ZakomiLogo(size = 30.dp, contentDescription = stringResource(R.string.app_name))
         }
         ActivityItem(Icons.Outlined.Description, stringResource(R.string.action_explorer), explorerSelected, onExplorer)
+        ActivityItem(Icons.Outlined.Search, stringResource(R.string.action_search), searchSelected, onSearch)
         ActivityItem(Icons.Filled.PlayArrow, stringResource(R.string.action_run), false, onRun, busy = running)
         ActivityItem(Icons.Outlined.Terminal, stringResource(R.string.action_terminal), terminalSelected, onTerminal)
         Spacer(Modifier.weight(1f))

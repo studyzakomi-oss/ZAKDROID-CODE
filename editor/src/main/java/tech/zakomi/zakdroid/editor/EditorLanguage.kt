@@ -3,11 +3,11 @@ package tech.zakomi.zakdroid.editor
 import tech.zakomi.zakdroid.core.fs.FileNames
 
 /** Languages with syntax highlighting in Phase 1, keyed by TextMate scope name. */
-enum class EditorLanguage(val displayName: String, val scopeName: String?) {
-    C("C", "source.c"),
-    Cpp("C++", "source.cpp"),
-    Python("Python", "source.python"),
-    PlainText("Plain Text", null);
+enum class EditorLanguage(val displayName: String, val scopeName: String?, /** Line-comment prefix, or null if the language has none. */ val lineComment: String?) {
+    C("C", "source.c", "//"),
+    Cpp("C++", "source.cpp", "//"),
+    Python("Python", "source.python", "#"),
+    PlainText("Plain Text", null, null);
 
     companion object {
         private val C_EXTENSIONS = setOf("c", "i")

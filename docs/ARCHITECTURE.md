@@ -57,7 +57,19 @@ Compose screen ──intent──► ViewModel ──► store/repository/manage
 - **`AppViewModel`:** settings, theme propagation to TextMate and the terminal palette, splash readiness.
 - **`ExplorerViewModel`:** lazy file tree, name search, file operations, workspaces.
 - **`EditorViewModel`:** tabs, save, close confirmation, tab persistence, Run.
+- **`QuickOpenViewModel`:** file list and fuzzy filter for the quick picker.
+- **`SearchViewModel`:** Find in Files.
 - **`TerminalViewModel`, `RuntimeViewModel`, `SettingsViewModel`**
+
+### Commands and search (milestone V1)
+- **Pure logic, unit-tested on the JVM:**
+  - `:core` `search/`: `FuzzyMatcher` (subsequence scoring for Quick Open and the palette), `TextSearch` (line-based matching with case, whole-word and regex options), `WorkspaceFiles` (file walk with skipped folders and a limit).
+  - `:editor` `commands/`: `LineCommands` (comment, duplicate, move, delete; one undo step each), `DocumentCleanup` (save-time trimming). `outline/SymbolOutline`: pattern-based symbols, a stand-in until M1's language servers.
+- **`QuickPick`** (`ui/palette`) is one dialog with four modes chosen by the first character: file names, `>` commands, `:` line, `@` symbols. Commands are a plain list of `WorkbenchCommand` built in `WorkbenchScreen`.
+- **Key bindings** are handled in `WorkbenchScreen` through `ShortcutWindowCallback`. Line commands need editor focus; Ctrl+P, Ctrl+G and Ctrl+H are left to the shell while the terminal has focus.
+- **Find in Files** reads files up to 1 MB, skips binary files and the folders in `WorkspaceFiles.SKIPPED_DIRS`, and stops at 2000 matches (200 per file).
+- **Jump to a position:** `EditorViewModel.openAt` sends `EditorEvent.Reveal`; `EditorController.reveal` waits until the editor view shows that document.
+- **Auto save** runs in `EditorViewModel`: one second after the last edit, files that were not edited during that second are written. Saves are serialized by a mutex.
 
 ### Run (one tap, F5)
 1. Save all files.

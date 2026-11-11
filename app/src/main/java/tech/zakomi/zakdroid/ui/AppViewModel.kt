@@ -27,7 +27,7 @@ import javax.inject.Inject
 /** App-wide state: settings, theme propagation to editor and terminal, and startup. */
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     private val textMate: TextMateSetup,
     private val terminals: TerminalSessionManager,
 ) : ViewModel() {
@@ -54,6 +54,10 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.settings.map { it.theme }.distinctUntilChanged().collect { applyTheme(it) }
         }
+    }
+
+    fun updateSettings(transform: (AppSettings) -> AppSettings) {
+        viewModelScope.launch { settingsRepository.update(transform) }
     }
 
     private suspend fun applyTheme(theme: ThemeId) {
