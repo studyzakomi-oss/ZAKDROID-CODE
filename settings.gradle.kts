@@ -22,6 +22,7 @@ include(":core")
 include(":editor")
 include(":terminal")
 include(":runtime")
+include(":git")
 
 // Termux terminal libraries (Apache-2.0), vendored from termux-app v0.118.3.
 include(":termux-terminal-emulator")

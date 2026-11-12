@@ -4,4 +4,10 @@
     <issue id="ObsoleteSdkInt">
         <ignore path="src/main/res/mipmap-anydpi-v26" />
     </issue>
+    <!-- JGit ships a trust-all TrustManager that it uses only when a repository sets
+         http.sslVerify=false. GitService refuses such repositories (requireTlsVerification,
+         tested in GitServiceTest), so that code is never reached. -->
+    <issue id="TrustAllX509TrustManager">
+        <ignore regexp="org\.eclipse\.jgit" />
+    </issue>
 </lint>

@@ -77,6 +77,11 @@ import tech.zakomi.zakdroid.core.settings.SidePosition
 import tech.zakomi.zakdroid.core.settings.ThemeId
 import tech.zakomi.zakdroid.editor.ui.LineCommand
 import tech.zakomi.zakdroid.ui.editor.EditorActions
+import tech.zakomi.zakdroid.git.GitException
+import tech.zakomi.zakdroid.ui.git.GitOperation
+import tech.zakomi.zakdroid.ui.git.SourceControlEvent
+import tech.zakomi.zakdroid.ui.git.SourceControlPane
+import tech.zakomi.zakdroid.ui.git.SourceControlViewModel
 import tech.zakomi.zakdroid.ui.palette.QuickPick
 import tech.zakomi.zakdroid.ui.palette.QuickPickMode
 import tech.zakomi.zakdroid.ui.palette.WorkbenchCommand
@@ -101,7 +106,7 @@ import tech.zakomi.zakdroid.ui.terminal.TerminalViewModel
 import java.io.File
 
 /** The views of the Side Bar, chosen in the Activity Bar. */
-enum class SideView { Explorer, Search }
+enum class SideView { Explorer, Search, SourceControl }
 
 /**
  * The VS Code-style workbench. Tablets (>= 600dp) show the Side Bar next to the
@@ -115,6 +120,7 @@ fun WorkbenchScreen(
     onUpdateSettings: ((AppSettings) -> AppSettings) -> Unit,
     explorerVm: ExplorerViewModel = hiltViewModel(),
     searchVm: SearchViewModel = hiltViewModel(),
+    sourceControlVm: SourceControlViewModel = hiltViewModel(),
     editorVm: EditorViewModel = hiltViewModel(),
     terminalVm: TerminalViewModel = hiltViewModel(),
     runtimeVm: RuntimeViewModel = hiltViewModel(),
@@ -129,6 +135,8 @@ fun WorkbenchScreen(
 
     val explorer by explorerVm.state.collectAsStateWithLifecycle()
     val search by searchVm.state.collectAsStateWithLifecycle()
+    val sourceControl by sourceControlVm.state.collectAsStateWithLifecycle()
+    var gitAccountRequest by remember { mutableIntStateOf(0) }
     val recent by explorerVm.recent.collectAsStateWithLifecycle()
     val projects by explorerVm.projects.collectAsStateWithLifecycle()
     val tabs by editorVm.tabs.collectAsStateWithLifecycle()
@@ -174,6 +182,26 @@ fun WorkbenchScreen(
                 EditorEvent.NothingToRun -> snackbar.showSnackbar(messages.runNothing)
                 is EditorEvent.UnsupportedRun -> snackbar.showSnackbar(messages.runNotSupported(event.language.displayName))
                 EditorEvent.RunStarted -> panelVisible = true
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        sourceControlVm.events.collect { event ->
+            when (event) {
+                is SourceControlEvent.Done -> snackbar.showSnackbar(messages.gitDone(event.operation, event.detail))
+                is SourceControlEvent.Failed -> snackbar.showSnackbar(messages.gitFailed(event.kind, event.detail))
+                SourceControlEvent.IdentityNeeded -> {
+                    gitAccountRequest++
+                    snackbar.showSnackbar(messages.gitIdentityNeeded)
+                }
+                SourceControlEvent.FilesChanged -> {
+                    editorVm.reloadAllFromDisk()
+                    explorerVm.reload()
+                }
+                is SourceControlEvent.Cloned -> {
+                    explorerVm.refreshProjects()
+                    snackbar.showSnackbar(messages.gitDone(GitOperation.Clone, event.workspace.name))
+                }
             }
         }
     }
@@ -263,7 +291,22 @@ fun WorkbenchScreen(
 
     // ---- Layout ---------------------------------------------------------------------------
     val explorerPane = @Composable { modifier: Modifier ->
-        if (sideView == SideView.Search) {
+        if (sideView == SideView.SourceControl) {
+            SourceControlPane(
+                state = sourceControl,
+                viewModel = sourceControlVm,
+                accountRequest = gitAccountRequest,
+                // Commit and pull work on the files on disk, so unsaved editors are written first.
+                onCommit = { message -> scope.launch { if (editorVm.saveAllNow()) sourceControlVm.commit(message) } },
+                onPull = { scope.launch { if (editorVm.saveAllNow()) sourceControlVm.pull() } },
+                onOpenChange = { change ->
+                    (explorer.workspace?.root as? FileRef.Local)?.let { root ->
+                        openFile(FileRef.Local(File(root.path, change.path).path), change.path.substringAfterLast('/'), change.path)
+                    }
+                },
+                modifier = modifier,
+            )
+        } else if (sideView == SideView.Search) {
             SearchPane(
                 state = search,
                 viewModel = searchVm,
@@ -302,10 +345,16 @@ fun WorkbenchScreen(
                 ActivityBar(
                     explorerSelected = sideOpen && sideView == SideView.Explorer,
                     searchSelected = sideOpen && sideView == SideView.Search,
+                    sourceControlSelected = sideOpen && sideView == SideView.SourceControl,
+                    sourceControlBadge = sourceControl.git.changes.isNotEmpty(),
                     terminalSelected = panelVisible,
                     running = running,
                     onExplorer = { toggleExplorer() },
                     onSearch = { toggleSide(SideView.Search) },
+                    onSourceControl = {
+                        sourceControlVm.refresh()
+                        toggleSide(SideView.SourceControl)
+                    },
                     onRun = editorVm::runActive,
                     onTerminal = { toggleTerminal() },
                     onExtensions = onOpenExtensions,
@@ -446,6 +495,10 @@ fun WorkbenchScreen(
             command(R.string.command_go_to_symbol, "Ctrl+Shift+O", hasFile) { quickPick = QuickPickMode.Symbols },
             command(R.string.command_insert_snippet, enabled = hasFile) { quickPick = QuickPickMode.Snippets },
             command(R.string.command_extensions) { onOpenExtensions() },
+            command(R.string.command_source_control) {
+                sourceControlVm.refresh()
+                if (!(sideOpen && sideView == SideView.SourceControl)) toggleSide(SideView.SourceControl)
+            },
             command(R.string.command_find_in_files, "Ctrl+Shift+F") { findInFiles() },
             command(R.string.command_find, "Ctrl+F", hasFile) { controller.openSearch() },
             command(R.string.command_replace, "Ctrl+H", hasFile) { controller.openSearch(withReplace = true) },
@@ -565,6 +618,27 @@ private fun UnsavedChangesDialog(tab: OpenTab, onSave: () -> Unit, onDiscard: ()
 /** Localized snackbar texts. Uses the composition's [Resources] so a language switch applies at once. */
 private class EventTexts(private val res: Resources) {
     val runNothing: String get() = res.getString(R.string.run_nothing)
+    val gitIdentityNeeded: String get() = res.getString(R.string.git_identity_needed)
+    fun gitDone(operation: GitOperation, detail: String): String = when (operation) {
+        GitOperation.Init -> res.getString(R.string.git_done_init)
+        GitOperation.Commit -> res.getString(R.string.git_done_commit, detail)
+        GitOperation.Push -> res.getString(R.string.git_done_push)
+        GitOperation.Pull -> res.getString(R.string.git_done_pull)
+        GitOperation.Clone -> res.getString(R.string.git_done_clone, detail)
+        GitOperation.Remote -> res.getString(R.string.git_done_remote)
+        GitOperation.Account -> res.getString(R.string.git_done_account)
+    }
+    fun gitFailed(kind: GitException.Kind, detail: String): String = when (kind) {
+        GitException.Kind.Authentication -> res.getString(R.string.git_error_auth)
+        GitException.Kind.Network -> res.getString(R.string.git_error_network)
+        GitException.Kind.NoRemote -> res.getString(R.string.git_error_no_remote)
+        GitException.Kind.NothingToCommit -> res.getString(R.string.git_error_nothing)
+        GitException.Kind.Rejected -> res.getString(R.string.git_error_rejected)
+        GitException.Kind.Conflict -> res.getString(R.string.git_error_conflict, detail)
+        GitException.Kind.InvalidUrl -> res.getString(R.string.git_error_url)
+        GitException.Kind.TargetExists -> res.getString(R.string.git_error_exists, detail)
+        GitException.Kind.Other -> res.getString(R.string.git_error_other, detail)
+    }
     val saveFolderFirst: String get() = res.getString(R.string.explorer_save_folder_first)
     val accessLost: String get() = res.getString(R.string.explorer_access_lost)
     fun runNotSupported(language: String) = res.getString(R.string.run_not_supported, language)

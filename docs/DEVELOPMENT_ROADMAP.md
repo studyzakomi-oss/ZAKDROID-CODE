@@ -33,7 +33,7 @@ Status: ✅ done · 🔧 in progress · ⏳ planned · ❓ needs a decision
 | M3 | Onboarding (choose languages → categories → resources) + categories linked to languages (request phases 4, 9) | M2 | ⏳ |
 | M4 | Resource library (request phase 5): catalog files (JSON) listing redistributable docs/tutorials/examples; SHA-256 check; no executables without explicit approval; offline storage | M3 | ⏳ |
 | M5 | **Declarative extensions only** (decided 2026-11-06): themes, snippets, grammars, templates, resource catalogs, language configs. Manifest, install/uninstall/enable/disable/update, permissions, validation, packaging, extension-project generator, GitHub-ready export. No extension code runs in the app | M2 | ⏳ |
-| M6 | Local Git (init, status, diff, stage, commit, history, branches; optional push/pull) | M1 | ⏳ |
+| M6 | Git and GitHub. **Part 1 done:** Source Control view with init, status, commit all, history, link to GitHub, push, pull, clone (JGit; token encrypted with the Android Keystore; unit-tested against local repositories, device and GitHub check pending). **Part 2:** diff view, staging single files, branches, discard changes, folders in device storage | V1 | 🔧 |
 | M7 | Multi-file C/C++ (Make, CMake), Tasks, exercise mode with tests | M1 | ⏳ |
 | M8 | Debugger (lldb-dap, debugpy); feasibility spike under PRoot first | M7 | ⏳ |
 | M10 | Polish: folding, multi-cursor (partial), minimap on tablets, workspace backup/restore | M1 | ⏳ |

@@ -5,6 +5,7 @@ Bug IDs (D1, O4, …) refer to [`docs/BUGS_AND_FIXES.md`](docs/BUGS_AND_FIXES.md
 
 ## [Unreleased]
 ### Added
+- **Source Control with Git and GitHub** (milestone M6, part 1): a new view in the Activity Bar for projects stored in the app. Initialize a repository, see changed files, commit all, link to a GitHub repository, push, pull and clone over HTTPS. The GitHub access token is stored encrypted with a key in the Android Keystore. Built on JGit, so it needs no toolchain.
 - Interface customization (milestone V2): follow the system theme, Side Bar on either side, interface size (85–130%), Status Bar on/off, editor line height, terminal touch key row on/off.
 - Declarative extensions, first part (milestone V3): an Extensions screen (enable, disable, install from a .zip, uninstall), `extension.json` manifests, and snippets in VS Code's format with an **Insert Snippet** command. Two built-in snippet packs: C/C++ and Python. Extensions are data only; no extension code runs.
 - VS Code essentials (milestone V1; full comparison in `docs/VSCODE_COMPARISON.md`):

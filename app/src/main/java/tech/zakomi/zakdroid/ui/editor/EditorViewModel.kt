@@ -251,6 +251,20 @@ class EditorViewModel @Inject constructor(
         viewModelScope.launch { saveAllInternal() }
     }
 
+    /** Saves every unsaved file and reports whether all of them were written (used before a commit). */
+    suspend fun saveAllNow(): Boolean = saveAllInternal()
+
+    /** Reads every open file again from disk, after something outside the editor changed them (git pull). */
+    fun reloadAllFromDisk() {
+        viewModelScope.launch {
+            val open = documents.tabs.value.map { Triple(it.document.ref, it.name, it.relativePath) }
+            val active = documents.activeKey.value
+            documents.clear()
+            open.forEach { (ref, name, relative) -> if (fs.stat(ref) != null) openInternal(ref, name, relative, activate = ref.key == active) }
+            if (documents.activeKey.value == null) documents.tabs.value.firstOrNull()?.let { documents.activate(it.key) }
+        }
+    }
+
     private suspend fun saveAllInternal(): Boolean {
         var ok = true
         documents.tabs.value.filter { it.dirty }.forEach { ok = save(it.key) && ok }

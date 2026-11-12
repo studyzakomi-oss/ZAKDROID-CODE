@@ -14,6 +14,9 @@ texts ship in the APK under `assets/licenses/`.
 | Eclipse JDT annotations | 2.4.100 | EPL-2.0 | Annotations used by tm4e | Unmodified, transitive |
 | Joni / JCodings | 2.2.7 / 1.0.64 | MIT | Oniguruma-compatible regex for grammars | Unmodified, transitive |
 | Gson | 2.15.0 | Apache-2.0 | JSON parsing (grammars, themes, extension manifests and snippets) | Unmodified |
+| Eclipse JGit | 5.13.5 | EDL-1.0 (BSD-3-Clause) | Git: commit, history, push, pull, clone | Unmodified Maven library |
+| JavaEWAH | as required by JGit 5.13.5 | Apache-2.0 | Compressed bitmaps used by JGit | Unmodified, transitive |
+| SLF4J API | as required by JGit 5.13.5 | MIT | Logging facade used by JGit (no logger is bundled) | Unmodified, transitive |
 | SnakeYAML Engine | 3.2 | Apache-2.0 | YAML grammar support in tm4e | Unmodified, transitive |
 | VS Code grammars + language configurations (c, cpp, python) | vscode @ `a06ee7a` | MIT | Syntax highlighting, brackets, comments, indentation rules | Data files copied unmodified (`editor/src/main/assets/textmate`) |
 | ↳ better-c-syntax, better-cpp-syntax (Jeff Hykin) | via VS Code | MIT | C / C++ grammars | as above |

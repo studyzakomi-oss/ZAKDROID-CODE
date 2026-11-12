@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Search
@@ -40,10 +43,13 @@ val ActivityBarWidth = 52.dp
 fun ActivityBar(
     explorerSelected: Boolean,
     searchSelected: Boolean,
+    sourceControlSelected: Boolean,
+    sourceControlBadge: Boolean,
     terminalSelected: Boolean,
     running: Boolean,
     onExplorer: () -> Unit,
     onSearch: () -> Unit,
+    onSourceControl: () -> Unit,
     onRun: () -> Unit,
     onTerminal: () -> Unit,
     onExtensions: () -> Unit,
@@ -60,6 +66,7 @@ fun ActivityBar(
         }
         ActivityItem(Icons.Outlined.Description, stringResource(R.string.action_explorer), explorerSelected, onExplorer)
         ActivityItem(Icons.Outlined.Search, stringResource(R.string.action_search), searchSelected, onSearch)
+        ActivityItem(Icons.Outlined.AccountTree, stringResource(R.string.action_source_control), sourceControlSelected, onSourceControl, badge = sourceControlBadge)
         ActivityItem(Icons.Filled.PlayArrow, stringResource(R.string.action_run), false, onRun, busy = running)
         ActivityItem(Icons.Outlined.Terminal, stringResource(R.string.action_terminal), terminalSelected, onTerminal)
         ActivityItem(Icons.Outlined.Extension, stringResource(R.string.action_extensions), false, onExtensions)
@@ -76,6 +83,7 @@ private fun ActivityItem(
     selected: Boolean,
     onClick: () -> Unit,
     busy: Boolean = false,
+    badge: Boolean = false,
 ) {
     val colors = WorkbenchTheme
     Box(
@@ -97,6 +105,10 @@ private fun ActivityItem(
                     .height(ActivityBarWidth)
                     .background(colors.activityBarIndicator),
             )
+        }
+        if (badge) {
+            // Uncommitted changes: a dot in the same color as the icon, so it needs no new contrast pair.
+            Box(Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 10.dp).size(8.dp).background(colors.activityBarIconActive, CircleShape))
         }
         if (busy) {
             CircularProgressIndicator(Modifier.size(22.dp), color = colors.activityBarIconActive, strokeWidth = 2.dp)

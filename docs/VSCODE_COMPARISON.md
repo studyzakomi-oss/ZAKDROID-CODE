@@ -60,7 +60,7 @@ Status: ✅ available · 🆕 added in milestone V1 (this change) · ◐ partial
 | Run a file (F5) | ✅ | C, C++, Python |
 | Tasks, multi-file builds (Make, CMake) | ⏳ M7 | |
 | Debugger (breakpoints, variables, call stack) | ⏳ M8 | lldb-dap, debugpy |
-| Source control (Git) | ⏳ M6 | |
+| Source control (Git, GitHub) | 🆕 ◐ | Init, changes, commit all, history, push, pull, clone over HTTPS with a token. Diff view, staging single files and branches come in M6 part 2 |
 | Test explorer | ⏳ M7 | Exercise mode with tests |
 | More languages | ⏳ M2 | Language packs |
 | Extensions | 🆕 ◐ | Declarative only. Install from a .zip, enable, disable, uninstall; snippets today, themes/grammars/templates in M5. No marketplace |

@@ -17,6 +17,15 @@
 -dontwarn org.brotli.dec.**
 -dontwarn org.objectweb.asm.**
 
+# JGit: optional features that are not on Android (Kerberos, JMX, SSH agents) and its logging facade.
+-keep class org.eclipse.jgit.** { *; }
+-dontwarn org.eclipse.jgit.**
+-dontwarn org.ietf.jgss.**
+-dontwarn javax.management.**
+-dontwarn java.lang.management.**
+-dontwarn org.slf4j.**
+-dontwarn com.googlecode.javaewah**
+
 # OkHttp optional platforms.
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**

@@ -6,6 +6,7 @@
 :app ──► :editor ──► :core
   │ ──► :terminal ─► :core, :termux-terminal-view ─► :termux-terminal-emulator (JNI: libtermux.so)
   │ ──► :runtime ──► :core, :terminal
+  │ ──► :git ──────► :core, JGit
   └───► :core
 ```
 
@@ -71,6 +72,7 @@ Compose screen ──intent──► ViewModel ──► store/repository/manage
 - **Jump to a position:** `EditorViewModel.openAt` sends `EditorEvent.Reveal`; `EditorController.reveal` waits until the editor view shows that document.
 - **Extensions** (`:editor` `extensions/`): `ExtensionManifest` (validated `extension.json`), `ExtensionInstaller` (zip unpacking with path, count and size checks), `ExtensionRepository` (built-in packs from `assets/extensions`, installed ones in `files/extensions/<id>`, disabled ids in `disabled.txt`), `SnippetParser` and `SnippetExpander`. Only data files are read; nothing from an extension is executed.
 - **Interface customization:** the interface size scales `LocalDensity` in `AppRoot`; the Side Bar side flips the layout direction of the workbench row and drawer and restores it inside each part; the theme shown is `AppSettings.effectiveTheme(systemIsDark)`, reported to `AppViewModel.onThemeShown` for the grammar colors and terminal palette.
+- **Git** (`:git`): `GitService` wraps JGit 5.13 (the last line that needs only Java 8 APIs). The repository is pinned to the project folder, and `IsolatedSystemReader` makes JGit ignore Git settings outside it. Failures become `GitException` with a kind the UI translates. `GitAccountStore` keeps the commit identity and the GitHub token; the token is AES-GCM encrypted with an Android Keystore key and excluded from backups. Before a commit or pull the editors are saved; after a pull they are reloaded from disk. Only projects in app storage (`FileRef.Local`) are supported.
 - **Auto save** runs in `EditorViewModel`: one second after the last edit, files that were not edited during that second are written. Saves are serialized by a mutex.
 
 ### Run (one tap, F5)

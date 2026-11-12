@@ -80,6 +80,7 @@ dependencies {
     implementation(project(":editor"))
     implementation(project(":terminal"))
     implementation(project(":runtime"))
+    implementation(project(":git"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.documentfile)
