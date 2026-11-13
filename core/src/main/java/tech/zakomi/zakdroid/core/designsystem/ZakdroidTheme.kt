@@ -1,10 +1,13 @@
 package tech.zakomi.zakdroid.core.designsystem
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
 import tech.zakomi.zakdroid.core.settings.ThemeId
 
 private val NavyDarkScheme = darkColorScheme(
@@ -13,20 +16,20 @@ private val NavyDarkScheme = darkColorScheme(
     primaryContainer = BrandColors.Accent,
     onPrimaryContainer = BrandColors.TextOnNavy,
     secondary = ZakomiNavyDarkColors.textSecondary,
-    onSecondary = BrandColors.SurfaceDark,
-    background = BrandColors.SurfaceDark,
+    onSecondary = ZakomiNavyDarkColors.editor,
+    background = ZakomiNavyDarkColors.editor,
     onBackground = ZakomiNavyDarkColors.textPrimary,
     surface = ZakomiNavyDarkColors.sideBar,
     onSurface = ZakomiNavyDarkColors.textPrimary,
     surfaceVariant = ZakomiNavyDarkColors.listHover,
     onSurfaceVariant = ZakomiNavyDarkColors.textSecondary,
     surfaceContainer = ZakomiNavyDarkColors.sideBar,
-    surfaceContainerHigh = ZakomiNavyDarkColors.listHover,
-    surfaceContainerHighest = ZakomiNavyDarkColors.listHover,
+    surfaceContainerHigh = ZakomiNavyDarkColors.surfaceRaised,
+    surfaceContainerHighest = ZakomiNavyDarkColors.surfaceRaised,
     outline = ZakomiNavyDarkColors.border,
     outlineVariant = ZakomiNavyDarkColors.border,
     error = ZakomiNavyDarkColors.error,
-    onError = BrandColors.SurfaceDark,
+    onError = ZakomiNavyDarkColors.editor,
 )
 
 private val LightScheme = lightColorScheme(
@@ -51,6 +54,15 @@ private val LightScheme = lightColorScheme(
     onError = BrandColors.TextOnNavy,
 )
 
+/** Rounded corners of the reference design: 12dp for cards and menus, 16dp for dialogs and sheets. */
+private val ZakdroidShapes = Shapes(
+    extraSmall = RoundedCornerShape(6.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(16.dp),
+)
+
 @Composable
 fun ZakdroidTheme(themeId: ThemeId, content: @Composable () -> Unit) {
     val workbench = when (themeId) {
@@ -61,6 +73,7 @@ fun ZakdroidTheme(themeId: ThemeId, content: @Composable () -> Unit) {
         MaterialTheme(
             colorScheme = if (workbench.isDark) NavyDarkScheme else LightScheme,
             typography = ZakdroidTypography,
+            shapes = ZakdroidShapes,
             content = content,
         )
     }

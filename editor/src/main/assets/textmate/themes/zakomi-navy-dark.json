@@ -2,11 +2,11 @@
   "name": "Zakomi Navy Dark",
   "type": "dark",
   "colors": {
-    "editor.background": "#0D1117",
+    "editor.background": "#101524",
     "editor.foreground": "#E6EDF3",
     "editorCursor.foreground": "#7DA2FF",
     "editor.selectionBackground": "#1E3A8A",
-    "editor.lineHighlightBackground": "#161B26",
+    "editor.lineHighlightBackground": "#161E32",
     "editorLineNumber.foreground": "#8B949E",
     "editorLineNumber.activeForeground": "#E6EDF3",
     "editorIndentGuide.background": "#21262D",
@@ -15,12 +15,12 @@
     "editor.findMatchBackground": "#3A5BA0",
     "editor.wordHighlightBackground": "#1A2740",
     "editor.wordHighlightStrongBackground": "#22345A",
-    "editorSuggestWidget.background": "#0F1626",
+    "editorSuggestWidget.background": "#161E32",
     "editorSuggestWidget.foreground": "#E6EDF3",
-    "editorSuggestWidget.selectedBackground": "#1E3A8A",
+    "editorSuggestWidget.selectedBackground": "#15295A",
     "editorSuggestWidget.highlightForeground": "#A9C1FF",
     "highlightedDelimitersForeground": "#F2CC60",
-    "tooltipBackground": "#0F1626",
+    "tooltipBackground": "#161E32",
     "tooltipBriefMessageColor": "#E6EDF3",
     "tooltipDetailedMessageColor": "#9AA5B8",
     "tooltipActionColor": "#7DA2FF"
@@ -93,7 +93,7 @@
         "punctuation.definition.string"
       ],
       "settings": {
-        "foreground": "#A5D6A7"
+        "foreground": "#E8A27C"
       }
     },
     {
@@ -129,7 +129,7 @@
         "entity.name.function.member"
       ],
       "settings": {
-        "foreground": "#D2A8FF"
+        "foreground": "#DCDCAA"
       }
     },
     {
@@ -142,7 +142,7 @@
         "meta.preprocessor.include string"
       ],
       "settings": {
-        "foreground": "#FFA657"
+        "foreground": "#D2A8FF"
       }
     },
     {
@@ -153,7 +153,7 @@
         "punctuation.definition.decorator"
       ],
       "settings": {
-        "foreground": "#FFA657"
+        "foreground": "#D2A8FF"
       }
     },
     {

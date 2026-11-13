@@ -4,6 +4,9 @@ All notable changes to zakdroid-code. The format follows [Keep a Changelog](http
 Bug IDs (D1, O4, …) refer to [`docs/BUGS_AND_FIXES.md`](docs/BUGS_AND_FIXES.md).
 
 ## [Unreleased]
+### Changed
+- **Zakomi Navy Dark** follows the new reference design: darker navy surfaces with the terminal darkest, a blue line under the active tab, a highlighted background for the selected Activity Bar item, a dark Status Bar, and rounded corners of 12–16dp on menus and dialogs. Syntax colors: functions are yellow and strings orange. All 94 color pairs pass WCAG AA (`docs/CONTRAST.md`). Zakomi Light is unchanged.
+
 ### Added
 - **Export and import of projects**: the Welcome page and the Command Palette can write one in-app project, or all of them, to a .zip file in device storage, and read such a file back. Projects now survive an uninstall (see O1). Import never overwrites: a project whose name is taken is added as `name-2`. Unsaved edits are saved before an export. Archives with paths that leave the archive are refused.
 - **Source Control with Git and GitHub** (milestone M6, part 1): a new view in the Activity Bar for projects stored in the app. Initialize a repository, see changed files, commit all, link to a GitHub repository, push, pull and clone over HTTPS. The GitHub access token is stored encrypted with a key in the Android Keystore. Built on JGit, so it needs no toolchain.

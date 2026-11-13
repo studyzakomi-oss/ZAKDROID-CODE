@@ -18,7 +18,7 @@ class ZakdroidColorScheme(registry: ThemeRegistry) :
         val accent = if (dark) ACCENT_ON_DARK else ACCENT
         val background = getColor(WHOLE_BACKGROUND)
         setColor(LINE_NUMBER_BACKGROUND, background)
-        setColor(LINE_NUMBER_PANEL, if (dark) 0xFF0F1626.toInt() else 0xFFF3F5FA.toInt())
+        setColor(LINE_NUMBER_PANEL, if (dark) 0xFF161E32.toInt() else 0xFFF3F5FA.toInt())
         setColor(LINE_NUMBER_PANEL_TEXT, if (dark) 0xFFE6EDF3.toInt() else Color.BLACK)
         setColor(LINE_DIVIDER, Color.TRANSPARENT)
         setColor(SELECTION_HANDLE, accent)
@@ -28,7 +28,7 @@ class ZakdroidColorScheme(registry: ThemeRegistry) :
         setColor(SCROLL_BAR_TRACK, Color.TRANSPARENT)
         setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, accent)
         setColor(STICKY_SCROLL_DIVIDER, if (dark) 0xFF243048.toInt() else 0xFFD0D7E2.toInt())
-        setColor(TEXT_ACTION_WINDOW_BACKGROUND, if (dark) 0xFF0F1626.toInt() else Color.WHITE)
+        setColor(TEXT_ACTION_WINDOW_BACKGROUND, if (dark) 0xFF161E32.toInt() else Color.WHITE)
         setColor(TEXT_ACTION_WINDOW_ICON_COLOR, if (dark) 0xFFE6EDF3.toInt() else Color.BLACK)
         setColor(COMPLETION_WND_CORNER, if (dark) 0xFF243048.toInt() else 0xFFD0D7E2.toInt())
     }
