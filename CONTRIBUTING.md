@@ -38,6 +38,7 @@ scripts/emulator-tests.sh app/build/outputs/apk/full/debug results 0   # 1 = als
 - **Themes:** new colors must keep `scripts/check_contrast.py` passing.
 
 ## Pull requests
+- **Nothing is merged into the default branch unless** the unit tests and lint pass in CI, **and**, for a change the user can see, the feature has been tried on a real device. Say which device in the pull request, or tick the matching lines of [`docs/DEVICE_TEST_v0.2.md`](docs/DEVICE_TEST_v0.2.md). Emulator tests do not replace this.
 - One topic per pull request, with a clear description of what changed and how you tested it (device model and Android version, if you tested on a device).
 - Fill in the pull request template.
 - By contributing, you agree that your contribution is licensed under the project's [Apache License 2.0](LICENSE).
@@ -57,6 +58,7 @@ All contributors follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 - افتح بلاغًا (issue) قبل أي تغيير كبير.
 - التزم بقرارات المشروع: العمل على الجهاز فقط، ولا مساعد ذكاء اصطناعي، والإضافات وصفية فقط، ولا أسرار في المستودع.
 - شغّل فحص التباين والاختبارات وlint قبل طلب الدمج.
+- لا دمج في الفرع الرئيسي دون نجاح الاختبارات وlint، ودون تجربة على جهاز حقيقي لكل ميزة يراها المستخدم.
 - أضف كل نص يظهر للمستخدم بالإنجليزية والعربية معًا.
 - تُرخَّص مساهمتك بموجب رخصة Apache-2.0.
 - أبلغ عن الثغرات الأمنية بشكل خاص كما في `SECURITY.md`، لا في بلاغ عام.
