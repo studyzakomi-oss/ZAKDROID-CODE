@@ -41,6 +41,22 @@
     <string name="explorer_save_folder_first">احفظ الملفات المفتوحة في هذا المجلد أو أغلقها أولًا.</string>
     <string name="explorer_access_lost">فُقد الوصول إلى هذا المجلد. افتحه مجددًا عبر \"فتح مجلد\".</string>
     <string name="explorer_forget">الإزالة من القائمة الأخيرة</string>
+    <string name="welcome_import_projects">استيراد مشاريع من ملف ‎.zip…</string>
+    <string name="welcome_export_all">تصدير كل المشاريع…</string>
+    <string name="explorer_export_project">تصدير المشروع…</string>
+    <string name="explorer_export_named">تصدير %1$s</string>
+    <plurals name="projects_exported">
+        <item quantity="zero">لم يُصدَّر أي مشروع.</item>
+        <item quantity="one">صُدِّر مشروع واحد.</item>
+        <item quantity="two">صُدِّر مشروعان.</item>
+        <item quantity="few">صُدِّرت %1$d مشاريع.</item>
+        <item quantity="many">صُدِّر %1$d مشروعًا.</item>
+        <item quantity="other">صُدِّر %1$d مشروع.</item>
+    </plurals>
+    <string name="projects_export_none">لا توجد مشاريع على هذا الجهاز لتصديرها.</string>
+    <string name="projects_export_failed">تعذّر التصدير: %1$s</string>
+    <string name="projects_imported">استُورد: %1$s</string>
+    <string name="projects_import_failed">تعذّر استيراد هذا الملف: %1$s</string>
 
     <!-- Dialogs -->
     <string name="dialog_cancel">إلغاء</string>

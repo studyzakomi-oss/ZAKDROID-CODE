@@ -3,6 +3,7 @@ package tech.zakomi.zakdroid.core.workspace
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -80,6 +81,37 @@ class WorkspaceRepository @Inject constructor(
     suspend fun internalProjects(): List<Workspace> = withContext(io) {
         paths.projectsDir.listFiles { f -> f.isDirectory }.orEmpty()
             .sortedBy { it.name.lowercase() }
+            .map { Workspace(it.name, FileRef.Local(it.absolutePath), WorkspaceKind.Internal) }
+    }
+
+    /**
+     * Writes the internal [projects] as one zip archive to [target] (a document the user
+     * created with the system file picker) and returns the number of files written.
+     * A partly written document is deleted when the export fails.
+     */
+    suspend fun exportProjects(projects: List<Workspace>, target: Uri): Int = withContext(io) {
+        val dirs = projects.map { File((it.root as FileRef.Local).path) }
+        try {
+            val out = context.contentResolver.openOutputStream(target, "wt")
+                ?: throw FileOperationException("Cannot write to the chosen file")
+            ProjectArchive.export(dirs, out)
+        } catch (e: Exception) {
+            discardDocument(target)
+            throw e
+        }
+    }
+
+    /** Deletes a document created by the file picker that ended up unused. */
+    suspend fun discardDocument(document: Uri) {
+        withContext(io) { runCatching { DocumentsContract.deleteDocument(context.contentResolver, document) } }
+    }
+
+    /** Unpacks the zip archive at [source] into new internal projects. Existing projects are never overwritten. */
+    suspend fun importProjects(source: Uri, fallbackName: String): List<Workspace> = withContext(io) {
+        val input = context.contentResolver.openInputStream(source)
+            ?: throw FileOperationException("Cannot read the chosen file")
+        val name = fallbackName.removeSuffix(".zip").trim().ifBlank { "imported" }
+        ProjectArchive.import(input, paths.projectsDir, paths.importDir, name)
             .map { Workspace(it.name, FileRef.Local(it.absolutePath), WorkspaceKind.Internal) }
     }
 

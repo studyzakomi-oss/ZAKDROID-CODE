@@ -22,6 +22,9 @@ class StoragePaths(val filesDir: File) {
     /** Copies of SAF workspaces, synced before each run (the toolchain cannot read content:// URIs). */
     val stagingDir: File = File(homeDir, ".zakdroid/staging")
 
+    /** Scratch space for unpacking a project archive; on the same file system as [projectsDir]. */
+    val importDir: File = File(homeDir, ".zakdroid/import")
+
     companion object {
         const val GUEST_HOME = "/home/user"
     }

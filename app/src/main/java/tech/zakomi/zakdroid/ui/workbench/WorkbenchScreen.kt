@@ -70,6 +70,7 @@ import tech.zakomi.zakdroid.R
 import tech.zakomi.zakdroid.core.designsystem.WorkbenchTheme
 import tech.zakomi.zakdroid.core.designsystem.ZakomiLogo
 import tech.zakomi.zakdroid.core.fs.FileRef
+import tech.zakomi.zakdroid.core.workspace.WorkspaceKind
 import com.termux.view.TerminalView
 import tech.zakomi.zakdroid.core.settings.AppSettings
 import tech.zakomi.zakdroid.core.settings.AutoSave
@@ -165,6 +166,26 @@ fun WorkbenchScreen(
         }
     }
 
+    // Project archives. The name of the project being exported outlives the picker; null = all projects.
+    var exportProjectName by rememberSaveable { mutableStateOf<String?>(null) }
+    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) explorerVm.exportProjects(exportProjectName, uri)
+    }
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) explorerVm.importProjects(uri, DocumentFile.fromSingleUri(context, uri)?.name.orEmpty())
+    }
+    val exportProjects = { projectName: String? ->
+        // The archive is made from the files on disk, so unsaved edits are written first.
+        scope.launch {
+            if (editorVm.saveAllNow()) {
+                exportProjectName = projectName
+                exportPicker.launch("${projectName ?: "zakdroid-projects"}.zip")
+            }
+        }
+        Unit
+    }
+    val importProjects = { importPicker.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")) }
+
     // ---- Events ---------------------------------------------------------------------------
     val messages = rememberEventTexts()
     LaunchedEffect(Unit) {
@@ -212,6 +233,11 @@ fun WorkbenchScreen(
                     is ExplorerMessage.Error -> messages.explorerError(message.text)
                     ExplorerMessage.SaveFolderFilesFirst -> messages.saveFolderFirst
                     ExplorerMessage.AccessLost -> messages.accessLost
+                    is ExplorerMessage.Exported -> messages.projectsExported(message.projects)
+                    ExplorerMessage.NothingToExport -> messages.nothingToExport
+                    is ExplorerMessage.ExportFailed -> messages.exportFailed(message.detail)
+                    is ExplorerMessage.Imported -> messages.projectsImported(message.names)
+                    is ExplorerMessage.ImportFailed -> messages.importFailed(message.detail)
                 },
             )
         }
@@ -395,6 +421,9 @@ fun WorkbenchScreen(
                                         onNewProject = { newProject = true },
                                         onOpen = explorerVm::openWorkspace,
                                         onForget = explorerVm::forget,
+                                        onImportProjects = importProjects,
+                                        onExportProject = { exportProjects(it.name) },
+                                        onExportAll = { exportProjects(null) },
                                     )
                                 } else {
                                     EmptyEditorHint()
@@ -544,6 +573,11 @@ fun WorkbenchScreen(
             command(R.string.welcome_open_folder) { folderPicker.launch(null) },
             command(R.string.welcome_new_project) { newProject = true },
             command(R.string.explorer_close_folder, enabled = explorer.workspace != null) { explorerVm.closeWorkspace() },
+            command(R.string.explorer_export_project, enabled = explorer.workspace?.kind == WorkspaceKind.Internal) {
+                exportProjects(explorer.workspace?.name)
+            },
+            command(R.string.welcome_export_all, enabled = projects.isNotEmpty()) { exportProjects(null) },
+            command(R.string.welcome_import_projects) { importProjects() },
             command(R.string.command_toolchain) { runtimeSheet = false },
             command(R.string.command_open_settings, "Ctrl+,") { onOpenSettings() },
         )
@@ -646,6 +680,11 @@ private class EventTexts(private val res: Resources) {
     fun saveFailed(name: String, detail: String) = res.getString(R.string.editor_save_failed, name, detail)
     fun runFailed(name: String, detail: String) = res.getString(R.string.run_failed, name, detail)
     fun explorerError(detail: String) = res.getString(R.string.explorer_error, detail)
+    val nothingToExport: String get() = res.getString(R.string.projects_export_none)
+    fun projectsExported(count: Int) = res.getQuantityString(R.plurals.projects_exported, count, count)
+    fun exportFailed(detail: String) = res.getString(R.string.projects_export_failed, detail)
+    fun projectsImported(names: List<String>) = res.getString(R.string.projects_imported, names.joinToString())
+    fun importFailed(detail: String) = res.getString(R.string.projects_import_failed, detail)
     fun openFailed(name: String, reason: LoadResult.Reason, detail: String) = when (reason) {
         LoadResult.Reason.TooLarge -> res.getString(R.string.editor_open_too_large, name, (DocumentLoader.MAX_FILE_BYTES / (1024 * 1024)).toInt())
         LoadResult.Reason.Binary -> res.getString(R.string.editor_open_binary, name)

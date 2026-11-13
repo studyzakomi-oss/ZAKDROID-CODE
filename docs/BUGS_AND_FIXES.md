@@ -47,11 +47,13 @@ Status: **Fixed** (verified as stated) · **Open** · **Fixed, device check pend
 
 | ID | Problem | File | Severity | Root cause | Proposed fix | Verification |
 |---|---|---|---|---|---|---|
-| O1 | Each new release needs an uninstall, which deletes the toolchain and in-app projects | `.github/workflows/android.yml`, `app/build.gradle.kts` | High | No stable signing key: pre-releases use CI's random debug key | Owner creates a key (`docs/RELEASING.md`) and adds the 4 secrets; CI signs pre-releases and releases with it | Install vN, then vN+1 over it without uninstalling |
+| O1 | Each new release needs an uninstall, which deletes the toolchain and in-app projects (since project export/import, the projects can be carried over by hand; the toolchain is downloaded again) | `.github/workflows/android.yml`, `app/build.gradle.kts` | High | No stable signing key: pre-releases use CI's random debug key | Owner creates a key (`docs/RELEASING.md`) and adds the 4 secrets; CI signs pre-releases and releases with it | Install vN, then vN+1 over it without uninstalling |
 | O2 | A debuggable APK is the public download | release job in `android.yml` | High (security) | Pre-releases ship the *debug* build (`debuggable=true`): with adb, anyone can read the app's private files | Publish the R8 *release* build, signed with the stable key (after O1) | `aapt2 dump badging` shows no `application-debuggable` |
 | O11 | Default branch is named `ccr-4bd770f7-cls19j` | GitHub settings | Low | Created by the build environment | Owner renames it to `main` (Settings → Branches); GitHub redirects old links. The files part was fixed in S6 | GitHub shows `main` |
 
 ## D. Checked and found fine
+- Run tab and terminal tab switching: the fault seen in emulator runs 2 and 7–9 was in the test, not in the app (`docs/S3_EMULATOR_TESTS.md`, section 5). The app change made for it (`d6b2e28`) was reverted (`c442bf5`). Device confirmation is item F3 of `docs/DEVICE_TEST_v0.2.md`.
+- Project archives: import rejects entries that resolve outside the archive, limits the unpacked size (1 GB) and file count (50,000), and never overwrites an existing project. Export skips symbolic links (`ProjectArchiveTest`, 6 tests).
 - Native libraries (`libproot.so`, `libproot-loader.so`, `libtermux.so`) use 16 KB page alignment (`0x4000`), as Android 15+ devices require.
 - Archive extraction rejects `..` and does not follow absolute symlinks (`RootfsExtractor.kt`).
 - File names are validated before create/rename (`FileNames.validate`).

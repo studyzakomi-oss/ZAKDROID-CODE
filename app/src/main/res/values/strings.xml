@@ -42,6 +42,18 @@
     <string name="explorer_save_folder_first">Save or close the open files in this folder first.</string>
     <string name="explorer_access_lost">Access to this folder was lost. Open it again with \"Open folder\".</string>
     <string name="explorer_forget">Remove from recent</string>
+    <string name="welcome_import_projects">Import projects from a .zip file…</string>
+    <string name="welcome_export_all">Export all projects…</string>
+    <string name="explorer_export_project">Export project…</string>
+    <string name="explorer_export_named">Export %1$s</string>
+    <plurals name="projects_exported">
+        <item quantity="one">Exported %1$d project.</item>
+        <item quantity="other">Exported %1$d projects.</item>
+    </plurals>
+    <string name="projects_export_none">There are no projects on this device to export.</string>
+    <string name="projects_export_failed">Cannot export: %1$s</string>
+    <string name="projects_imported">Imported: %1$s</string>
+    <string name="projects_import_failed">This file cannot be imported: %1$s</string>
 
     <!-- Dialogs -->
     <string name="dialog_cancel">Cancel</string>

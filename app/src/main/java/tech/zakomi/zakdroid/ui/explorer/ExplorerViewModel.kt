@@ -50,6 +50,11 @@ sealed interface ExplorerMessage {
     data class Error(val text: String) : ExplorerMessage
     data object SaveFolderFilesFirst : ExplorerMessage
     data object AccessLost : ExplorerMessage
+    data class Exported(val projects: Int) : ExplorerMessage
+    data object NothingToExport : ExplorerMessage
+    data class ExportFailed(val detail: String) : ExplorerMessage
+    data class Imported(val names: List<String>) : ExplorerMessage
+    data class ImportFailed(val detail: String) : ExplorerMessage
 }
 
 @HiltViewModel
@@ -119,6 +124,44 @@ class ExplorerViewModel @Inject constructor(
     }
 
     fun closeWorkspace() = session.close()
+
+    // ---- Export and import ------------------------------------------------------------------
+
+    /** Writes one internal project, or all of them when [projectName] is null, to the zip document [target]. */
+    fun exportProjects(projectName: String?, target: Uri) {
+        viewModelScope.launch {
+            val message = try {
+                val chosen = repository.internalProjects().filter { projectName == null || it.name == projectName }
+                if (chosen.isEmpty()) {
+                    // The picker has already created the (empty) document.
+                    repository.discardDocument(target)
+                    ExplorerMessage.NothingToExport
+                } else {
+                    repository.exportProjects(chosen, target)
+                    ExplorerMessage.Exported(chosen.size)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                ExplorerMessage.ExportFailed(e.message ?: e.javaClass.simpleName)
+            }
+            _messages.send(message)
+        }
+    }
+
+    fun importProjects(source: Uri, fileName: String) {
+        viewModelScope.launch {
+            val message = try {
+                ExplorerMessage.Imported(repository.importProjects(source, fileName).map { it.name })
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                ExplorerMessage.ImportFailed(e.message ?: e.javaClass.simpleName)
+            }
+            refreshProjects()
+            _messages.send(message)
+        }
+    }
 
     fun forget(workspace: Workspace) {
         viewModelScope.launch { repository.forget(workspace) }

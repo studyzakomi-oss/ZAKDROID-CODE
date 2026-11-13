@@ -17,6 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.CreateNewFolder
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.PhoneAndroid
@@ -47,6 +49,9 @@ fun WelcomePane(
     onNewProject: () -> Unit,
     onOpen: (Workspace) -> Unit,
     onForget: (Workspace) -> Unit,
+    onImportProjects: () -> Unit,
+    onExportProject: (Workspace) -> Unit,
+    onExportAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = WorkbenchTheme
@@ -68,17 +73,27 @@ fun WelcomePane(
             SectionTitle(stringResource(R.string.welcome_start))
             WelcomeLink(Icons.Outlined.CreateNewFolder, stringResource(R.string.welcome_new_project), onNewProject)
             WelcomeLink(Icons.Outlined.FolderOpen, stringResource(R.string.welcome_open_folder), onOpenFolder)
+            WelcomeLink(Icons.Outlined.FileDownload, stringResource(R.string.welcome_import_projects), onImportProjects)
             if (projects.isNotEmpty()) {
                 Spacer(Modifier.height(20.dp))
                 SectionTitle(stringResource(R.string.welcome_projects))
-                projects.forEach { WorkspaceRow(it, onOpen, onForget = null) }
+                projects.forEach { project ->
+                    WorkspaceRow(project, onOpen) {
+                        RowAction(Icons.Outlined.FileUpload, stringResource(R.string.explorer_export_named, project.name)) { onExportProject(project) }
+                    }
+                }
+                WelcomeLink(Icons.Outlined.FileUpload, stringResource(R.string.welcome_export_all), onExportAll)
             }
             Spacer(Modifier.height(20.dp))
             SectionTitle(stringResource(R.string.welcome_recent))
             if (recent.isEmpty()) {
                 Text(stringResource(R.string.welcome_no_recent), color = colors.textSecondary, modifier = Modifier.padding(vertical = 8.dp))
             } else {
-                recent.forEach { WorkspaceRow(it, onOpen, onForget) }
+                recent.forEach { workspace ->
+                    WorkspaceRow(workspace, onOpen) {
+                        RowAction(Icons.Outlined.Close, stringResource(R.string.explorer_forget)) { onForget(workspace) }
+                    }
+                }
             }
         }
     }
@@ -103,7 +118,14 @@ private fun WelcomeLink(icon: ImageVector, label: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun WorkspaceRow(workspace: Workspace, onOpen: (Workspace) -> Unit, onForget: ((Workspace) -> Unit)?) {
+private fun RowAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(icon, contentDescription = label, tint = WorkbenchTheme.textSecondary, modifier = Modifier.size(18.dp))
+    }
+}
+
+@Composable
+private fun WorkspaceRow(workspace: Workspace, onOpen: (Workspace) -> Unit, action: @Composable () -> Unit) {
     val colors = WorkbenchTheme
     Row(
         Modifier.fillMaxWidth().height(48.dp).clickable { onOpen(workspace) },
@@ -116,10 +138,6 @@ private fun WorkspaceRow(workspace: Workspace, onOpen: (Workspace) -> Unit, onFo
             tint = colors.textSecondary,
         )
         Text(workspace.name, color = colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-        if (onForget != null) {
-            IconButton(onClick = { onForget(workspace) }) {
-                Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.explorer_forget), tint = colors.textSecondary, modifier = Modifier.size(18.dp))
-            }
-        }
+        action()
     }
 }
